@@ -1,6 +1,5 @@
 TEMPLATE     = lib
 INCLUDEPATH += $$system( vigra-config --cppflags | sed "s,-I,,g" )
-LIBS        += $$system( vigra-config --impex-lib )
 DEFINES     += NO_MOC_INCLUSION
 
 HEADERS += createqimage.hxx \
