@@ -177,7 +177,8 @@ struct FloatToByteFunctor
 	float offset_, scale_;
 	FloatToByteFunctor(float min, float max)
 		: offset_(-min), scale_(min==max? 1.0 : 255.0 / (max-min)) {};
-	uchar operator()(float f) { return (uchar)(scale_ *(f + offset_)); }
+	uchar operator()(float f) const
+		{ return (uchar)(scale_ *(f + offset_)); }
 };
 
 struct FloatToByteMarkFunctor
@@ -186,9 +187,8 @@ struct FloatToByteMarkFunctor
 	FloatToByteMarkFunctor(float min, float max)
 		: offset_(-min), scale_(min==max? 1.0 : 254.0 / (max-min)),
 		  min_(min), max_(max) {};
-	uchar operator()(float f)
-		{ return (f<min_)||(f>max_)?
-			  (uchar)255 : (uchar)(scale_ *(f + offset_)); }
+	uchar operator()(float f) const
+		{ return (f<min_)||(f>max_)? (uchar)255 : (uchar)(scale_ *(f + offset_)); }
 };
 
 struct FloatToByteLogFunctor
@@ -196,7 +196,7 @@ struct FloatToByteLogFunctor
 	float scale_;
 	FloatToByteLogFunctor(float max)
 		: scale_(255.0/log(max)) {};
-	uchar operator()(float f)
+	uchar operator()(float f) const
 		{ return f<=1? 0: (uchar)(scale_*log(f)); }
 };
 
@@ -205,7 +205,7 @@ struct FloatToByteLogMarkFunctor
 	float scale_, max_;
 	FloatToByteLogMarkFunctor(float max)
 		: max_(max), scale_(254.0/log(max)) {};
-	uchar operator()(float f)
+	uchar operator()(float f) const
 		{ return f<=max_? (f<=1? 0: (uchar)(scale_*log(f))) : 255; }
 };
 
