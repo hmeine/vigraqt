@@ -1,6 +1,6 @@
 class QImageViewer : QWidget
 {
-%HeaderCode
+%TypeHeaderCode
 #include <qimageviewer.hxx>
 %End
 

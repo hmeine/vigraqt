@@ -1,6 +1,6 @@
-%Module vigraqt
+%Module vigraqt 1
 
-%Import qtmod.sip
+%Import qt/qtmod.sip
 
 %Include qimageviewer.sip
 %Include wrapper.sip
