@@ -23,8 +23,8 @@ public:
     typedef const value_type* ConstScanOrderIterator;
     typedef ImageIterator<value_type> Iterator;
     typedef ConstImageIterator<value_type> ConstIterator;
-    typedef typename IteratorTraits <Iterator> ::DefaultAccessor Accessor;
-    typedef typename IteratorTraits <ConstIterator> ::DefaultAccessor ConstAccessor;
+    typedef typename IteratorTraits<Iterator>::DefaultAccessor Accessor;
+    typedef typename IteratorTraits<ConstIterator>::DefaultAccessor ConstAccessor;
 
     VigraQImage(QImage qImage)
         : qImage_(qImage)
@@ -128,7 +128,6 @@ public:
 class QRGBImage : public VigraQImage<TinyVector<uchar, 4> >
 {
     typedef VigraQImage<TinyVector<uchar, 4> > Base;
-    bool imageIsMine_;
 
 public:
     QRGBImage(QImage &qImage)
@@ -149,7 +148,6 @@ public:
 class QByteImage : public VigraQImage<uchar>
 {
     typedef VigraQImage<uchar> Base;
-    bool imageIsMine_;
 
 public:
     QByteImage(QImage &qImage)
@@ -220,14 +218,13 @@ maskImage(VigraQImage<PixelType> & img, Accessor a)
 template <class PixelType>
 inline triple<typename VigraQImage<PixelType>::ConstIterator,
               typename VigraQImage<PixelType>::ConstIterator,
-          typename VigraQImage<PixelType>::ConstAccessor>
+              typename VigraQImage<PixelType>::ConstAccessor>
 srcImageRange(const VigraQImage<PixelType> & img)
 {
     return triple<typename VigraQImage<PixelType>::ConstIterator,
                   typename VigraQImage<PixelType>::ConstIterator,
-          typename VigraQImage<PixelType>::ConstAccessor>(img.upperLeft(),
-                                        img.lowerRight(),
-                        img.accessor());
+                  typename VigraQImage<PixelType>::ConstAccessor>
+        (img.upperLeft(), img.lowerRight(), img.accessor());
 }
 
 template <class PixelType>
@@ -236,21 +233,20 @@ inline pair< typename VigraQImage<PixelType>::ConstIterator,
 srcImage(const VigraQImage<PixelType> & img)
 {
     return pair<typename VigraQImage<PixelType>::ConstIterator,
-                typename VigraQImage<PixelType>::ConstAccessor>(img.upperLeft(),
-                                         img.accessor());
+                typename VigraQImage<PixelType>::ConstAccessor>
+        (img.upperLeft(), img.accessor());
 }
 
 template <class PixelType>
 inline triple< typename VigraQImage<PixelType>::Iterator,
                typename VigraQImage<PixelType>::Iterator,
-           typename VigraQImage<PixelType>::Accessor>
+               typename VigraQImage<PixelType>::Accessor>
 destImageRange(VigraQImage<PixelType> & img)
 {
     return triple<typename VigraQImage<PixelType>::Iterator,
                   typename VigraQImage<PixelType>::Iterator,
-          typename VigraQImage<PixelType>::Accessor>(img.upperLeft(),
-                                                     img.lowerRight(),
-                        img.accessor());
+                  typename VigraQImage<PixelType>::Accessor>
+        (img.upperLeft(), img.lowerRight(), img.accessor());
 }
 
 template <class PixelType>
@@ -259,8 +255,8 @@ inline pair< typename VigraQImage<PixelType>::Iterator,
 destImage(VigraQImage<PixelType> & img)
 {
     return pair<typename VigraQImage<PixelType>::Iterator,
-                typename VigraQImage<PixelType>::Accessor>(img.upperLeft(),
-                                         img.accessor());
+                typename VigraQImage<PixelType>::Accessor>
+        (img.upperLeft(), img.accessor());
 }
 
 template <class PixelType>
@@ -269,8 +265,8 @@ inline pair< typename VigraQImage<PixelType>::Iterator,
 maskImage(VigraQImage<PixelType> & img)
 {
     return pair<typename VigraQImage<PixelType>::Iterator,
-                typename VigraQImage<PixelType>::Accessor>(img.upperLeft(),
-                                         img.accessor());
+                typename VigraQImage<PixelType>::Accessor>
+        (img.upperLeft(), img.accessor());
 }
 
 // -------------------------------------------------------------------
