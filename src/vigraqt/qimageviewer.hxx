@@ -10,6 +10,8 @@ class QImageViewer : public QWidget
 {
     Q_OBJECT
 
+    Q_PROPERTY(int zoomLevel READ zoomLevel WRITE setZoomLevel)
+
 public:
     QImageViewer(QWidget *parent = 0, const char *name = 0);
     virtual ~QImageViewer();
