@@ -24,12 +24,11 @@ AC_LIBLTDL_CONVENIENCE
 AC_ENABLE_SHARED(yes)
 AC_ENABLE_STATIC(no)
 KDE_PROG_LIBTOOL
-
-KDE_SET_PREFIX
-
-if test -n "$KDEDIR"; then
-AC_PATH_KDE
-fi
+KDE_FAST_CONFIGURE
+KDE_CONF_FILES
+AC_PATH_QT
+AC_SUBST(all_includes)
+AC_SUBST(all_libraries)
 
 if test -z "$designer_plugindir"; then
   designer_plugindir='\${libdir}/plugins/designer'
@@ -50,8 +49,13 @@ AC_SUBST(VIGRA_CONFIG)
 
 LIB_VIGRAIMPEX="`"$VIGRA_CONFIG" --impex-lib`"
 AC_SUBST(LIB_VIGRAIMPEX)
-LIB_FFTW="`"$VIGRA_CONFIG" --fftw-lib`"
-AC_SUBST(LIB_FFTW)
+
+AC_ARG_ENABLE(python,
+	AC_HELP_STRING([--enable-python],
+				   [enable generation of vigraqt python module (default=off)]),
+	with_python=$enableval, with_python=no)
+
+if test $with_python = yes; then
 
 dnl-------------------------------------------------------------------
 dnl                        python includes
@@ -78,6 +82,7 @@ AC_MSG_ERROR([python include paths missing, check --with-pythoninc and --with-py
 dnl-------------------------------------------------------------------
 dnl                  python module target dir(s)
 dnl-------------------------------------------------------------------
+
 python_sitedir=""
 AC_ARG_WITH(python-sitedir, AC_HELP_STRING([--with-python-sitedir], [install VIGRA python modules as site package
       --with-python-sitedir=no:    install into libdir under chosen $prefix (default)
@@ -96,12 +101,14 @@ AC_SUBST(pymoddir)
 AC_SUBST(dynmoddir)
 AC_SUBST(python_sitedir)
 
+fi # $with_python
+
+AM_CONDITIONAL(USE_PYTHON, test "$with_python" = yes)
+
 CXXFLAGS="$CXXFLAGS $USE_EXCEPTIONS $USE_RTTI"
-KDE_CREATE_SUBDIRSLIST
-AC_CONFIG_FILES([ Makefile ])
-AC_CONFIG_FILES([ src/Makefile ])
-AC_CONFIG_FILES([ src/designer-plugin/Makefile ])
-AC_CONFIG_FILES([ src/sip/Makefile ])
-AC_CONFIG_FILES([ src/sip/vigraqt/Makefile ])
-AC_CONFIG_FILES([ src/vigraqt/Makefile ])
+AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([src/Makefile])
+AC_CONFIG_FILES([src/vigraqt/Makefile])
+AC_CONFIG_FILES([src/designer-plugin/Makefile])
+dnl AC_CONFIG_FILES([src/sip/Makefile])
 AC_OUTPUT
