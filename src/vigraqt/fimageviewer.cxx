@@ -12,11 +12,11 @@
 
 #include <math.h>
 
-FImageViewer::FImageViewer(QWidget* parent= 0, const char* name= 0)
+FImageViewer::FImageViewer(QWidget* parent, const char* name)
 	: QWidget(parent, name),
 	  qimageviewer_(new QImageViewer(this, "qimageviewer")),
 	  image_(0),
-	  qimage_(0),
+	  qByteImage_(0),
 	  autoScaleMode_(true),
 	  logarithmicMode_(false),
 	  markingMode_(false)
@@ -27,13 +27,33 @@ FImageViewer::FImageViewer(QWidget* parent= 0, const char* name= 0)
 
 FImageViewer::~FImageViewer()
 {
+	delete qByteImage_;
 	delete image_;
-	delete qimage_;
 }
 
-QImage FImageViewer::displayedImage() const
+int FImageViewer::originalWidth() const
 {
-	return *qimage_;
+    return qimageviewer_->originalWidth();
+}
+
+int FImageViewer::originalHeight() const
+{
+    return qimageviewer_->originalHeight();
+}
+
+int FImageViewer::imageWidth() const
+{
+    return qimageviewer_->imageWidth();
+}
+
+int FImageViewer::imageHeight() const
+{
+    return qimageviewer_->imageHeight();
+}
+
+const QImage &FImageViewer::displayedImage() const
+{
+	return qByteImage_->qImage();
 }
 
 void FImageViewer::setImage(const vigra::FImage &newImage)
@@ -47,13 +67,11 @@ void FImageViewer::setImage(const vigra::FImage &newImage)
 	imageMax_= minmax.max;
 	emit imageMinMaxChanged(imageMin_, imageMax_);
 
-    delete qimage_;
-	qimage_= new QImage;
-    bool flag = qimage_->create(image_->width(), image_->height(), 8, 256);
-    vigra_precondition(flag, "QImage creation failed");
+    delete qByteImage_;
+	qByteImage_ = new vigra::QByteImage(image_->width(), image_->height());
 	preparePalette();
 
-	if (autoScaleMode_)
+	if(autoScaleMode_)
 	{
 		displayMin_= 1.0f; displayMax_= 0.0f; // make values "dirty"
 		autoScale();
@@ -64,18 +82,20 @@ void FImageViewer::setImage(const vigra::FImage &newImage)
 
 void FImageViewer::preparePalette()
 {
+    if(!qByteImage_)
+        return;
 	for(int i=0; i<256; ++i)
-		qimage_->setColor(i, qRgb(i,i,i));
-	if (markingMode_)
-		qimage_->setColor(255, qRgb(255,0,0));
+		qByteImage_->qImage().setColor(i, qRgb(i,i,i));
+	if(markingMode_)
+		qByteImage_->qImage().setColor(255, qRgb(255,0,0));
 }
 
 void FImageViewer::setAutoScaleMode(bool newMode)
 {
-	if (autoScaleMode_ != newMode)
+	if(autoScaleMode_ != newMode)
 	{
 		autoScaleMode_= newMode;
-		if (autoScaleMode_)
+		if(autoScaleMode_)
 			autoScale();
 	}
 }
@@ -87,7 +107,7 @@ void FImageViewer::autoScale()
 
 void FImageViewer::setLogarithmicMode(bool newMode)
 {
-	if (logarithmicMode_ != newMode)
+	if(logarithmicMode_ != newMode)
 	{
 		logarithmicMode_= newMode;
 		redisplay(displayMin_, displayMax_);
@@ -96,7 +116,7 @@ void FImageViewer::setLogarithmicMode(bool newMode)
 
 void FImageViewer::setMarkingMode(bool newMode)
 {
-	if (markingMode_ != newMode)
+	if(markingMode_ != newMode)
 	{
 		markingMode_= newMode;
 		preparePalette();
@@ -106,7 +126,7 @@ void FImageViewer::setMarkingMode(bool newMode)
 
 void FImageViewer::displayMinMax(float min, float max)
 {
-	if ((displayMin_!=min) || (displayMax_!=max))
+	if((displayMin_!=min) || (displayMax_!=max))
 	{
 		displayMin_= min;
 		displayMax_= max;
@@ -147,32 +167,32 @@ struct FloatToByteLogMarkFunctor
 {
 	float scale_, max_;
 	FloatToByteLogMarkFunctor(float max)
-		: max_(max), scale_(254.0/log(max)) {};
+		: scale_(254.0/log(max)), max_(max) {};
 	uchar operator()(float f) const
 		{ return f<=max_? (f<=1? 0: (uchar)(scale_*log(f))) : 255; }
 };
 
 void FImageViewer::redisplay(float min, float max)
 {
-	int w= image_->width(), h= image_->height();
+    if(!image_ || !qByteImage_)
+        return;
 
-	vigra::QByteImage qi(qimage_);
-	if (!logarithmicMode_)
-		if (!markingMode_)
-			vigra::transformImage(srcImageRange(*image_), destImage(qi),
+	if(!logarithmicMode_)
+		if(!markingMode_)
+			vigra::transformImage(srcImageRange(*image_), destImage(*qByteImage_),
 								  FloatToByteFunctor(min, max));
 		else
-			vigra::transformImage(srcImageRange(*image_), destImage(qi),
+			vigra::transformImage(srcImageRange(*image_), destImage(*qByteImage_),
 								  FloatToByteMarkFunctor(min, max));
 	else
-		if (!markingMode_)
-			vigra::transformImage(srcImageRange(*image_), destImage(qi),
+		if(!markingMode_)
+			vigra::transformImage(srcImageRange(*image_), destImage(*qByteImage_),
 								  FloatToByteLogFunctor(max));
 		else
-			vigra::transformImage(srcImageRange(*image_), destImage(qi),
+			vigra::transformImage(srcImageRange(*image_), destImage(*qByteImage_),
 								  FloatToByteLogMarkFunctor(max));
 
-    qimageviewer_->setImage(*qimage_);
+    qimageviewer_->setImage(qByteImage_->qImage());
 
 	//cerr << "redisplayed, emitting... " << min << "," << max << "\n";
 	emit displayedMinMaxChanged(min, max);

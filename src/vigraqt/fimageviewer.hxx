@@ -7,10 +7,14 @@
 
 class QImage;
 class QImageViewer;
+namespace vigra { class QByteImage; }
 
 class FImageViewer: public QWidget
 {
 	Q_OBJECT
+	Q_PROPERTY(bool autoScaleMode READ autoScaleMode WRITE setAutoScaleMode)
+	Q_PROPERTY(bool logarithmicMode READ logarithmicMode WRITE setLogarithmicMode)
+	Q_PROPERTY(bool markingMode READ markingMode WRITE setMarkingMode)
 
 public:
 	FImageViewer( QWidget* parent=0, const char* name=0  );
@@ -26,10 +30,11 @@ public:
 	float displayMin() const { return displayMin_; }
 	float displayMax() const { return displayMax_; }
 
-	QImage displayedImage() const;
+	const QImage &displayedImage() const;
 
-	bool autoScaleMode() { return autoScaleMode_; }
-	bool logarithmicMode() { return logarithmicMode_; }
+	bool autoScaleMode() const { return autoScaleMode_; }
+	bool logarithmicMode() const { return logarithmicMode_; }
+	bool markingMode() const { return markingMode_; }
 
 public slots:
 	// display a copy of the given image
@@ -37,11 +42,8 @@ public slots:
 
 	void setAutoScaleMode( bool newMode );
 	void autoScale();
-
 	void setLogarithmicMode( bool newMode );
-	bool isLogarithmicMode() { return logarithmicMode_; }
 	void setMarkingMode( bool newMode );
-	bool isMarkingMode() { return markingMode_; }
 
 	void displayMinMax(float min, float max);
 
@@ -57,7 +59,7 @@ protected:
 protected:
 	QImageViewer *qimageviewer_;
 	vigra::FImage *image_;
-	QImage *qimage_;
+	vigra::QByteImage *qByteImage_;
 
 	bool autoScaleMode_;
 	bool logarithmicMode_;
