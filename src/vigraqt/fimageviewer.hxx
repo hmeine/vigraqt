@@ -22,8 +22,8 @@ public:
 
 	virtual int originalWidth() const;
 	virtual int originalHeight() const;
-	virtual int imageWidth() const;
-	virtual int imageHeight() const;
+	virtual int zoomedWidth() const;
+	virtual int zoomedHeight() const;
 
 	float imageMin() const { return imageMin_; }
 	float imageMax() const { return imageMax_; }

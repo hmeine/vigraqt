@@ -41,14 +41,14 @@ int FImageViewer::originalHeight() const
     return qimageviewer_->originalHeight();
 }
 
-int FImageViewer::imageWidth() const
+int FImageViewer::zoomedWidth() const
 {
-    return qimageviewer_->imageWidth();
+    return qimageviewer_->zoomedWidth();
 }
 
-int FImageViewer::imageHeight() const
+int FImageViewer::zoomedHeight() const
 {
-    return qimageviewer_->imageHeight();
+    return qimageviewer_->zoomedHeight();
 }
 
 const QImage &FImageViewer::displayedImage() const
