@@ -1,0 +1,5 @@
+Makefile
+imageAnalyzer
+imageAnalyzerBase.cpp
+imageAnalyzerBase.h
+moc_imageAnalyzerBase.cpp
