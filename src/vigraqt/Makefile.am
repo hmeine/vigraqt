@@ -1,4 +1,5 @@
-lib_LTLIBRARIES = libvigraqt.la libvigrakde.la
+lib_LTLIBRARIES = libvigraqt.la
+
 include_HEADERS = \
 	qimageviewer.hxx \
 	fimageviewer.hxx \
@@ -9,13 +10,8 @@ include_HEADERS = \
 
 INCLUDES = $(all_includes)
 
-METASOURCES = qimageviewer.moc fimageviewer.moc imagecaption.moc
+METASOURCES = AUTO
 
 libvigraqt_la_LDFLAGS = -avoid-version -no-undefined $(all_libraries)
 libvigraqt_la_LIBADD = $(LIB_QT)
-libvigraqt_la_SOURCES = qimageviewer.cxx imagecaption.cxx
-
-libvigrakde_la_LDFLAGS = -avoid-version -no-undefined $(all_libraries)
-libvigrakde_la_LIBADD = $(LIB_QT) libvigraqt.la \
-	-lkdecore -lkdeui # for i18n() and KDoubleNumInput
-libvigrakde_la_SOURCES = fimageviewer.cxx
+libvigraqt_la_SOURCES = qimageviewer.cxx imagecaption.cxx fimageviewer.cxx
