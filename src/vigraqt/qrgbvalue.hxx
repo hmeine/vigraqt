@@ -108,35 +108,35 @@ public:
 
         /** Access red component.
         */
-    value_type & red() { return data_[1]; }
+    value_type & red() { return data_[2]; }
 
         /** Access green component.
         */
-    value_type & green() { return data_[2]; }
+    value_type & green() { return data_[1]; }
 
         /** Access blue component.
         */
-    value_type & blue() { return data_[3]; }
+    value_type & blue() { return data_[0]; }
 
         /** Access opacity component.
         */
-    value_type & opacity() { return data_[0]; }
+    value_type & opacity() { return data_[3]; }
 
         /** Read red component.
         */
-    value_type const & red() const { return data_[1]; }
+    value_type const & red() const { return data_[2]; }
 
         /** Read green component.
         */
-    value_type const & green() const { return data_[2]; }
+    value_type const & green() const { return data_[1]; }
 
         /** Read blue component.
         */
-    value_type const & blue() const { return data_[3]; }
+    value_type const & blue() const { return data_[0]; }
 
         /** Read opacity component.
         */
-    value_type const & opacity() const { return data_[0]; }
+    value_type const & opacity() const { return data_[3]; }
 
         /** Calculate luminance.
         */
@@ -165,28 +165,28 @@ public:
         */
     template <class V>
     void setRed(V value)
-    { data_[1] = detail::RequiresExplicitCast<value_type>::cast(value); }
+    { data_[2] = detail::RequiresExplicitCast<value_type>::cast(value); }
 
         /** Set green component.The type <TT>V</TT> of the passed
             in <TT>value</TT> is automatically converted to <TT>VALUETYPE</TT>.
         */
     template <class V>
     void setGreen(V value)
-    { data_[2] = detail::RequiresExplicitCast<value_type>::cast(value); }
+    { data_[1] = detail::RequiresExplicitCast<value_type>::cast(value); }
 
         /** Set blue component.The type <TT>V</TT> of the passed
             in <TT>value</TT> is automatically converted to <TT>VALUETYPE</TT>.
         */
     template <class V>
     void setBlue(V value)
-    { data_[3] = detail::RequiresExplicitCast<value_type>::cast(value); }
+    { data_[0] = detail::RequiresExplicitCast<value_type>::cast(value); }
 
         /** Set opacity component.The type <TT>V</TT> of the passed
             in <TT>value</TT> is automatically converted to <TT>VALUETYPE</TT>.
         */
     template <class V>
     void setOpacity(V value)
-    { data_[0] = detail::RequiresExplicitCast<value_type>::cast(value); }
+    { data_[3] = detail::RequiresExplicitCast<value_type>::cast(value); }
 };
 
 // THOSE ARE OBVIOUSLY UNNEEDED BECAUSE INHERITED FROM TinyVector:
