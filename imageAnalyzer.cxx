@@ -3,6 +3,9 @@
 
 #include <vigraqimage.hxx>
 #include <qimageviewer.hxx>
+#include <imagecaption.hxx>
+
+#include <qstatusbar.h>
 
 #include <vigra/impex.hxx>
 #include <vigra/inspectimage.hxx>
@@ -16,18 +19,21 @@ struct ImageAnalyzerPrivate
     OriginalImage                originalImage;
     vigra::FindMinMax<PixelType> minmax;
     ColorMap                    *cm;
+    ImageCaption                *imageCaption;
 };
 
 ImageAnalyzer::ImageAnalyzer(QWidget *parent, const char *name)
 : ImageAnalyzerBase(parent, name),
   p(new ImageAnalyzerPrivate)
 {
-    p->cm = NULL;
     p->cm = createCM();
+    p->imageCaption = NULL;
 }
 
 void ImageAnalyzer::load(const char *filename)
 {
+    delete p->imageCaption;
+
     vigra::ImageImportInfo info(filename);
     p->originalImage.resize(info.size());
     importImage(info, destImage(p->originalImage));
@@ -38,6 +44,12 @@ void ImageAnalyzer::load(const char *filename)
     p->cm->setDomain(p->minmax.min, p->minmax.max);
 
     updateDisplay();
+
+    p->imageCaption = createImageCaption(p->originalImage, this);
+    connect(imageViewer, SIGNAL(mouseMoved(int,int)),
+            p->imageCaption, SLOT(update(int,int)));
+    connect(p->imageCaption, SIGNAL(captionChanged(const QString&)),
+            statusBar(), SLOT(message(const QString&)));
 }
 
 void ImageAnalyzer::updateDisplay()
@@ -47,21 +59,5 @@ void ImageAnalyzer::updateDisplay()
     copyImage(srcImageRange(p->originalImage),
               destImage(displayImage, *p->cm));
 
-    /*OriginalImage::traverser    srcRow(p->originalImage.upperLeft());
-    vigra::QRGBImage::traverser dispRow(displayImage.upperLeft());
-    for(; srcRow.y != p->originalImage.lowerRight().y; ++srcRow.y, ++dispRow.y)
-    {
-        OriginalImage::traverser    src(srcRow);
-        vigra::QRGBImage::traverser disp(dispRow);
-        for(; src.x != p->originalImage.lowerRight().x; ++src.x, ++disp.x)
-        {
-            PixelType v(*src);
-            disp->setRed(p->cm->red(v));
-            disp->setGreen(p->cm->green(v));
-            disp->setBlue(p->cm->blue(v));
-        }
-        }*/
-
     imageViewer->setImage(displayImage.qImage());
 }
-
