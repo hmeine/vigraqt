@@ -198,4 +198,6 @@ void FImageViewer::redisplay(float min, float max)
 	emit displayedMinMaxChanged(min, max);
 }
 
+#ifndef NO_MOC_INCLUSION
 #include "fimageviewer.moc"
+#endif

@@ -896,4 +896,6 @@ void QImageViewer::resizeEvent(QResizeEvent *e)
         createDrawingPixmap();
 }
 
+#ifndef NO_MOC_INCLUSION
 #include "qimageviewer.moc"
+#endif
