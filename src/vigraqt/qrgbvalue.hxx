@@ -73,23 +73,27 @@ public:
 
 #endif // TEMPLATE_COPY_CONSTRUCTOR_BUG
 
+#ifdef QRGBVALUE_ALLOW_TINYVECTOR_INIT
         // WHICH MEMORY LAYOUT TO USE? BETTER LEAVE THEM AWAY..:
+        // unfortunately, these are needed to assign the result of
+        // QRGBValue*int to this again..
 
-//         /** construct from TinyVector
-//          */
-//     template <class U>
-//     QRGBValue(TinyVector<U, 4> const & r)
-//     : Base(r)
-//     {}
+        /** construct from TinyVector
+         */
+    template <class U>
+    QRGBValue(TinyVector<U, 4> const & r)
+    : Base(r)
+    {}
 
-//         /** assign TinyVector.
-//          */
-//     template <class U>
-//     QRGBValue & operator=(TinyVector<U, 4> const & r)
-//     {
-//         Base::operator=(r);
-//         return *this;
-//     }
+        /** assign TinyVector.
+         */
+    template <class U>
+    QRGBValue & operator=(TinyVector<U, 4> const & r)
+    {
+        Base::operator=(r);
+        return *this;
+    }
+#endif
 
         /** assign RGBValue
          */
