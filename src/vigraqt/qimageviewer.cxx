@@ -910,6 +910,7 @@ void QImageViewer::mousePressEvent(QMouseEvent *e)
         }
         emit mousePressed(p.x(), p.y(), e->button());
     }
+    e->accept();
     lastMousePosition_ = e->pos();
 }
 
