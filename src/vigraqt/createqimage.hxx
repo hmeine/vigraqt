@@ -3,6 +3,8 @@
 
 namespace vigra {
 
+namespace detail {
+
 template <class ScalarImageIterator, class Accessor, class T>
 inline void
 createQImageFindMinmax(
@@ -43,26 +45,27 @@ createGrayQImage(ScalarImageIterator ul,
         minmax(min);
         minmax(max);
     }
-    double scale = (minmax.min == minmax.max) ? 1.0 : 255.0 / (minmax.max - minmax.min);
+    double scale = (minmax.min == minmax.max) ? 1.0 :
+                   255.0 / (minmax.max - minmax.min);
 
-    QImage * image = new QImage;
-    bool flag = image->create(w, h, 8, 256);
+    QImage *result = new QImage;
+    bool flag = result->create(w, h, 8, 256);
     vigra_precondition(flag, "QImage creation failed");
 
     for(int i=0; i<256; ++i)
     {
-        image->setColor(i, qRgb(i,i,i));
+        result->setColor(i, qRgb(i,i,i));
     }
 
     ScalarImageIterator row(ul);
     for(int i = 0; i < h; ++i, ++row.y)
     {
         ScalarImageIterator srcIt(row);
-        uchar * p = image->scanLine(i);
+        uchar * p = result->scanLine(i);
         for(int j = 0; j < w; j++, ++srcIt.x, ++p)
             *p = (uchar)(scale * (a(srcIt) - minmax.min));
     }
-    return image;
+    return result;
 }
 
 
@@ -92,15 +95,15 @@ createRGBQImage(RGBImageIterator ul,
     }
     double scale = (minmax.min == minmax.max) ? 1.0 : 255.0 / (minmax.max - minmax.min);
 
-    QImage * image = new QImage;
-    bool flag = image->create(w, h, 32);
+    QImage *result = new QImage;
+    bool flag = result->create(w, h, 32);
     vigra_precondition(flag, "QImage creation failed");
 
     RGBImageIterator row(ul);
     for(int i = 0; i < h; i++, ++row.y)
     {
         RGBImageIterator srcIt(row);
-        unsigned int * p = (unsigned int*) image->scanLine(i);
+        unsigned int * p = (unsigned int*) result->scanLine(i);
         for(int j = 0; j < w; ++j, ++p, ++srcIt.x)
         {
             *p = qRgb((uchar)(scale * (a.red(srcIt) - minmax.min)),
@@ -108,7 +111,7 @@ createRGBQImage(RGBImageIterator ul,
                       (uchar)(scale * (a.blue(srcIt) - minmax.min)));
         }
     }
-    return image;
+    return result;
 }
 
 template <class ImageIterator, class Accessor>
@@ -131,9 +134,11 @@ createQImage(ImageIterator upperleft, ImageIterator lowerright,
     return createGrayQImage(upperleft, lowerright, a, min, max);
 }
 
+} // namespace detail
+
 template <class Iterator, class Accessor>
 inline QImage *
-createQImage(Iterator ul, Iterator lr, Accessor img,
+createQImage(Iterator ul, Iterator lr, Accessor a,
              typename Accessor::value_type min
              = NumericTraits<typename Accessor::value_type>::zero(),
              typename Accessor::value_type max
@@ -142,7 +147,7 @@ createQImage(Iterator ul, Iterator lr, Accessor img,
     typedef typename
            NumericTraits<typename Accessor::value_type>::isScalar
            isScalar;
-    return createQImage(ul, lr, img, isScalar(), min, max);
+    return detail::createQImage(ul, lr, a, isScalar(), min, max);
 }
 
 template <class Iterator, class Accessor>
