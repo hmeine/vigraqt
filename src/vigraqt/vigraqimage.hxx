@@ -3,7 +3,7 @@
 
 #include <vigra/imageiterator.hxx>
 #include <vigra/rgbvalue.hxx>
-#include <vigra/rect2d.hxx>
+#include <vigra/diff2d.hxx>
 
 #include <qimage.h>
 
@@ -12,19 +12,31 @@ namespace vigra {
 // -------------------------------------------------------------------
 //                              VigraQImage
 // -------------------------------------------------------------------
-template <class value_type>
+template <class VALUE_TYPE>
 class VigraQImage
 {
     QImage qImage_;
 
 public:
-    typedef value_type PixelType;
-    typedef value_type* ScanOrderIterator;
-    typedef const value_type* ConstScanOrderIterator;
-    typedef ImageIterator<value_type> Iterator;
-    typedef ConstImageIterator<value_type> ConstIterator;
+    typedef VALUE_TYPE value_type;
+    typedef VALUE_TYPE PixelType;
+
+    typedef VALUE_TYPE* ScanOrderIterator;
+    typedef VALUE_TYPE* iterator;
+    typedef const VALUE_TYPE* ConstScanOrderIterator;
+    typedef const VALUE_TYPE* const_iterator;
+
+    typedef ImageIterator<VALUE_TYPE> Iterator;
+    typedef ImageIterator<VALUE_TYPE> traverser;
+    typedef ConstImageIterator<VALUE_TYPE> ConstIterator;
+    typedef ConstImageIterator<VALUE_TYPE> const_traverser;
+
     typedef typename IteratorTraits<Iterator>::DefaultAccessor Accessor;
     typedef typename IteratorTraits<ConstIterator>::DefaultAccessor ConstAccessor;
+
+    typedef VALUE_TYPE& reference;
+    typedef const VALUE_TYPE& const_reference;
+    typedef VALUE_TYPE* pointer;
 
     VigraQImage(QImage qImage)
         : qImage_(qImage)
@@ -104,22 +116,22 @@ public:
         return ConstAccessor();
     }
 
-    inline value_type & operator[](Diff2D const & d)
+    inline reference operator[](Diff2D const & d)
     {
         return *(upperLeft()+d);
     }
 
-    inline value_type const & operator[](Diff2D const & d) const
+    inline const_reference operator[](Diff2D const & d) const
     {
         return *(upperLeft()+d);
     }
 
-    inline value_type & operator()(int const & dx, int const & dy)
+    inline reference operator()(int const & dx, int const & dy)
     {
         return *(upperLeft()+Diff2D(dx, dy));
     }
 
-    inline value_type const & operator()(int const & dx, int const & dy) const
+    inline const_reference operator()(int const & dx, int const & dy) const
     {
         return *(upperLeft()+Diff2D(dx, dy));
     }
