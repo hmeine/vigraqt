@@ -30,8 +30,11 @@ public:
          * last argument, it is not the same parameter order as in the
          * underlying TinyVector!
          */
-    QRGBValue(value_type red, value_type green, value_type blue, value_type opacity)
-    : Base(opacity, red, green, blue)
+    QRGBValue(value_type red,
+              value_type green,
+              value_type blue,
+              value_type opacity = 255)
+    : Base(blue, green, red, opacity)
     {}
 
         /** Construct gray value
