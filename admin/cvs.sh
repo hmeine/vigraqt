@@ -14,7 +14,7 @@ call_and_fix_autoconf()
     \\n  perl -i.bak \\\$ac_aux_dir/conf.change.pl \\\$CONFIG_STATUS\
     \\\\\\n    || mv \\\$CONFIG_STATUS.bak \\\$CONFIG_STATUS\
     \\n  rm -f \\\$CONFIG_STATUS.bak\\nfi\
-    \\n\" if /^\\s*chmod\\s+.*\\+x\\s+.*CONFIG_STATUS/;" configure
+    \\n\" if /^\\s*chmod\\s+.*\\+x\\s+.*CONFIG_STATUS/; s,^#line.*LINENO.*\$,/* \$& */, ;" configure
   fi
 }
 
@@ -27,7 +27,7 @@ strip_makefile()
 
 check_autotool_versions()
 {
-AUTOCONF_VERSION=`$AUTOCONF --version | head -1`
+AUTOCONF_VERSION=`$AUTOCONF --version | head -n 1`
 case $AUTOCONF_VERSION in
   Autoconf*2.5* | autoconf*2.5* ) : ;;
   "" )
@@ -42,7 +42,7 @@ case $AUTOCONF_VERSION in
     ;;
 esac
  
-AUTOHEADER_VERSION=`$AUTOHEADER --version | head -1`
+AUTOHEADER_VERSION=`$AUTOHEADER --version | head -n 1`
 case $AUTOHEADER_VERSION in
   Autoconf*2.5* | autoheader*2.5* ) : ;;
   "" )
@@ -57,17 +57,17 @@ case $AUTOHEADER_VERSION in
     ;;
 esac
 
-AUTOMAKE_STRING=`$AUTOMAKE --version | head -1`
+AUTOMAKE_STRING=`$AUTOMAKE --version | head -n 1`
 case $AUTOMAKE_STRING in
   automake*1.5d* )
     echo "*** YOU'RE USING $AUTOMAKE_STRING."
-    echo "*** KDE requires automake 1.5"
+    echo "*** KDE requires automake 1.6"
     exit 1
     ;;
-  automake*1.5* | automake*1.5-* | automake*1.6.* | automake*1.7* ) : ;;
+  automake*1.6.* | automake*1.7* ) : ;;
   "" )
     echo "*** AUTOMAKE NOT FOUND!."
-    echo "*** KDE requires automake 1.5"
+    echo "*** KDE requires automake 1.6"
     exit 1
     ;;
   unsermake* ) :
@@ -76,7 +76,7 @@ case $AUTOMAKE_STRING in
     ;;
   * )
     echo "*** YOU'RE USING $AUTOMAKE_STRING."
-    echo "*** KDE requires automake 1.5"
+    echo "*** KDE requires automake 1.6"
     exit 1
     ;;
 esac
@@ -189,6 +189,7 @@ $AUTOHEADER
 $AUTOMAKE --foreign --include-deps
 perl -w ../admin/am_edit
 call_and_fix_autoconf
+touch stamp-h.in
 }
 
 configure_in()
@@ -229,15 +230,17 @@ for i in $mfs; do
   if test -n "$UNSERMAKE"; then
       if test "$i" = "."; then
         echo "AC_CONFIG_FILES([ Makefile.rules ])" >> configure.in.new
+        echo "AC_CONFIG_FILES([ Makefile.calls ])" >> configure.in.new
       else
         echo "AC_CONFIG_FILES([ $i/Makefile.rules ])" >> configure.in.new
+        echo "AC_CONFIG_FILES([ $i/Makefile.calls ])" >> configure.in.new
       fi
   fi
 done
 
 files=`cat configure.files`
 list=`egrep '^dnl AC_OUTPUT\(.*\)' $files | sed -e "s#^.*dnl AC_OUTPUT(\(.*\))#\1#"`
-for file in $list; do
+for file in $list; do 
     echo "AC_CONFIG_FILES([ $file ])" >>  configure.in.new
 done
 
@@ -247,10 +250,10 @@ fi
 echo "AC_OUTPUT" >> configure.in.new
 modulename=
 if test -f configure.in.in; then
-   if head -2 configure.in.in | egrep "^#MIN_CONFIG\(.*\)$" > /dev/null; then
+   if head -n 2 configure.in.in | egrep "^#MIN_CONFIG\(.*\)$" > /dev/null; then
       kde_use_qt_param=`cat configure.in.in | sed -n -e "s/#MIN_CONFIG(\(.*\))/\1/p"`
    fi
-   if head -2 configure.in.in | egrep "^#MIN_CONFIG" > /dev/null; then
+   if head -n 2 configure.in.in | egrep "^#MIN_CONFIG" > /dev/null; then
       line=`grep "^AM_INIT_AUTOMAKE(" configure.in.in`
       if test -n "$line"; then
 	  modulename=`echo $line | sed -e "s#AM_INIT_AUTOMAKE(\([^,]*\),.*#\1#"`
@@ -261,13 +264,13 @@ if test -f configure.in.in; then
    fi
 fi
 if test -z "$VERSION" || test "$VERSION" = "@VERSION@"; then
-     VERSION="\"3.1.0\""
+     VERSION="\"3.1.5\""
 fi
 if test -z "$modulename" || test "$modulename" = "@MODULENAME@"; then
-   modulename=`pwd`;
+   modulename=`pwd`; 
    modulename=`basename $modulename`
    esc_VERSION=`echo $VERSION | sed -e "s#[^.0-9a-zA-Z]##g"`
-   modulename=`echo $modulename | sed -e "s#-$esc_VERSION##"`
+   modulename=`echo $modulename | sed -e "s#-$esc_VERSION##"`   
 
 fi
 if test -n "$kde_use_qt_param"; then
@@ -278,6 +281,7 @@ sed -e "s#@MODULENAME@#$modulename#" configure.in.new |
 	sed -e "s#@VERSION@#$VERSION#" > configure.in
 botfiles=`cat configure.files | egrep "configure.in.bot"`
 test -n "$botfiles" && cat $botfiles >> configure.in
+cat $admindir/configure.in.bot.end >> configure.in
 rm -f configure.in.new
 }
 
@@ -289,11 +293,12 @@ for i in . .. ../.. ../../..; do
 done
 rm -f configure.files
 touch configure.files
-if test -f configure.in.in && head -2 configure.in.in | grep "^#MIN_CONFIG" > /dev/null; then
+if test -f configure.in.in && head -n 2 configure.in.in | grep "^#MIN_CONFIG" > /dev/null; then
 	echo $admindir/configure.in.min >> configure.files
 fi
 test -f configure.in.in && echo configure.in.in >> configure.files
-list=`find . -name "configure.in.in" -o -name "configure.in.bot" | sort`
+list=`find . -name "configure.in.in" -o -name "configure.in.bot" | \
+               sed -e "s,/configure,/aaaconfigure," | sort | sed -e "s,/aaaconfigure,/configure,"`
 for i in $list; do if test -f $i && test `dirname $i` != "." ; then
   echo $i >> configure.files
 fi; done
@@ -304,8 +309,8 @@ test -f configure.in.bot && echo configure.in.bot >> configure.files
 subdirs()
 {
 dirs=
-compilefirst=`sed -ne 's#^COMPILE_FIRST[ ]*=[ ]*##p' $makefile_am | head -1`
-compilelast=`sed -ne 's#^COMPILE_LAST[ ]*=[ ]*##p' $makefile_am | head -1`
+compilefirst=`sed -ne 's#^COMPILE_FIRST[ ]*=[ ]*##p' $makefile_am | head -n 1`
+compilelast=`sed -ne 's#^COMPILE_LAST[ ]*=[ ]*##p' $makefile_am | head -n 1`
 for i in `ls -1`; do
     if test -f $i/Makefile.am; then
        case " $compilefirst $compilelast " in
@@ -321,12 +326,12 @@ for d in $compilefirst; do
    echo $d >> ./_SUBDIRS
 done
 
-(for d in $dirs; do
-   list=`sed -ne "s#^COMPILE_BEFORE_$d""[ ]*=[ ]*##p" $makefile_am | head -1`
+(for d in $dirs; do 
+   list=`sed -ne "s#^COMPILE_BEFORE_$d""[ ]*=[ ]*##p" $makefile_am | head -n 1`
    for s in $list; do
       echo $s $d
    done
-   list=`sed -ne "s#^COMPILE_AFTER_$d""[ ]*=[ ]*##p" $makefile_am | head -1`
+   list=`sed -ne "s#^COMPILE_AFTER_$d""[ ]*=[ ]*##p" $makefile_am | head -n 1`
    for s in $list; do
       echo $d $s
    done
@@ -338,7 +343,8 @@ for d in $compilelast; do
 done
 
 if test -f Makefile.am.in; then
-  cp Makefile.am.in Makefile.am
+  rm -f Makefile.am
+  cat Makefile.am.in > Makefile.am
   if test -n "$UNSERMAKE"; then
     topsubdirs=
     for i in $compilefirst $dirs $compilelast; do
@@ -427,7 +433,7 @@ for subdir in $dirs; do
 
    $MAKE -s -f _transMakefile podir=$podir EXTRACTRC="$EXTRACTRC" PREPARETIPS="$PREPARETIPS" \
 	XGETTEXT="${XGETTEXT:-xgettext} -C -ki18n -ktr2i18n -kI18N_NOOP -ktranslate -kaliasLocale -x ${includedir:-$KDEDIR/include}/kde.pot" \
-	messages
+	messages 
    ) 2>&1 | grep -v '^make\[1\]' > $tmpname
    test -s $tmpname && { echo $subdir ; cat "$tmpname"; }
    test -f $subdir/rc.cpp && rm -f $subdir/rc.cpp

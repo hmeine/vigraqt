@@ -28,6 +28,8 @@
 #   the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 #   Boston, MA 02111-1307, USA.
 
+use File::Path;
+
 my $ac_subs=$ARGV[0];
 my $ac_sacfiles = $ARGV[1];
 my $ac_given_srcdir=$ARGV[2];
@@ -130,7 +132,7 @@ foreach $ac_file (@ac_files) {
     ($ac_dir = $ac_file) =~ s%/[^/][^/]*$%%;
     if ( ($ac_dir ne $ac_file) && ($ac_dir ne ".")) {
 # The file is in a subdirectory.
-	if (! -d "$ac_dir") { mkdir "$ac_dir", 0777; }
+	if (! -d "$ac_dir") { mkpath "$ac_dir", 0, 0777; }
 	($ac_dir_suffix = $ac_dir) =~ s%^./%%;
 	$ac_dir_suffix="/".$ac_dir_suffix;
 # A "../" for each directory in $ac_dir_suffix.
