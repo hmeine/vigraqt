@@ -24,6 +24,7 @@ public:
     virtual int originalHeight() const;
     virtual int imageWidth() const;
     virtual int imageHeight() const;
+    virtual int zoomLevel() const;
 
     virtual void setCursorPos(QPoint const &imagePoint) const;
 

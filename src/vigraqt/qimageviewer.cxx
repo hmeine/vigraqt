@@ -60,6 +60,11 @@ void QImageViewer::setImage(QImage const & img, bool retainView)
     {
         upperLeft_ -= QPoint(zoom(sizeDiff.width()/2, zoomLevel_),
 							 zoom(sizeDiff.height()/2, zoomLevel_));
+		if(isEnabled())
+		{
+			QPoint p(imageCoordinate(lastMousePosition_));
+			emit mouseMoved(p.x(), p.y());
+		}
     }
     else
     {
@@ -80,11 +85,11 @@ void QImageViewer::setImage(QImage const & img, bool retainView)
     update();
 }
 
-/****************************************************************/
-/*                                                              */
-/*                           updateROI                          */
-/*                                                              */
-/****************************************************************/
+/********************************************************************/
+/*                                                                  */
+/*                            updateROI                             */
+/*                                                                  */
+/********************************************************************/
 
 void QImageViewer::updateROI(QImage const & roiImage, QPoint const & ul)
 {
@@ -128,11 +133,11 @@ void QImageViewer::updateROI(QImage const & roiImage, QPoint const & ul)
     update();
 }
 
-/****************************************************************/
-/*                                                              */
-/*                           imageWidth                         */
-/*                                                              */
-/****************************************************************/
+/********************************************************************/
+/*                                                                  */
+/*                            imageWidth                            */
+/*                                                                  */
+/********************************************************************/
 
 int QImageViewer::imageWidth() const
 {
@@ -146,11 +151,11 @@ int QImageViewer::imageWidth() const
     }
 }
 
-/****************************************************************/
-/*                                                              */
-/*                          imageHeight                         */
-/*                                                              */
-/****************************************************************/
+/********************************************************************/
+/*                                                                  */
+/*                           imageHeight                            */
+/*                                                                  */
+/********************************************************************/
 
 int QImageViewer::imageHeight() const
 {
@@ -162,6 +167,17 @@ int QImageViewer::imageHeight() const
     {
         return zoom(originalImage_.height(), zoomLevel_);
     }
+}
+
+/********************************************************************/
+/*                                                                  */
+/*                            zoomLevel                             */
+/*                                                                  */
+/********************************************************************/
+
+int QImageViewer::zoomLevel() const
+{
+    return zoomLevel_;
 }
 
 /********************************************************************/
@@ -268,7 +284,6 @@ void QImageViewer::setZoomLevel(int level)
     update();
     emit zoomLevelChanged(zoomLevel_);
 }
-
 
 /****************************************************************/
 /*                                                              */
