@@ -42,6 +42,16 @@ public:
         : qImage_(qImage)
     {}
 
+    VigraQImage & init(VALUE_TYPE const & pixel)
+    {
+        ScanOrderIterator i = begin();
+        ScanOrderIterator iend = end();
+
+        for(; i != iend; ++i) *i = pixel;
+
+        return *this;
+    }
+
     QImage & qImage()
     {
         return qImage_;
@@ -57,9 +67,9 @@ public:
         return qImage_.height();
     }
 
-    Diff2D size() const
+    Size2D size() const
     {
-        return Diff2D(width(), height());
+        return Size2D(width(), height());
     }
 
     Iterator upperLeft()
