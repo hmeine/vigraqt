@@ -37,10 +37,7 @@ protected:
 
 public:
     ImageCaption(const QPoint &offset,
-                 QObject *parent= 0, const char *name = "imageCaption")
-    : QObject(parent, name),
-      offset_(offset)
-    {}
+                 QObject *parent= 0, const char *name = "imageCaption");
 
 public slots:
     virtual void update(int x, int y) = 0;

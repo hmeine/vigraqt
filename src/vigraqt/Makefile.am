@@ -9,11 +9,11 @@ include_HEADERS = \
 
 INCLUDES = $(all_includes)
 
-METASOURCES = qimageviewer.moc fimageviewer.moc
+METASOURCES = qimageviewer.moc fimageviewer.moc imagecaption.moc
 
 libvigraqt_la_LDFLAGS = -avoid-version -no-undefined $(all_libraries)
 libvigraqt_la_LIBADD = $(LIB_QT)
-libvigraqt_la_SOURCES = qimageviewer.cxx
+libvigraqt_la_SOURCES = qimageviewer.cxx imagecaption.cxx
 
 libvigrakde_la_LDFLAGS = -avoid-version -no-undefined $(all_libraries)
 libvigrakde_la_LIBADD = $(LIB_QT) libvigraqt.la \
