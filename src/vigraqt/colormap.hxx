@@ -9,59 +9,67 @@
 class ColorMap
 {
   public:
-    typedef float ArgumentType; 
+    typedef float ArgumentType;
     typedef unsigned char ComponentType;
 
     void setDomain(ArgumentType min, ArgumentType max);
+    inline ArgumentType domainMin() const
+    	{ return transitionPoints_.front().projected; }
+    inline ArgumentType domainMax() const
+    	{ return transitionPoints_.back().projected; }
 
     template<class ITERATOR>
-    void set(ArgumentType v, ITERATOR it) const
-    {
-        if(v < min_)
-        {
-            *it = transitionValues_.front();
-            return;
-        }
-
-        if(v < max_)
-        {
-            const unsigned int N = transitionPoints_.size();
-
-            unsigned int i = 0;
-            for(; i < N; ++i)
-                if(v < transitionCache_[i])
-                    break;
-
-            if(!i)
-            {
-                *it = (transitionValues_[0] +
-                       transitionScales_[0] * (v - min_));
-                return;
-            }
-            
-            *it = (transitionValues_[i] +
-                   transitionScales_[i] * (v - transitionCache_[i - 1]));
-            return;
-        }
-
-        *it = transitionValues_.back();
-    }
+    inline void set(ArgumentType v, ITERATOR it) const;
 
   protected:
+    void recalculateFactors();
+
     typedef vigra::NumericTraits<ArgumentType>::RealPromote PromoteType;
     typedef vigra::RGBValue<PromoteType> Color;
 
-    void recalculateFactors();
+    struct TransitionPoint
+    {
+        double position, projected;
+        Color color, scale;
 
-    PromoteType min_, max_;
-    std::vector<double>
-        transitionPoints_, // N values between 0..1
-        transitionCache_;  // the same values projected onto min_..max_
-    std::vector<Color>
-        transitionValues_, // (N+2) colors at min, max and trans.p.s
-        transitionScales_; // (N+1) factors for linear interpolation
+        TransitionPoint(double position, Color color)
+        : position(position), color(color)
+        {}
+    };
+
+    typedef std::vector<TransitionPoint> TransitionPoints;
+
+    TransitionPoints transitionPoints_;
 };
 
 ColorMap *createCM();
+
+template<class ITERATOR>
+inline void ColorMap::set(ArgumentType v, ITERATOR it) const
+{
+    TransitionPoints::const_iterator
+        tpIt(transitionPoints_.begin());
+
+    if(v < tpIt->projected)
+    {
+        *it = tpIt->color;
+        return;
+    }
+
+    TransitionPoints::const_iterator
+        prevTP(tpIt), tpEnd(transitionPoints_.end());
+
+    while(++tpIt != tpEnd)
+    {
+        if(v < tpIt->projected)
+        {
+            *it = prevTP->color + prevTP->scale * (v - prevTP->projected);
+            return;
+        }
+        prevTP = tpIt;
+    }
+
+    *it = prevTP->color;
+}
 
 #endif // COLORMAP_HXX
