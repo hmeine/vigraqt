@@ -20,8 +20,8 @@ public:
         { return originalImage_.width(); }
     virtual int originalHeight() const
         { return originalImage_.height(); }
-    virtual int imageWidth() const;
-    virtual int imageHeight() const;
+    virtual int zoomedWidth() const;
+    virtual int zoomedHeight() const;
     virtual int zoomLevel() const
         { return zoomLevel_; }
 
@@ -102,10 +102,7 @@ protected:
     virtual void zoomImage(QImage & src, int left, int top,
                            QImage & dest, int w, int h, int zoomLevel);
     virtual void setCrosshairCursor();
-
-    virtual void zoomUpperLeft(int zoomLevel);
-    static  void optimizeUpperLeft(QPoint & upperLeft,
-                                   QSize const &, int w, int h);
+    virtual void minimizeClipping();
 
     /// draw a specific cell
     virtual void paintEvent(QPaintEvent *);
