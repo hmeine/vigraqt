@@ -27,12 +27,11 @@ QImageViewer::QImageViewer(QWidget *parent, const char *name)
       zoomLevel_(0)
 {
     setMouseTracking(true);
-    setSizePolicy(QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ));
+    setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
     setBackgroundMode(NoBackground);
     setFocusPolicy(QWidget::StrongFocus);
     setCrosshairCursor();
 }
-
 
 /****************************************************************/
 /*                                                              */
@@ -88,26 +87,27 @@ void QImageViewer::setImage(QImage const & img, bool retainView)
 /*                                                                  */
 /********************************************************************/
 
-void QImageViewer::updateROI(QImage const & roiImage, QPoint const & ul)
+void QImageViewer::updateROI(QImage const &roiImage, QPoint const &upperLeft)
 {
     int x, xx, y, yy;
 
+    // update the ROI by copying the data into originalImage_
     if(roiImage.depth() <= 8)
-        for(y= 0, yy= ul.y(); y<roiImage.height(); ++y, ++yy)
+        for(y= 0, yy= upperLeft.y(); y<roiImage.height(); ++y, ++yy)
         {
             uchar * s = roiImage.scanLine(y);
             uchar * d = originalImage_.scanLine(yy);
 
-            for(x= 0, xx= ul.x(); x<roiImage.width(); ++x, ++xx)
+            for(x= 0, xx= upperLeft.x(); x<roiImage.width(); ++x, ++xx)
                 d[xx] = s[x];
         }
     else
-        for(y= 0, yy= ul.y(); y<roiImage.height(); ++y, ++yy)
+        for(y= 0, yy= upperLeft.y(); y<roiImage.height(); ++y, ++yy)
         {
             QRgb * s = (QRgb *)roiImage.scanLine(y);
             QRgb * d = (QRgb *)originalImage_.scanLine(yy);
 
-            for(x= 0, xx= ul.x(); x<roiImage.width(); ++x, ++xx)
+            for(x= 0, xx= upperLeft.x(); x<roiImage.width(); ++x, ++xx)
                 d[xx] = s[x];
         }
 
@@ -116,18 +116,22 @@ void QImageViewer::updateROI(QImage const & roiImage, QPoint const & ul)
         QPixmap replacement;
 
         replacement.convertFromImage(roiImage);
-        bitBlt(&drawingPixmap_, ul.x(), ul.y(), &replacement, 0, 0,
+        bitBlt(&drawingPixmap_, upperLeft.x(), upperLeft.y(), &replacement, 0, 0,
                replacement.width(), replacement.height(), CopyROP, TRUE);
     }
     else
     {
+        // FIXME: handle case of zoomLevel >> 0, when ROI will be MUCH
+        // larger than visible portion of image and thus
+        // drawingPixmap_.
+
         // new width/height of zoomed ROI
         int newWidth = zoom(roiImage.width(), zoomLevel_);
         int newHeight = zoom(roiImage.height(), zoomLevel_);
 
         // upper left of zoomed ROI
-        int xn = zoom(ul.x(), zoomLevel_);
-        int yn = zoom(ul.y(), zoomLevel_);
+        int xn = zoom(upperLeft.x(), zoomLevel_);
+        int yn = zoom(upperLeft.y(), zoomLevel_);
 
         // allocate zoomed image
         QImage zoomed(newWidth, newHeight, originalImage_.depth(),
@@ -158,14 +162,7 @@ void QImageViewer::updateROI(QImage const & roiImage, QPoint const & ul)
 
 int QImageViewer::imageWidth() const
 {
-    if(zoomLevel_ == 0)
-    {
-        return drawingPixmap_.width();
-    }
-    else
-    {
-        return zoom(originalImage_.width(), zoomLevel_);
-    }
+    return zoom(originalImage_.width(), zoomLevel_);
 }
 
 /********************************************************************/
@@ -176,25 +173,7 @@ int QImageViewer::imageWidth() const
 
 int QImageViewer::imageHeight() const
 {
-    if(zoomLevel_ == 0)
-    {
-        return drawingPixmap_.height();
-    }
-    else
-    {
-        return zoom(originalImage_.height(), zoomLevel_);
-    }
-}
-
-/********************************************************************/
-/*                                                                  */
-/*                            zoomLevel                             */
-/*                                                                  */
-/********************************************************************/
-
-int QImageViewer::zoomLevel() const
-{
-    return zoomLevel_;
+    return zoom(originalImage_.height(), zoomLevel_);
 }
 
 /********************************************************************/
@@ -205,42 +184,9 @@ int QImageViewer::zoomLevel() const
 
 void QImageViewer::setCursorPos(QPoint const &imagePoint) const
 {
-    int offset = (zoomLevel_ > 1) ? 1 << (zoomLevel_-1) : 0;
+    int offset = (zoomLevel_ > 1) ? 1 << (zoomLevel_ - 1) : 0;
     QCursor::setPos(mapToGlobal(windowCoordinate(imagePoint))
                     + QPoint(offset, offset));
-}
-
-/********************************************************************/
-/*                                                                  */
-/*                          originalImage                           */
-/*                                                                  */
-/********************************************************************/
-
-const QImage &QImageViewer::originalImage() const
-{
-    return originalImage_;
-}
-
-/****************************************************************/
-/*                                                              */
-/*                        originalWidth                         */
-/*                                                              */
-/****************************************************************/
-
-int QImageViewer::originalWidth() const
-{
-    return originalImage_.width();
-}
-
-/****************************************************************/
-/*                                                              */
-/*                       originalHeight                         */
-/*                                                              */
-/****************************************************************/
-
-int QImageViewer::originalHeight() const
-{
-    return originalImage_.height();
 }
 
 /****************************************************************/
@@ -543,7 +489,7 @@ void QImageViewer::createZoomedPixmap()
         return;
     }
 
-    setCursor(waitCursor);
+    //setCursor(waitCursor);
 
     drawingPixmap_.resize(size());
 
@@ -586,7 +532,7 @@ void QImageViewer::createZoomedPixmap()
     p.fillRect(0, y0+hp, winwidth, winheight-(y0+hp), backgroundColor());
 
     p.end();
-    setCrosshairCursor();
+    //setCrosshairCursor();
 }
 
 /****************************************************************/
@@ -712,20 +658,6 @@ QRect QImageViewer::windowCoordinates(QRect const &imageRect) const
 
 /****************************************************************/
 /*                                                              */
-/*                            create                            */
-/*                                                              */
-/****************************************************************/
-
-QImageViewer *
-QImageViewer::create(QImage const & img, QWidget* parent, const char* name)
-{
-    QImageViewer * viewer = new QImageViewer(parent, name);
-    viewer->setImage(img);
-    return viewer;
-}
-
-/****************************************************************/
-/*                                                              */
 /*                      setCrosshairCursor                      */
 /*                                                              */
 /****************************************************************/
@@ -801,13 +733,9 @@ void QImageViewer::paintEvent(QPaintEvent *e)
 void QImageViewer::paintImage(QPainter &p, QRect &r)
 {
     if(zoomLevel_ == 0)
-    {
         drawPixmap(&p, r);
-    }
     else
-    {
         drawZoomedPixmap(&p, r);
-    }
 }
 
 /****************************************************************/
@@ -1010,3 +938,5 @@ void QImageViewer::resizeEvent(QResizeEvent *e)
     if(zoomLevel_ != 0)
         createZoomedPixmap();
 }
+
+#include "qimageviewer.moc"
