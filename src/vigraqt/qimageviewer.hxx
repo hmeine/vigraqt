@@ -76,7 +76,6 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent *);
     virtual void mouseDoubleClickEvent(QMouseEvent *);
     virtual void keyPressEvent (QKeyEvent *e);
-    virtual void enterEvent (QEvent *e);
     virtual void resizeEvent (QResizeEvent *e);
 
     /// original pixmap

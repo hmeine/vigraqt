@@ -232,6 +232,8 @@ int QImageViewer::originalHeight() const
 
 QSize QImageViewer::sizeHint() const
 {
+    if(!imageWidth())
+        return QSize(256, 256);
     return QSize(imageWidth(), imageHeight());
 }
 
@@ -959,19 +961,6 @@ void QImageViewer::keyPressEvent(QKeyEvent *e)
         else
             QCursor::setPos(QCursor::pos() + moveOffset);
     }
-}
-
-/****************************************************************/
-/*                                                              */
-/*                           enterEvent                         */
-/*                                                              */
-/****************************************************************/
-
-void QImageViewer::enterEvent(QEvent *e)
-{
-    if(focusPolicy() != QWidget::NoFocus)
-        setFocus();
-    QWidget::enterEvent(e);
 }
 
 /****************************************************************/
