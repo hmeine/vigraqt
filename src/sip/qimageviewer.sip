@@ -21,6 +21,11 @@ public:
 
     virtual void setCursorPos(const QPoint &) const;
 
+    virtual QPoint imageCoordinate(const QPoint &) const;
+    virtual QPoint windowCoordinate(const QPoint &) const;
+    virtual QRect imageCoordinates(const QRect &) const;
+    virtual QRect windowCoordinates(const QRect &) const;
+
 public slots:
     virtual void setImage(const QImage &, bool = false);
     virtual void updateROI(const QImage &, const QPoint &);
@@ -48,8 +53,6 @@ protected:
     virtual void zoomImage(QImage & src, int left, int top,
                            QImage & dest, int, int, int);
     virtual void updateZoomedROI(int x0, int y0, int x1, int y1);*/
-    virtual QPoint imageCoordinate(const QPoint &) const;
-    virtual QPoint windowCoordinate(const QPoint &) const;
     virtual void setCrosshairCursor();
 
     /*virtual void zoomUpperLeft(int);
