@@ -19,13 +19,14 @@ public:
 
     virtual QSize sizeHint() const;
 
+    virtual const QImage &originalImage() const;
     virtual int originalWidth() const;
     virtual int originalHeight() const;
     virtual int imageWidth() const;
     virtual int imageHeight() const;
 
 public slots:
-    virtual void setImage(QImage const &);
+    virtual void setImage(QImage const &, bool retainView= false);
     virtual void updateROI(QImage const &, QPoint const &);
 
     virtual void setZoomLevel(int level);
@@ -42,8 +43,8 @@ signals:
     void mousePressedRight(int x, int y);
     void mouseReleased(int x, int y);
     void mouseDoubleClicked(int x, int y);
-	
-	void imageChanged();
+
+    void imageChanged();
 
 protected:
     virtual void createZoomedPixmap(int level, QSize const &);
@@ -60,11 +61,11 @@ protected:
     static  void optimizeUpperLeft(QPoint & upperLeft,
                  QSize const &, int w, int h);
 
-	/// draw a specific cell
+    /// draw a specific cell
     virtual void paintEvent(QPaintEvent*);
     virtual void paintImage(QPainter &p, QRect &r);
 
-	/// draw helper functions
+    /// draw helper functions
     virtual void drawPixmap(QPainter* p, QRect r);
     virtual void drawZoomedPixmap(QPainter* p, QRect r);
 
@@ -76,13 +77,13 @@ protected:
     virtual void enterEvent ( QEvent * e );
     virtual void resizeEvent ( QResizeEvent * e );
 
-	/// original pixmap
-    QImage  originalImage;
-    QPixmap drawingPixmap;
-    bool    inSlideState;
-    QPoint  lastMousePosition;
-    QPoint  upperLeft;
-    int     zoomLevel;
+    /// original pixmap
+    QImage  originalImage_;
+    QPixmap drawingPixmap_;
+    bool    inSlideState_;
+    QPoint  lastMousePosition_;
+    QPoint  upperLeft_;
+    int     zoomLevel_;
 };
 
 #endif /* IMAGEVIEWER_HXX */
