@@ -1,0 +1,107 @@
+# -*- autoconf -*-
+AC_INIT(src/vigraqt/vigraqimage.hxx) dnl a source file to make sure autoconf is started from the right dir
+
+AC_CONFIG_AUX_DIR(admin)
+
+dnl This ksh/zsh feature conflicts with `cd blah ; pwd`
+unset CDPATH
+
+AC_PREREQ(2.5)
+dnl Checking host/target/build systems, for make, install etc.
+AC_CANONICAL_SYSTEM
+dnl Perform program name transformation
+AC_ARG_PROGRAM
+
+dnl Automake doc recommends to do this only here. (Janos)
+AM_INIT_AUTOMAKE(bvp_retrieval, 0.2) dnl searches for some needed programs
+
+dnl generate the config header
+AM_CONFIG_HEADER(config.h)
+
+dnl Checks for programs.
+AC_CHECK_COMPILERS
+AC_LIBLTDL_CONVENIENCE
+AC_ENABLE_SHARED(yes)
+AC_ENABLE_STATIC(no)
+KDE_PROG_LIBTOOL
+
+KDE_SET_PREFIX
+
+if test -n "$KDEDIR"; then
+AC_PATH_KDE
+fi
+
+if test -z "$designer_plugindir"; then
+  designer_plugindir='\${libdir}/plugins/designer'
+fi
+AC_SUBST(designer_plugindir)
+
+dnl-------------------------------------------------------------------
+dnl                          vigra-config
+dnl-------------------------------------------------------------------
+AC_PATH_PROG(VIGRA_CONFIG, vigra-config)
+if test -n "$VIGRA_CONFIG"; then
+    all_includes="`"$VIGRA_CONFIG" --cppflags` $all_includes"
+else
+    echo 'ERROR: vigra-config not found! Please make sure it is in your $PATH.'
+    exit 2
+fi
+AC_SUBST(VIGRA_CONFIG)
+
+LIB_VIGRAIMPEX="`"$VIGRA_CONFIG" --impex-lib`"
+AC_SUBST(LIB_VIGRAIMPEX)
+LIB_FFTW="`"$VIGRA_CONFIG" --fftw-lib`"
+AC_SUBST(LIB_FFTW)
+
+dnl-------------------------------------------------------------------
+dnl                        python includes
+dnl-------------------------------------------------------------------
+AC_MSG_CHECKING([for python includes])
+AC_ARG_WITH(pythoninc, AC_HELP_STRING([--with-pythoninc=dir], [path to your python include files]), PYTHON_INCLUDES="-I$with_pythoninc")
+if test -n "$PYTHON_INCLUDES"; then
+    CPPFLAGS="$PYTHON_INCLUDES $CPPFLAGS"
+    all_includes="$PYTHON_INCLUDES $all_includes"
+else
+    echo "ERROR: python include files not given (use --with-pythoninc)!"
+    exit 2
+fi
+AC_ARG_WITH(pyconfig,
+  AC_HELP_STRING([--with-pyconfig=dir], [directory where your pyconfig.h is (default: same directory as --with-pythoninc)]),
+  [CPPFLAGS="-I$with_pyconfig $CPPFLAGS"
+   all_includes="-I$with_pyconfig $all_includes"])
+AC_TRY_COMPILE([#include "Python.h"],
+[],
+[AC_MSG_RESULT($with_pythoninc $with_pyconfig)],
+[AC_MSG_RESULT([not found])
+AC_MSG_ERROR([python include paths missing, check --with-pythoninc and --with-pyconfig])])
+
+dnl-------------------------------------------------------------------
+dnl                  python module target dir(s)
+dnl-------------------------------------------------------------------
+python_sitedir=""
+AC_ARG_WITH(python-sitedir, AC_HELP_STRING([--with-python-sitedir], [install VIGRA python modules as site package
+      --with-python-sitedir=no:    install into libdir under chosen $prefix (default)
+      --with-python-sitedir=path:  install into given sitedir <path>
+      --with-python-sitedir[=yes]: install into default sitedir]),
+[if test "$with_python_sitedir" = "yes"; then
+    python_sitedir="`python -c 'import site; print site.here+"/site-packages"'`"
+else
+    python_sitedir="$with_python_sitedir"
+fi
+pymoddir="$python_sitedir/vigra"
+dynmoddir="$python_sitedir/vigra"],
+[pymoddir="$libdir"
+dynmoddir=["$libdir/python"`python -c "import sys; print sys.version[:3]"`]])
+AC_SUBST(pymoddir)
+AC_SUBST(dynmoddir)
+AC_SUBST(python_sitedir)
+
+CXXFLAGS="$CXXFLAGS $USE_EXCEPTIONS $USE_RTTI"
+KDE_CREATE_SUBDIRSLIST
+AC_CONFIG_FILES([ Makefile ])
+AC_CONFIG_FILES([ src/Makefile ])
+AC_CONFIG_FILES([ src/designer-plugin/Makefile ])
+AC_CONFIG_FILES([ src/sip/Makefile ])
+AC_CONFIG_FILES([ src/sip/vigraqt/Makefile ])
+AC_CONFIG_FILES([ src/vigraqt/Makefile ])
+AC_OUTPUT
