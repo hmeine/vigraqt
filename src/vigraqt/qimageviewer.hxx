@@ -30,6 +30,8 @@ public:
 
     virtual QPoint imageCoordinate(QPoint const &windowPoint) const;
     virtual QPoint windowCoordinate(QPoint const &imagePoint) const;
+        // map sub-pixel positions:
+    virtual QPoint windowCoordinate(float x, float y) const;
     virtual QRect imageCoordinates(QRect const &windowRect) const;
     virtual QRect windowCoordinates(QRect const &imageRect) const;
 
@@ -45,21 +47,21 @@ public slots:
 
 signals:
     void mouseMoved(int x, int y);
+    void mousePressed(int x, int y, Qt::ButtonState button);
     void mousePressedLeft(int x, int y);
     void mousePressedMiddle(int x, int y);
     void mousePressedRight(int x, int y);
-    void mouseReleased(int x, int y);
-    void mouseDoubleClicked(int x, int y);
+    void mouseReleased(int x, int y, Qt::ButtonState button);
+    void mouseDoubleClicked(int x, int y, Qt::ButtonState button);
 
     void imageChanged();
     void zoomLevelChanged(int zoomLevel);
 
 protected:
-    virtual void createZoomedPixmap(int level, QSize const &);
+    virtual void createZoomedPixmap();
     virtual void updateZoomedPixmap(int xoffset, int yoffset);
     virtual void zoomImage(QImage & src, int left, int top,
                            QImage & dest, int w, int h, int zoomLevel);
-    virtual void updateZoomedROI(int x0, int y0, int x1, int y1);
     virtual void setCrosshairCursor();
 
     virtual void zoomUpperLeft(int zoomLevel);
