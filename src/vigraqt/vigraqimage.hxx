@@ -72,6 +72,8 @@ public:
         return upperLeft() + size();
     }
 
+        // FIXME: The (Const)ScanOrderIterators should take into
+        // account QImage's 32bit-alignment..
     ScanOrderIterator begin()
     {
         return (value_type *)qImage_.bits();
@@ -275,13 +277,17 @@ inline Point2D q2v(const QPoint &qp)
     { return Point2D(qp.x(), qp.y()); }
 inline Size2D q2v(const QSize &qs)
     { return Size2D(qs.width(), qs.height()); }
+inline Rect2D q2v(const QRect &r)
+    { return Rect2D(q2v(r.topLeft()), q2v(r.size())); }
 inline RGBValue<unsigned char> q2v(const QRgb &qrgb)
-    { return RGBValue<unsigned char>(qRed(qrgb),qGreen(qrgb),qBlue(qrgb)); }
+    { return RGBValue<unsigned char>(qRed(qrgb), qGreen(qrgb), qBlue(qrgb)); }
 
-inline QPoint q2v(const Point2D &vp)
+inline QPoint v2q(const Point2D &vp)
     { return QPoint(vp.px(), vp.py()); }
-inline QSize q2v(const Size2D &vs)
+inline QSize v2q(const Size2D &vs)
     { return QSize(vs.width(), vs.height()); }
+inline QRect v2q(const Rect2D &r)
+    { return QRect(v2q(r.upperLeft()), v2q(r.size())); }
 inline QRgb v2q(const RGBValue<unsigned char> &vrgb)
     { return qRgb(vrgb.red(), vrgb.green(), vrgb.blue()); }
 
