@@ -46,7 +46,7 @@ public slots:
     virtual void update(int x, int y) = 0;
 
 signals:
-    virtual void captionChanged(QString);
+    virtual void captionChanged(const QString &);
 };
 
 template <class Image>

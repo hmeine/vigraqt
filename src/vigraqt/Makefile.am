@@ -4,7 +4,8 @@ include_HEADERS = \
 	fimageviewer.hxx \
 	vigraqimage.hxx \
 	qrgbvalue.hxx \
-	createqimage.hxx
+	createqimage.hxx \
+	imagecaption.hxx
 
 INCLUDES = $(all_includes)
 
