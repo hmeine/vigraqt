@@ -58,7 +58,8 @@ void QImageViewer::setImage(QImage const & img, bool retainView)
 
     if(sizeDiff.isNull() || retainView)
     {
-        upperLeft_ -= QPoint(sizeDiff.width()/2, sizeDiff.height()/2);
+        upperLeft_ -= QPoint(zoom(sizeDiff.width()/2, zoomLevel_),
+							 zoom(sizeDiff.height()/2, zoomLevel_));
     }
     else
     {
@@ -812,6 +813,8 @@ void QImageViewer::drawZoomedPixmap(QPainter *p, QRect r)
 
 void QImageViewer::mouseMoveEvent(QMouseEvent *e)
 {
+	if(!isEnabled())
+		return;
     if(inSlideState_)
     {
         slideBy(e->pos() - lastMousePosition_);
@@ -832,6 +835,8 @@ void QImageViewer::mouseMoveEvent(QMouseEvent *e)
 
 void QImageViewer::mousePressEvent(QMouseEvent *e)
 {
+	if(!isEnabled())
+		return;
     if(e->state() == ShiftButton && e->button() == LeftButton)
     {
         inSlideState_ = true;
@@ -865,6 +870,8 @@ void QImageViewer::mousePressEvent(QMouseEvent *e)
 
 void QImageViewer::mouseReleaseEvent(QMouseEvent *e)
 {
+	if(!isEnabled())
+		return;
     if(inSlideState_)
     {
         inSlideState_ = false;
@@ -885,6 +892,8 @@ void QImageViewer::mouseReleaseEvent(QMouseEvent *e)
 
 void QImageViewer::mouseDoubleClickEvent(QMouseEvent *e)
 {
+	if(!isEnabled())
+		return;
     QPoint p(imageCoordinate(e->pos()));
     emit mouseDoubleClicked(p.x(), p.y());
     lastMousePosition_ = e->pos();
