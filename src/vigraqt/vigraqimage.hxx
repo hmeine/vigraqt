@@ -4,6 +4,7 @@
 #include <vigra/imageiterator.hxx>
 #include <vigra/rgbvalue.hxx>
 #include <vigra/diff2d.hxx>
+#include "rgbavalue.hxx"
 
 #include <qimage.h>
 
@@ -149,9 +150,9 @@ public:
 
 // -------------------------------------------------------------------
 
-class QRGBImage : public VigraQImage<TinyVector<uchar, 4> >
+class QRGBImage : public VigraQImage<RGBAValue<uchar> >
 {
-    typedef VigraQImage<TinyVector<uchar, 4> > Base;
+    typedef VigraQImage<RGBAValue<uchar> > Base;
 
 public:
     QRGBImage(QImage &qImage)
