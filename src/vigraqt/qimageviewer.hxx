@@ -97,10 +97,10 @@ signals:
     void zoomLevelChanged(int zoomLevel);
 
 protected:
-    virtual void createZoomedPixmap();
+    virtual void createDrawingPixmap();
     virtual void updateZoomedPixmap(int xoffset, int yoffset);
-    virtual void zoomImage(QImage & src, int left, int top,
-                           QImage & dest, int w, int h, int zoomLevel);
+    virtual void zoomImage(int left, int top,
+                           QImage & dest, int w, int h);
     virtual void setCrosshairCursor();
     virtual void minimizeClipping();
 
