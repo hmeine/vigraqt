@@ -11,8 +11,8 @@ class QImageViewer : public QWidget
     Q_OBJECT
 
 public:
-    QImageViewer(QWidget *parent=0, const char *name=0);
-    ~QImageViewer();
+    QImageViewer(QWidget *parent = 0, const char *name = 0);
+    virtual ~QImageViewer();
 
     static QImageViewer *
         create(QImage const &, QWidget *parent=0, const char *name=0);
@@ -27,6 +27,11 @@ public:
     virtual int zoomLevel() const;
 
     virtual void setCursorPos(QPoint const &imagePoint) const;
+
+    virtual QPoint imageCoordinate(QPoint const &windowPoint) const;
+    virtual QPoint windowCoordinate(QPoint const &imagePoint) const;
+    virtual QRect imageCoordinates(QRect const &windowRect) const;
+    virtual QRect windowCoordinates(QRect const &imageRect) const;
 
 public slots:
     virtual void setImage(QImage const &, bool retainView= false);
@@ -55,8 +60,6 @@ protected:
     virtual void zoomImage(QImage & src, int left, int top,
                            QImage & dest, int w, int h, int zoomLevel);
     virtual void updateZoomedROI(int x0, int y0, int x1, int y1);
-    virtual QPoint imageCoordinate(QPoint const &windowPoint) const;
-    virtual QPoint windowCoordinate(QPoint const &imagePoint) const;
     virtual void setCrosshairCursor();
 
     virtual void zoomUpperLeft(int zoomLevel);

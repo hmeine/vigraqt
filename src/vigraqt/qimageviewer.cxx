@@ -188,7 +188,9 @@ int QImageViewer::zoomLevel() const
 
 void QImageViewer::setCursorPos(QPoint const &imagePoint) const
 {
-    QCursor::setPos(mapToGlobal(windowCoordinate(imagePoint)));
+    int offset = (zoomLevel_ > 1) ? 1 << (zoomLevel_-1) : 0;
+    QCursor::setPos(mapToGlobal(windowCoordinate(imagePoint))
+                    + QPoint(offset, offset));
 }
 
 /********************************************************************/
@@ -269,7 +271,7 @@ void QImageViewer::setZoomLevel(int level)
         return;
 
     zoomUpperLeft(level - zoomLevel_);
-    optimizeUpperLeft(upperLeft_, size(), newWidth, newHeight);
+    //optimizeUpperLeft(upperLeft_, size(), newWidth, newHeight);
 
     if(level == 0)
     {
@@ -327,8 +329,8 @@ void QImageViewer::zoomUpperLeft(int zoomLevel)
             // the (2*pos+1)/2 stuff is to zoom on the middle of the pixel..
             upperLeft_ +=
                 (windowCoordinate(2 * zoomPixel + QPoint(1,1)) -
-                 windowCoordinate(2 * QPoint(zoom(zoomPixel.x(), zoomLevel),
-                                           zoom(zoomPixel.y(), zoomLevel))
+                 windowCoordinate(QPoint(zoom(2 * zoomPixel.x(), zoomLevel),
+                                         zoom(2 * zoomPixel.y(), zoomLevel))
                                   + QPoint(1,1))) / 2;
             return;
         }
@@ -678,6 +680,48 @@ QPoint QImageViewer::windowCoordinate(QPoint const & imagePoint) const
         + upperLeft_;
 }
 
+/********************************************************************/
+/*                                                                  */
+/*                         imageCoordinates                         */
+/*                                                                  */
+/********************************************************************/
+
+QRect QImageViewer::imageCoordinates(QRect const &windowRect) const
+{
+    if(zoomLevel_ > 0)
+    {
+        return QRect(imageCoordinate(windowRect.topLeft()),
+                     imageCoordinate(windowRect.bottomRight()));
+    }
+    else
+    {
+        return QRect(imageCoordinate(windowRect.topLeft()),
+                     imageCoordinate(windowRect.bottomRight()
+                                     + QPoint(1, 1)) - QPoint(1, 1));
+    }
+}
+
+/********************************************************************/
+/*                                                                  */
+/*                        windowCoordinates                         */
+/*                                                                  */
+/********************************************************************/
+
+QRect QImageViewer::windowCoordinates(QRect const &imageRect) const
+{
+    if(zoomLevel_ > 0)
+    {
+        return QRect(windowCoordinate(imageRect.topLeft()),
+                     windowCoordinate(imageRect.bottomRight()
+                                      + QPoint(1, 1)) - QPoint(1, 1));
+    }
+    else
+    {
+        return QRect(windowCoordinate(imageRect.topLeft()),
+                     windowCoordinate(imageRect.bottomRight()));
+    }
+}
+
 /****************************************************************/
 /*                                                              */
 /*                            create                            */
@@ -701,41 +745,41 @@ QImageViewer::create(QImage const & img, QWidget* parent, const char* name)
 void QImageViewer::setCrosshairCursor()
 {
     static uchar bm[] = {
-                   0x1,  0x0,
-                   0x1,  0x0,
-                   0x1,  0x0,
-                   0x1,  0x0,
-                   0x1,  0x0,
-                   0x1,  0x0,
-                   0x0,  0x0,
-                   0xfc, 0x7e,
-                   0x0,  0x0,
-                   0x1,  0x0,
-                   0x1,  0x0,
-                   0x1,  0x0,
-                   0x1,  0x0,
-                   0x1,  0x0,
-                   0x1,  0x0,
-                   0x0,  0x0
-                 };
+        0x01, 0x00, // .......*........
+        0x01, 0x00, // .......*........
+        0x01, 0x00, // .......*........
+        0x01, 0x00, // .......*........
+        0x01, 0x00, // .......*........
+        0x01, 0x00, // .......*........
+        0x00, 0x00, // ................
+        0xfc, 0x7e, // ******...******.
+        0x00, 0x00, // ................
+        0x01, 0x00, // .......*........
+        0x01, 0x00, // .......*........
+        0x01, 0x00, // .......*........
+        0x01, 0x00, // .......*........
+        0x01, 0x00, // .......*........
+        0x01, 0x00, // .......*........
+        0x00, 0x00  // ................
+    };
     static uchar mm[] = {
-                   0x3,  0x80,
-                   0x3,  0x80,
-                   0x3,  0x80,
-                   0x3,  0x80,
-                   0x3,  0x80,
-                   0x3,  0x80,
-                   0xfc, 0x7e,
-                   0xfc, 0x7e,
-                   0xfc, 0x7e,
-                   0x3,  0x80,
-                   0x3,  0x80,
-                   0x3,  0x80,
-                   0x3,  0x80,
-                   0x3,  0x80,
-                   0x3,  0x80,
-                   0x0,  0x0
-                };
+        0x03, 0x80, // ......***.......
+        0x03, 0x80, // ......***.......
+        0x03, 0x80, // ......***.......
+        0x03, 0x80, // ......***.......
+        0x03, 0x80, // ......***.......
+        0x03, 0x80, // ......***.......
+        0xfc, 0x7e, // ******...******.
+        0xfc, 0x7e, // ******...******.
+        0xfc, 0x7e, // ******...******.
+        0x03, 0x80, // ......***.......
+        0x03, 0x80, // ......***.......
+        0x03, 0x80, // ......***.......
+        0x03, 0x80, // ......***.......
+        0x03, 0x80, // ......***.......
+        0x03, 0x80, // ......***.......
+        0x00, 0x00  // ................
+    };
 
     QCursor cursor(QBitmap(16, 16, bm), QBitmap(16, 16, mm), 7, 7);
     setCursor(cursor);
@@ -749,7 +793,8 @@ void QImageViewer::setCrosshairCursor()
 
 void QImageViewer::paintEvent(QPaintEvent *e)
 {
-    if(!isVisible()) return;
+    if(!isVisible())
+        return;
 
     QRect r= e->rect();
 
