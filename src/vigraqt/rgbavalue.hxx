@@ -2,6 +2,7 @@
 #define RGBAVALUE_HXX
 
 #include <vigra/tinyvector.hxx>
+#include <vigra/rgbvalue.hxx>
 
 namespace vigra {
 
@@ -75,6 +76,17 @@ public:
     RGBAValue & operator=(TinyVector<U, 4> const & r)
     {
         Base::operator=(r);
+        return *this;
+    }
+
+        /** assign RGBValue
+         */
+    template <class U>
+    RGBAValue & operator=(RGBValue<U> const & r)
+    {
+        (*this)[0] = r[0]; // FIXME: promote?
+        (*this)[1] = r[1];
+        (*this)[2] = r[2];
         return *this;
     }
 
