@@ -17,7 +17,7 @@ class ImageViewersPlugin : public QWidgetPlugin
 
     virtual QString group (const QString &) const
     {
-        return "Image Viewers (VIGRA)";
+        return "Image Viewers";
     }
 
     virtual QWidget *create(const QString &key,
