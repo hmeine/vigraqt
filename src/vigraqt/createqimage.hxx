@@ -54,15 +54,13 @@ createGrayQImage(ScalarImageIterator ul,
         image->setColor(i, qRgb(i,i,i));
     }
 
-    ScalarImageIterator yd(ul);
-    for (int i = 0; i < h; ++i, ++yd.y)
+    ScalarImageIterator row(ul);
+    for(int i = 0; i < h; ++i, ++row.y)
     {
-        ScalarImageIterator xd(yd);
+        ScalarImageIterator srcIt(row);
         uchar * p = image->scanLine(i);
-        for (int j = 0; j < w; j++, ++xd.x, ++p)
-        {
-            *p = (uchar)(scale * (a(xd) - minmax.min)) ;
-        }
+        for(int j = 0; j < w; j++, ++srcIt.x, ++p)
+            *p = (uchar)(scale * (a(srcIt) - minmax.min));
     }
     return image;
 }
@@ -98,20 +96,17 @@ createRGBQImage(RGBImageIterator ul,
     bool flag = image->create(w, h, 32);
     vigra_precondition(flag, "QImage creation failed");
 
-    RGBImageIterator yd(ul);
-    for (int i = 0; i < h; i++)
+    RGBImageIterator row(ul);
+    for(int i = 0; i < h; i++, ++row.y)
     {
-        RGBImageIterator xd(yd);
+        RGBImageIterator srcIt(row);
         unsigned int * p = (unsigned int*) image->scanLine(i);
-        for (int j = 0; j < w; j++)
+        for(int j = 0; j < w; ++j, ++p, ++srcIt.x)
         {
-            *p = qRgb((uchar)(scale * (a.red(xd) - minmax.min)),
-                      (uchar)(scale * (a.green(xd) - minmax.min)),
-                      (uchar)(scale * (a.blue(xd) - minmax.min)));
-            p++;
-            ++xd.x;
+            *p = qRgb((uchar)(scale * (a.red(srcIt) - minmax.min)),
+                      (uchar)(scale * (a.green(srcIt) - minmax.min)),
+                      (uchar)(scale * (a.blue(srcIt) - minmax.min)));
         }
-        ++yd.y;
     }
     return image;
 }
