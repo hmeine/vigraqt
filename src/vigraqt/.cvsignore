@@ -3,3 +3,6 @@ Makefile.in
 .deps
 .libs
 moc_*.cpp
+*.moc
+*.l[ao]
+*.closure
