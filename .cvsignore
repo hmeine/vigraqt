@@ -1,7 +1,7 @@
 Makefile.in
 acinclude.m4
 aclocal.m4
-autom4te.cache/
+autom4te.cache
 config.h.in
 config.log
 config.status
