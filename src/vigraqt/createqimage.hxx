@@ -16,7 +16,7 @@ createQImageFindMinmax(
 template <class ScalarImageIterator, class Accessor>
 inline void
 createQImageFindMinmax(
-    ScalarImageIterator ul, ScalarImageIterator lr, Accessor a,
+    ScalarImageIterator, ScalarImageIterator, Accessor,
     vigra::FindMinMax<unsigned char> & minmax)
 {
     minmax.max = 255;
