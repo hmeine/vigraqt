@@ -2,13 +2,38 @@
 #define VIGRAQIMAGE_HXX
 
 #include <vigra/imageiterator.hxx>
-#include <vigra/rgbvalue.hxx>
 #include <vigra/diff2d.hxx>
-#include "rgbavalue.hxx"
+#include "qrgbvalue.hxx"
 
 #include <qimage.h>
 
 namespace vigra {
+
+// -------------------------------------------------------------------
+
+namespace qt_converters {
+
+inline Point2D q2v(const QPoint &qp)
+    { return Point2D(qp.x(), qp.y()); }
+inline Size2D q2v(const QSize &qs)
+    { return Size2D(qs.width(), qs.height()); }
+inline Rect2D q2v(const QRect &r)
+    { return Rect2D(q2v(r.topLeft()), q2v(r.size())); }
+inline RGBValue<unsigned char> q2v(const QRgb &qrgb)
+    { return RGBValue<unsigned char>(qRed(qrgb), qGreen(qrgb), qBlue(qrgb)); }
+
+inline QPoint v2q(const Point2D &vp)
+    { return QPoint(vp.px(), vp.py()); }
+inline QSize v2q(const Size2D &vs)
+    { return QSize(vs.width(), vs.height()); }
+inline QRect v2q(const Rect2D &r)
+    { return QRect(v2q(r.upperLeft()), v2q(r.size())); }
+inline QRgb v2q(const RGBValue<unsigned char> &vrgb)
+    { return qRgb(vrgb.red(), vrgb.green(), vrgb.blue()); }
+
+} // namespace qt_converters
+
+using namespace qt_converters;
 
 // -------------------------------------------------------------------
 //                              VigraQImage
@@ -16,6 +41,7 @@ namespace vigra {
 template <class VALUE_TYPE>
 class VigraQImage
 {
+protected:
     QImage qImage_;
 
 public:
@@ -58,12 +84,12 @@ public:
         return qImage_;
     }
 
-    int width() const
+    unsigned int width() const
     {
         return qImage_.width();
     }
 
-    int height() const
+    unsigned int height() const
     {
         return qImage_.height();
     }
@@ -71,6 +97,21 @@ public:
     Size2D size() const
     {
         return Size2D(width(), height());
+    }
+
+    void resize(Size2D newSize)
+    {
+        vigra_precondition(
+            qImage_.size().isValid(),
+            "VigraQImage::resize() cannot be called on zero-sized images "
+            "(depth unknown)!");
+
+        QImage newImage(v2q(newSize), qImage_.depth(),
+                        qImage_.numColors(), qImage_.bitOrder());
+        // numColors() returns 0 if the colorTable is not used
+        for(unsigned short c = 0; c < qImage_.numColors(); ++c)
+            newImage.setColor(c, qImage_.color(c));
+        qImage_ = newImage;
     }
 
     Iterator upperLeft()
@@ -150,12 +191,12 @@ public:
 
 // -------------------------------------------------------------------
 
-class QRGBImage : public VigraQImage<RGBAValue<uchar> >
+class QRGBImage : public VigraQImage<QRGBValue<uchar> >
 {
-    typedef VigraQImage<RGBAValue<uchar> > Base;
+    typedef VigraQImage<QRGBValue<uchar> > Base;
 
 public:
-    QRGBImage(QImage &qImage)
+    QRGBImage(const QImage &qImage)
         : Base(qImage)
     {}
 
@@ -175,17 +216,28 @@ class QByteImage : public VigraQImage<uchar>
     typedef VigraQImage<uchar> Base;
 
 public:
-    QByteImage(QImage &qImage)
+    QByteImage(const QImage &qImage)
         : Base(qImage)
     {}
 
     QByteImage(int width, int height, int colorCount = 256)
         : Base(QImage(width, height, 8, colorCount))
-    {}
+    {
+        setGrayLevelColors(colorCount);
+    }
 
     QByteImage(Size2D size, int colorCount = 256)
         : Base(QImage(size.width(), size.height(), 8, colorCount))
-    {}
+    {
+        setGrayLevelColors(colorCount);
+    }
+
+    void setGrayLevelColors(unsigned short count = 256)
+    {
+        qImage_.setNumColors(count);
+        for(unsigned short c = 0; c < count; ++c)
+            qImage_.setColor(c, qRgb(c, c, c));
+    }
 };
 
 // -------------------------------------------------------------------
@@ -293,26 +345,6 @@ maskImage(VigraQImage<PixelType> & img)
                 typename VigraQImage<PixelType>::Accessor>
         (img.upperLeft(), img.accessor());
 }
-
-// -------------------------------------------------------------------
-
-inline Point2D q2v(const QPoint &qp)
-    { return Point2D(qp.x(), qp.y()); }
-inline Size2D q2v(const QSize &qs)
-    { return Size2D(qs.width(), qs.height()); }
-inline Rect2D q2v(const QRect &r)
-    { return Rect2D(q2v(r.topLeft()), q2v(r.size())); }
-inline RGBValue<unsigned char> q2v(const QRgb &qrgb)
-    { return RGBValue<unsigned char>(qRed(qrgb), qGreen(qrgb), qBlue(qrgb)); }
-
-inline QPoint v2q(const Point2D &vp)
-    { return QPoint(vp.px(), vp.py()); }
-inline QSize v2q(const Size2D &vs)
-    { return QSize(vs.width(), vs.height()); }
-inline QRect v2q(const Rect2D &r)
-    { return QRect(v2q(r.upperLeft()), v2q(r.size())); }
-inline QRgb v2q(const RGBValue<unsigned char> &vrgb)
-    { return qRgb(vrgb.red(), vrgb.green(), vrgb.blue()); }
 
 // -------------------------------------------------------------------
 
