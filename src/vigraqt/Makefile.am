@@ -1,5 +1,5 @@
 lib_LTLIBRARIES = libvigraqt.la
-include_HEADERS = qimageviewer.hxx fimageviewer.hxx vigraqimage.hxx
+include_HEADERS = qimageviewer.hxx fimageviewer.hxx vigraqimage.hxx createqimage.hxx
 
 METASOURCES = AUTO
 
