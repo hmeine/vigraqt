@@ -31,6 +31,7 @@ public:
 	float displayMax() const { return displayMax_; }
 
 	const QImage &displayedImage() const;
+	QImageViewer *imageViewer() const { return qimageviewer_; }
 
 	bool autoScaleMode() const { return autoScaleMode_; }
 	bool logarithmicMode() const { return logarithmicMode_; }
