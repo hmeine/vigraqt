@@ -23,6 +23,7 @@ public:
 
     virtual QPoint imageCoordinate(const QPoint &) const;
     virtual QPoint windowCoordinate(const QPoint &) const;
+    virtual QPoint windowCoordinate(float, float) const;
     virtual QRect imageCoordinates(const QRect &) const;
     virtual QRect windowCoordinates(const QRect &) const;
 
@@ -38,26 +39,18 @@ public slots:
 
 signals:
     void mouseMoved(int, int);
+    void mousePressed(int, int, Qt::ButtonState);
     void mousePressedLeft(int, int);
     void mousePressedMiddle(int, int);
     void mousePressedRight(int, int);
-    void mouseReleased(int, int);
-    void mouseDoubleClicked(int, int);
+    void mouseReleased(int, int, Qt::ButtonState);
+    void mouseDoubleClicked(int, int, Qt::ButtonState);
 
     void imageChanged();
     void zoomLevelChanged(int);
 
 protected:
-    /*virtual void createZoomedPixmap(int level, const QSize &);
-    virtual void updateZoomedPixmap(int xoffset, int yoffset);
-    virtual void zoomImage(QImage & src, int left, int top,
-                           QImage & dest, int, int, int);
-    virtual void updateZoomedROI(int x0, int y0, int x1, int y1);*/
     virtual void setCrosshairCursor();
-
-    /*virtual void zoomUpperLeft(int);
-    static  void optimizeUpperLeft(QPoint &,
-	const QSize &, int, int);*/
 
     /// draw a specific cell
     virtual void paintEvent(QPaintEvent *);
