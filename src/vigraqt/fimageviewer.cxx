@@ -12,7 +12,7 @@
 
 #include <math.h>
 
-FImageViewer::FImageViewer(QWidget* parent=0, const char* name=0)
+FImageViewer::FImageViewer(QWidget* parent= 0, const char* name= 0)
 	: QWidget(parent, name),
 	  qimageviewer_(new QImageViewer(this, "qimageviewer")),
 	  image_(0),
@@ -21,21 +21,6 @@ FImageViewer::FImageViewer(QWidget* parent=0, const char* name=0)
 	  logarithmicMode_(false),
 	  markingMode_(false)
 {
-    connect(qimageviewer_, SIGNAL(keyPressed(QKeyEvent*)),
-						   SIGNAL(keyPressed(QKeyEvent*)));
-    connect(qimageviewer_, SIGNAL(mouseMoved(int,int)),
-						   SIGNAL(mouseMoved(int,int)));
-    connect(qimageviewer_, SIGNAL(mousePressedLeft(int,int)),
-						   SIGNAL(mousePressedLeft(int,int)));
-    connect(qimageviewer_, SIGNAL(mousePressedMiddle(int,int)),
-						   SIGNAL(mousePressedMiddle(int,int)));
-    connect(qimageviewer_, SIGNAL(mousePressedRight(int,int)),
-						   SIGNAL(mousePressedRight(int,int)));
-    connect(qimageviewer_, SIGNAL(mouseReleased(int,int)),
-						   SIGNAL(mouseReleased(int,int)));
-    connect(qimageviewer_, SIGNAL(mouseDoubleClicked(int,int)),
-						   SIGNAL(mouseDoubleClicked(int,int)));
-	
 	QLayout *imageLayout= new QVBoxLayout( this );
 	imageLayout->add(qimageviewer_);
 }
@@ -44,26 +29,6 @@ FImageViewer::~FImageViewer()
 {
 	delete image_;
 	delete qimage_;
-}
-
-int FImageViewer::originalWidth() const
-{
-	return qimageviewer_->originalWidth();
-}
-
-int FImageViewer::originalHeight() const
-{
-	return qimageviewer_->originalHeight();
-}
-
-int FImageViewer::imageWidth() const
-{
-	return qimageviewer_->imageWidth();
-}
-
-int FImageViewer::imageHeight() const
-{
-	return qimageviewer_->imageHeight();
 }
 
 QImage FImageViewer::displayedImage() const
@@ -103,28 +68,6 @@ void FImageViewer::preparePalette()
 		qimage_->setColor(i, qRgb(i,i,i));
 	if (markingMode_)
 		qimage_->setColor(255, qRgb(255,0,0));
-}
-
-
-void FImageViewer::setZoomLevel(int level)
-{
-	qimageviewer_->setZoomLevel(level);
-}
-
-void FImageViewer::zoomUp()
-{
-	qimageviewer_->zoomUp();
-}
-
-void FImageViewer::zoomDown()
-{
-	qimageviewer_->zoomDown();
-}
-
-
-void FImageViewer::slideBy(QPoint const &offset)
-{
-	qimageviewer_->slideBy(offset);
 }
 
 void FImageViewer::setAutoScaleMode(bool newMode)
@@ -167,7 +110,7 @@ void FImageViewer::displayMinMax(float min, float max)
 	{
 		displayMin_= min;
 		displayMax_= max;
-	
+
 		redisplay(min, max);
 	}
 }

@@ -27,30 +27,13 @@ public:
 	float displayMax() const { return displayMax_; }
 
 	QImage displayedImage() const;
-	
+
 	bool autoScaleMode() { return autoScaleMode_; }
 	bool logarithmicMode() { return logarithmicMode_; }
-
-signals:
-    void keyPressed(QKeyEvent *);
-    void mouseMoved(int x, int y);
-    void mousePressedLeft(int x, int y);
-    void mousePressedMiddle(int x, int y);
-    void mousePressedRight(int x, int y);
-    void mouseReleased(int x, int y);
-    void mouseDoubleClicked(int x, int y);
-	
-	void imageChanged();
 
 public slots:
 	// display a copy of the given image
 	virtual void setImage( const vigra::FImage &newImage );
-
-	virtual void setZoomLevel(int level);
-	virtual void zoomUp();
-	virtual void zoomDown();
-
-	virtual void slideBy(QPoint const &);
 
 	void setAutoScaleMode( bool newMode );
 	void autoScale();
@@ -59,18 +42,18 @@ public slots:
 	bool isLogarithmicMode() { return logarithmicMode_; }
 	void setMarkingMode( bool newMode );
 	bool isMarkingMode() { return markingMode_; }
-	
+
 	void displayMinMax(float min, float max);
-	
+
 signals:
 	void imageMinMaxChanged(float min, float max);
 	void displayedMinMaxChanged(float min, float max);
-	
+
 protected:
 	void redisplay(float min, float max);
-	
+
 	void preparePalette();
-	
+
 protected:
 	QImageViewer *qimageviewer_;
 	vigra::FImage *image_;
