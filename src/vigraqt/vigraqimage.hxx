@@ -8,64 +8,64 @@
 
 namespace vigra {
 
-typedef ImageIterator<QRgb> QRGBIterator;
-	
-template<>
-struct IteratorTraits< QRGBIterator >
-{
-    typedef StandardAccessor<QRgb> DefaultAccessor;
-};
-
-/********************************************************/
-/*                                                      */
-/*                      VigraQImage                     */
-/*                                                      */
-/********************************************************/
-
+// -------------------------------------------------------------------
+//                              VigraQImage
+// -------------------------------------------------------------------
 template <class value_type>
 class VigraQImage
 {
-public:	
-	typedef value_type* ScanOrderIterator;
-	typedef const value_type* ConstScanOrderIterator;
-	typedef ImageIterator<value_type> Iterator;
-	typedef ConstImageIterator<value_type> ConstIterator;
-	typedef typename IteratorTraits <Iterator> ::DefaultAccessor Accessor;
-	typedef typename IteratorTraits <ConstIterator> ::DefaultAccessor ConstAccessor;
-	
-	VigraQImage(QImage *qimage): qimage_(qimage) {}
-	
-	QImage qimage() {
-		return *qimage_;
-	}
+    QImage qImage_;
 
-	int width() const
-	{
-		return qimage_->width();
-	}
+public:
+    typedef value_type PixelType;
+    typedef value_type* ScanOrderIterator;
+    typedef const value_type* ConstScanOrderIterator;
+    typedef ImageIterator<value_type> Iterator;
+    typedef ConstImageIterator<value_type> ConstIterator;
+    typedef typename IteratorTraits <Iterator> ::DefaultAccessor Accessor;
+    typedef typename IteratorTraits <ConstIterator> ::DefaultAccessor ConstAccessor;
 
-	int height() const
-	{
-		return qimage_->height();
-	}
+    VigraQImage(QImage qImage)
+        : qImage_(qImage)
+    {}
+
+    QImage & qImage()
+    {
+        return qImage_;
+    }
+
+    int width() const
+    {
+        return qImage_.width();
+    }
+
+    int height() const
+    {
+        return qImage_.height();
+    }
 
     Diff2D size() const
     {
         return Diff2D(width(), height());
     }
-	
-	bool isInside(Diff2D const & d) const
-    {
-        return d.x >= 0 && d.y >= 0 &&
-               d.x < width() && d.y < height();
-    }
 
     Iterator upperLeft()
     {
-        return Iterator((value_type *)qimage_->bits(),
-						qimage_->bytesPerLine()/sizeof(value_type));
+        return Iterator((value_type *)qImage_.bits(),
+                        qImage_.bytesPerLine()/sizeof(value_type));
     }
-	
+
+    ConstIterator upperLeft() const
+    {
+        return ConstIterator((value_type *)qImage_.bits(),
+                             qImage_.bytesPerLine()/sizeof(value_type));
+    }
+
+    Iterator lowerRight()
+    {
+        return upperLeft() + size();
+    }
+
     ConstIterator lowerRight() const
     {
         return upperLeft() + size();
@@ -73,22 +73,22 @@ public:
 
     ScanOrderIterator begin()
     {
-        return (value_type *)qimage_->bits();
+        return (value_type *)qImage_.bits();
     }
 
     ScanOrderIterator end()
     {
-        return (value_type const *)qimage_->bits() + width() * height();
+        return (value_type *)qImage_.bits() + width() * height();
     }
 
     ConstScanOrderIterator begin() const
     {
-        return (value_type *)qimage_->bits();
+        return (value_type *)qImage_.bits();
     }
 
     ConstScanOrderIterator end() const
     {
-        return (value_type const *)qimage_->bits() + width() * height();
+        return (value_type const *)qImage_.bits() + width() * height();
     }
 
     Accessor accessor()
@@ -120,33 +120,69 @@ public:
     {
         return *(upperLeft()+Diff2D(dx, dy));
     }
-	
-private:
-	QImage *qimage_;
 };
 
-typedef VigraQImage<QRgb> QRGBImage;
-typedef VigraQImage<uchar> QByteImage;
+// -------------------------------------------------------------------
 
-/****************************************************************/
+class QRGBImage : public VigraQImage<TinyVector<uchar, 4> >
+{
+    typedef VigraQImage<TinyVector<uchar, 4> > Base;
+    bool imageIsMine_;
+
+public:
+    QRGBImage(QImage &qImage)
+        : Base(qImage)
+    {}
+
+    QRGBImage(int width, int height)
+        : Base(QImage(width, height, 32))
+    {}
+
+    QRGBImage(Size2D size)
+        : Base(QImage(size.width(), size.height(), 32))
+    {}
+};
+
+// -------------------------------------------------------------------
+
+class QByteImage : public VigraQImage<uchar>
+{
+    typedef VigraQImage<uchar> Base;
+    bool imageIsMine_;
+
+public:
+    QByteImage(QImage &qImage)
+        : Base(qImage)
+    {}
+
+    QByteImage(int width, int height, int colorCount = 256)
+        : Base(QImage(width, height, 8, colorCount))
+    {}
+
+    QByteImage(Size2D size, int colorCount = 256)
+        : Base(QImage(size.width(), size.height(), 8, colorCount))
+    {}
+};
+
+// -------------------------------------------------------------------
 
 template <class PixelType, class Accessor>
-inline triple<typename VigraQImage<PixelType>::Iterator,
-              typename VigraQImage<PixelType>::Iterator, Accessor>
-srcImageRange(VigraQImage<PixelType> & img, Accessor a)
+inline triple<typename VigraQImage<PixelType>::ConstIterator,
+              typename VigraQImage<PixelType>::ConstIterator, Accessor>
+srcImageRange(const VigraQImage<PixelType> & img, Accessor a)
 {
-    return triple<typename VigraQImage<PixelType>::Iterator,
-                  typename VigraQImage<PixelType>::Iterator,
+    return triple<typename VigraQImage<PixelType>::ConstIterator,
+                  typename VigraQImage<PixelType>::ConstIterator,
           Accessor>(img.upperLeft(),
                     img.lowerRight(),
                 a);
 }
 
 template <class PixelType, class Accessor>
-inline pair<typename VigraQImage<PixelType>::Iterator, Accessor>
-srcImage(VigraQImage<PixelType> & img, Accessor a)
+inline pair<typename VigraQImage<PixelType>::ConstIterator, Accessor>
+srcImage(const VigraQImage<PixelType> & img, Accessor a)
 {
-    return pair<typename VigraQImage<PixelType>::Iterator,
+    return pair<typename VigraQImage<PixelType>::ConstIterator,
                 Accessor>(img.upperLeft(), a);
 }
 
@@ -178,28 +214,28 @@ maskImage(VigraQImage<PixelType> & img, Accessor a)
                 Accessor>(img.upperLeft(), a);
 }
 
-/****************************************************************/
+// -------------------------------------------------------------------
 
 template <class PixelType>
-inline triple<typename VigraQImage<PixelType>::Iterator,
-              typename VigraQImage<PixelType>::Iterator,
-          typename VigraQImage<PixelType>::Accessor>
-srcImageRange(VigraQImage<PixelType> & img)
+inline triple<typename VigraQImage<PixelType>::ConstIterator,
+              typename VigraQImage<PixelType>::ConstIterator,
+          typename VigraQImage<PixelType>::ConstAccessor>
+srcImageRange(const VigraQImage<PixelType> & img)
 {
-    return triple<typename VigraQImage<PixelType>::Iterator,
-                  typename VigraQImage<PixelType>::Iterator,
-          typename VigraQImage<PixelType>::Accessor>(img.upperLeft(),
+    return triple<typename VigraQImage<PixelType>::ConstIterator,
+                  typename VigraQImage<PixelType>::ConstIterator,
+          typename VigraQImage<PixelType>::ConstAccessor>(img.upperLeft(),
                                         img.lowerRight(),
                         img.accessor());
 }
 
 template <class PixelType>
-inline pair< typename VigraQImage<PixelType>::Iterator,
-             typename VigraQImage<PixelType>::Accessor>
-srcImage(VigraQImage<PixelType> & img)
+inline pair< typename VigraQImage<PixelType>::ConstIterator,
+             typename VigraQImage<PixelType>::ConstAccessor>
+srcImage(const VigraQImage<PixelType> & img)
 {
-    return pair<typename VigraQImage<PixelType>::Iterator,
-                typename VigraQImage<PixelType>::Accessor>(img.upperLeft(),
+    return pair<typename VigraQImage<PixelType>::ConstIterator,
+                typename VigraQImage<PixelType>::ConstAccessor>(img.upperLeft(),
                                          img.accessor());
 }
 
@@ -212,7 +248,7 @@ destImageRange(VigraQImage<PixelType> & img)
     return triple<typename VigraQImage<PixelType>::Iterator,
                   typename VigraQImage<PixelType>::Iterator,
           typename VigraQImage<PixelType>::Accessor>(img.upperLeft(),
-                                        img.lowerRight(),
+                                                     img.lowerRight(),
                         img.accessor());
 }
 
@@ -236,37 +272,51 @@ maskImage(VigraQImage<PixelType> & img)
                                          img.accessor());
 }
 
-/****************************************************************/
+// -------------------------------------------------------------------
 
-inline Diff2D q2v(const QPoint &qp)
-	{ return Diff2D(qp.x(), qp.y()); }
-inline Dist2D q2v(const QSize &qs)
-	{ return Dist2D(qs.width(), qs.height()); }
+inline Point2D q2v(const QPoint &qp)
+    { return Point2D(qp.x(), qp.y()); }
+inline Size2D q2v(const QSize &qs)
+    { return Size2D(qs.width(), qs.height()); }
 inline RGBValue<unsigned char> q2v(const QRgb &qrgb)
-	{ return RGBValue<unsigned char>(qRed(qrgb),qGreen(qrgb),qBlue(qrgb)); }
-	
+    { return RGBValue<unsigned char>(qRed(qrgb),qGreen(qrgb),qBlue(qrgb)); }
+
+inline QPoint q2v(const Point2D &vp)
+    { return QPoint(vp.px(), vp.py()); }
+inline QSize q2v(const Size2D &vs)
+    { return QSize(vs.width(), vs.height()); }
 inline QRgb v2q(const RGBValue<unsigned char> &vrgb)
-	{ return qRgb(vrgb.red(), vrgb.green(), vrgb.blue()); }
+    { return qRgb(vrgb.red(), vrgb.green(), vrgb.blue()); }
+
+// -------------------------------------------------------------------
 
 class QRGBAccessor
 {
-  public:
+public:
     typedef RGBValue<unsigned char> value_type;
     typedef NumericTraits<RGBValue<unsigned char> >::Promote Promote;
     typedef NumericTraits<RGBValue<unsigned char> >::RealPromote RealPromote;
 
-    RGBValue<unsigned char> operator()(QRGBIterator & i) const { return q2v(*i); }
+    template<class ITERATOR>
+    RGBValue<unsigned char> operator()(const ITERATOR & i) const
+    {
+        return q2v(*i);
+    }
 
-    template <class DISTANCE>
-    RGBValue<unsigned char> operator()(QRGBIterator & i, DISTANCE const & dist) const
+    template<class ITERATOR, class DISTANCE>
+    RGBValue<unsigned char> operator()(const ITERATOR & i, DISTANCE const & dist) const
     {
         return q2v(i[dist]);
     }
 
-    void set(RGBValue<unsigned char> const & v, QRGBIterator & i) const { *i = v2q(v); }
+    template<class ITERATOR>
+    void set(RGBValue<unsigned char> const & v, const ITERATOR & i) const
+    {
+        *i = v2q(v);
+    }
 
-    template <class DISTANCE>
-    void set(RGBValue<unsigned char> const & v, QRGBIterator & i, DISTANCE const & dist) const
+    template<class ITERATOR, class DISTANCE>
+    void set(RGBValue<unsigned char> const & v, const ITERATOR & i, DISTANCE const & dist) const
     {
         i[dist]= v2q(v);
     }
