@@ -3,6 +3,7 @@
 
 #include <vigra/imageiterator.hxx>
 #include <vigra/rgbvalue.hxx>
+#include <vigra/rect2d.hxx>
 
 #include <qimage.h>
 
