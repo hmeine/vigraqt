@@ -7,16 +7,13 @@ class QImageViewer : QWidget
 public:
 	QImageViewer(QWidget */TransferThis/ = 0, const char * = 0);
 
-    static QImageViewer *
-        create(const QImage &, QWidget * = 0, const char * = 0);
-
     virtual QSize sizeHint() const;
 
     virtual const QImage &originalImage() const;
     virtual int originalWidth() const;
     virtual int originalHeight() const;
-    virtual int imageWidth() const;
-    virtual int imageHeight() const;
+    virtual int zoomedWidth() const;
+    virtual int zoomedHeight() const;
     virtual int zoomLevel() const;
 
     virtual void setCursorPos(const QPoint &) const;
@@ -51,20 +48,5 @@ signals:
 
 protected:
     virtual void setCrosshairCursor();
-
-    /// draw a specific cell
-    virtual void paintEvent(QPaintEvent *);
-    virtual void paintImage(QPainter &, QRect &);
-
-    /// draw helper functions
-    virtual void drawPixmap(QPainter *, QRect);
-    virtual void drawZoomedPixmap(QPainter *, QRect);
-
-    virtual void mouseMoveEvent(QMouseEvent *);
-    virtual void mousePressEvent(QMouseEvent *);
-    virtual void mouseReleaseEvent(QMouseEvent *);
-    virtual void mouseDoubleClickEvent(QMouseEvent *);
-    virtual void keyPressEvent (QKeyEvent *);
-    virtual void enterEvent (QEvent *);
-    virtual void resizeEvent (QResizeEvent *);
+    virtual void minimizeClipping();
 };
