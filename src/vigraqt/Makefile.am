@@ -3,7 +3,7 @@ include_HEADERS = \
 	qimageviewer.hxx \
 	fimageviewer.hxx \
 	vigraqimage.hxx \
-	rgbavalue.hxx \
+	qrgbvalue.hxx \
 	createqimage.hxx
 
 INCLUDES = $(all_includes)
