@@ -1,6 +1,8 @@
 #include <qimage.h>
 #include <vigra/inspectimage.hxx>
 
+namespace vigra {
+
 template <class ScalarImageIterator, class Accessor, class T>
 inline void
 createQImageFindMinmax(
@@ -9,7 +11,7 @@ createQImageFindMinmax(
 {
     inspectImage(ul, lr, a, minmax);
 }
-	
+
 // specialization for T==unsigned char: always use range 0..255
 template <class ScalarImageIterator, class Accessor>
 inline void
@@ -20,7 +22,7 @@ createQImageFindMinmax(
     minmax.max = 255;
     minmax.min = 0;
 }
-	
+
 template <class ScalarImageIterator, class Accessor>
 QImage *
 createGrayQImage(ScalarImageIterator ul,
@@ -97,12 +99,12 @@ createRGBQImage(RGBImageIterator ul,
         ++yd.y;
     }
     return image;
-}	
+}
 
 template <class ImageIterator, class Accessor>
 inline QImage *
 createQImage(ImageIterator upperleft, ImageIterator lowerright,
-                      Accessor a, VigraFalseType)
+             Accessor a, VigraFalseType)
 {
     return createRGBQImage(upperleft, lowerright, a);
 }
@@ -110,7 +112,7 @@ createQImage(ImageIterator upperleft, ImageIterator lowerright,
 template <class ImageIterator, class Accessor>
 inline QImage *
 createQImage(ImageIterator upperleft, ImageIterator lowerright,
-                      Accessor a, VigraTrueType)
+             Accessor a, VigraTrueType)
 {
     return createGrayQImage(upperleft, lowerright, a);
 }
@@ -130,4 +132,6 @@ inline QImage *
 createQImage(triple<Iterator, Iterator, Accessor> img)
 {
     return createQImage(img.first, img.second, img.third);
+}
+
 }
