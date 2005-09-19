@@ -221,6 +221,10 @@ class QRGBImage : public VigraQImage<QRGBValue<uchar> >
     typedef VigraQImage<QRGBValue<uchar> > Base;
 
 public:
+//     typedef SequenceAccessor<value_type> Accessor;
+//     typedef SequenceAccessor<const value_type> ConstAccessor;
+    typedef RGBAccessor<value_type> RGBAccessor;
+
     QRGBImage(const QImage &qImage)
         : Base(qImage)
     {}
