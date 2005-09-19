@@ -124,6 +124,9 @@ signals:
     void zoomLevelChanged(int zoomLevel);
 
 protected:
+    inline static int zoom(int value, int level)
+    { return (level > 0) ? (value << level) : (value >> -level); }
+
     virtual void createDrawingPixmap();
     virtual void updateZoomedPixmap(int xoffset, int yoffset);
     virtual void zoomImage(int left, int top,
@@ -133,11 +136,11 @@ protected:
 
     /// draw a specific cell
     virtual void paintEvent(QPaintEvent *);
-    virtual void paintImage(QPainter &p, QRect &r);
+    virtual void paintImage(QPainter &p, const QRect &r);
 
     /// draw helper functions
-    virtual void drawPixmap(QPainter *p, QRect r);
-    virtual void drawZoomedPixmap(QPainter *p, QRect r);
+    virtual void drawPixmap(QPainter &p, const QRect &r);
+    virtual void drawZoomedPixmap(QPainter &p, const QRect &r);
 
     virtual void mouseMoveEvent(QMouseEvent *e);
     virtual void mousePressEvent(QMouseEvent *);
@@ -150,7 +153,7 @@ protected:
     QPixmap drawingPixmap_;
     bool    inSlideState_;
     QPoint  lastMousePosition_;
-    QPoint  upperLeft_;
+    QPoint  upperLeft_; // position of image origin in widget coordinates
     int     zoomLevel_;
 };
 

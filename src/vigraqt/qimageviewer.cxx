@@ -30,16 +30,6 @@
 #include <math.h>
 #include <algorithm>
 
-inline int zoom(int value, int level)
-{
-    return (level > 0) ? (value << level) : (value >> -level);
-}
-
-inline int unzoom(int value, int level)
-{
-    return (level > 0) ? (value >> level) : (value << -level);
-}
-
 /****************************************************************/
 /*                                                              */
 /*                         QImageViewer                         */
@@ -489,14 +479,14 @@ void QImageViewer::zoomImage(int left, int top, QImage & dest, int w, int h)
     {
         for(int y=0; y<h; ++y)
         {
-            int yy = unzoom(y + top, zoomLevel_);
+            int yy = zoom(y + top, -zoomLevel_);
 
             uchar * d = dest.scanLine(y);
             uchar * s = originalImage_.scanLine(yy);
 
             for(int x=0; x<w; ++x)
             {
-                d[x] = s[unzoom(left + x, zoomLevel_)];
+                d[x] = s[zoom(left + x, -zoomLevel_)];
             }
         }
     }
@@ -504,14 +494,14 @@ void QImageViewer::zoomImage(int left, int top, QImage & dest, int w, int h)
     {
         for(int y=0; y<h; ++y)
         {
-            int yy = unzoom(y + top, zoomLevel_);
+            int yy = zoom(y + top, -zoomLevel_);
 
             QRgb * d = (QRgb *)dest.scanLine(y);
             QRgb * s = (QRgb *)originalImage_.scanLine(yy);
 
             for(int x=0; x<w; ++x)
             {
-                d[x] = s[unzoom(left + x, zoomLevel_)];
+                d[x] = s[zoom(left + x, -zoomLevel_)];
             }
         }
     }
@@ -526,8 +516,8 @@ void QImageViewer::zoomImage(int left, int top, QImage & dest, int w, int h)
 
 QPoint QImageViewer::imageCoordinate(QPoint const & windowPoint) const
 {
-    return QPoint(unzoom(windowPoint.x() - upperLeft_.x(), zoomLevel_),
-                  unzoom(windowPoint.y() - upperLeft_.y(), zoomLevel_));
+    return QPoint(zoom(windowPoint.x() - upperLeft_.x(), -zoomLevel_),
+                  zoom(windowPoint.y() - upperLeft_.y(), -zoomLevel_));
 }
 
 /****************************************************************/
@@ -708,12 +698,12 @@ void QImageViewer::paintEvent(QPaintEvent *e)
 /*                                                              */
 /****************************************************************/
 
-void QImageViewer::paintImage(QPainter &p, QRect &r)
+void QImageViewer::paintImage(QPainter &p, const QRect &r)
 {
     if(zoomLevel_ == 0)
-        drawPixmap(&p, r);
+        drawPixmap(p, r);
     else
-        drawZoomedPixmap(&p, r);
+        drawZoomedPixmap(p, r);
 }
 
 /****************************************************************/
@@ -722,7 +712,7 @@ void QImageViewer::paintImage(QPainter &p, QRect &r)
 /*                                                              */
 /****************************************************************/
 
-void QImageViewer::drawPixmap(QPainter *p, QRect r)
+void QImageViewer::drawPixmap(QPainter &p, const QRect &r)
 {
     int x = r.left();
     int y = r.top();
@@ -735,15 +725,15 @@ void QImageViewer::drawPixmap(QPainter *p, QRect r)
     int y1 = y0 + drawingPixmap_.height();
 
     if(x < x0)
-        p->fillRect(x, y, x0-x, h, backgroundColor());
+        p.fillRect(x, y, x0-x, h, backgroundColor());
     if(y < y0)
-        p->fillRect(x, y, w, y0-y, backgroundColor());
+        p.fillRect(x, y, w, y0-y, backgroundColor());
     if(x+w > x1)
-        p->fillRect(x1, y, x + w - x1, h, backgroundColor());
+        p.fillRect(x1, y, x + w - x1, h, backgroundColor());
     if(y+h > y1)
-        p->fillRect(x, y1, w, y + h - y1, backgroundColor());
+        p.fillRect(x, y1, w, y + h - y1, backgroundColor());
 
-    p->drawPixmap(x, y, drawingPixmap_, x-x0, y-y0, w, h);
+    p.drawPixmap(x, y, drawingPixmap_, x-x0, y-y0, w, h);
 }
 
 /****************************************************************/
@@ -752,13 +742,13 @@ void QImageViewer::drawPixmap(QPainter *p, QRect r)
 /*                                                              */
 /****************************************************************/
 
-void QImageViewer::drawZoomedPixmap(QPainter *p, QRect r)
+void QImageViewer::drawZoomedPixmap(QPainter &p, const QRect &r)
 {
     int x = r.left();
     int y = r.top();
     int w = r.width();
     int h = r.height();
-    p->drawPixmap(x, y, drawingPixmap_, x, y, w, h);
+    p.drawPixmap(x, y, drawingPixmap_, x, y, w, h);
 }
 
 /****************************************************************/
