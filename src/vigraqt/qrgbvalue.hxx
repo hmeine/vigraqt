@@ -221,6 +221,77 @@ public:
     { data_[3] = detail::RequiresExplicitCast<value_type>::cast(value); }
 };
 
+/********************************************************************/
+
+template <class T>
+struct NumericTraits<QRGBValue<T> >
+{
+    typedef QRGBValue<T> Type;
+    typedef QRGBValue<typename NumericTraits<T>::Promote> Promote;
+    typedef QRGBValue<typename NumericTraits<T>::RealPromote> RealPromote;
+    typedef QRGBValue<typename NumericTraits<T>::ComplexPromote> ComplexPromote;
+    typedef T ValueType;
+
+    typedef typename NumericTraits<T>::isIntegral isIntegral;
+    typedef VigraFalseType isScalar;
+    typedef VigraFalseType isOrdered;
+    typedef VigraFalseType isComplex;
+
+    static QRGBValue<T> zero() {
+        return QRGBValue<T>();
+    }
+    static QRGBValue<T> one() {
+        return QRGBValue<T>(NumericTraits<T>::one());
+    }
+    static QRGBValue<T> nonZero() {
+        return QRGBValue<T>(NumericTraits<T>::nonZero());
+    }
+
+    static Promote toPromote(QRGBValue<T> const & v) {
+        return Promote(v);
+    }
+    static RealPromote toRealPromote(QRGBValue<T> const & v) {
+        return RealPromote(v);
+    }
+    static QRGBValue<T> fromPromote(Promote const & v) {
+        return QRGBValue<T>(NumericTraits<T>::fromPromote(v.red()),
+                           NumericTraits<T>::fromPromote(v.green()),
+                           NumericTraits<T>::fromPromote(v.blue()));
+    }
+    static QRGBValue<T> fromRealPromote(RealPromote const & v) {
+        return QRGBValue<T>(NumericTraits<T>::fromRealPromote(v.red()),
+                           NumericTraits<T>::fromRealPromote(v.green()),
+                           NumericTraits<T>::fromRealPromote(v.blue()));
+    }
+};
+
+// left NormTraits away due to alpha discussions
+
+template <class T1, class T2>
+struct PromoteTraits<QRGBValue<T1>, QRGBValue<T2> >
+{
+    typedef QRGBValue<typename PromoteTraits<T1, T2>::Promote> Promote;
+};
+
+template <class T>
+struct PromoteTraits<QRGBValue<T>, double >
+{
+    typedef QRGBValue<typename NumericTraits<T>::RealPromote> Promote;
+};
+
+template <class T>
+struct PromoteTraits<double, QRGBValue<T> >
+{
+    typedef QRGBValue<typename NumericTraits<T>::RealPromote> Promote;
+};
+
+template <class T>
+struct AccessorTraits<QRGBValue<T> >
+{
+    typedef VectorAccessor<QRGBValue<T> >   default_accessor;
+    typedef VectorAccessor<QRGBValue<T> >   default_const_accessor;
+};
+
 // THOSE ARE OBVIOUSLY UNNEEDED BECAUSE INHERITED FROM TinyVector:
 
 //     /// component-wise equal
