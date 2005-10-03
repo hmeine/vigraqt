@@ -31,44 +31,103 @@
 #include <qpixmap.h>
 #include <qimage.h>
 
-class QImageViewer : public QWidget
+class QImageViewerBase : public QWidget
 {
     Q_OBJECT
 
     Q_PROPERTY(int zoomLevel READ zoomLevel WRITE setZoomLevel)
 
 public:
-    QImageViewer(QWidget *parent = 0, const char *name = 0);
-    virtual ~QImageViewer();
+    QImageViewerBase(QWidget *parent = 0, const char *name = 0);
 
+public slots:
+        /**
+         * Change the image to be displayed.
+         *
+         * If retainView is true, or the new image has the same size as
+         * the currently displayed one, the visible part of the image will
+         * stay the same, otherwise panning position and zoom level will
+         * be reset.
+         */
+    virtual void setImage(QImage const &image, bool retainView= false);
+
+        /**
+         * Change a ROI of the displayed image.
+         *
+         * The given new roiImage will be placed into originalImage_ at
+         * the position given with upperLeft.
+         */
+    virtual void updateROI(QImage const &roiImage, QPoint const &upperLeft);
+
+public:
+        /**
+         * Return a reference to the displayed image.
+         */
     virtual const QImage &originalImage() const
         { return originalImage_; }
+
+        /**
+         * Return (unzoomed, original) width of displayed image.
+         */
     virtual int originalWidth() const
         { return originalImage_.width(); }
+
+        /**
+         * Return (unzoomed, original) height of displayed image.
+         */
     virtual int originalHeight() const
         { return originalImage_.height(); }
+
+        /**
+         * Return zoomed width of displayed image.
+         */
     virtual int zoomedWidth() const;
+
+        /**
+         * Return zoomed height of displayed image.
+         */
     virtual int zoomedHeight() const;
+
+        /**
+         * Overloaded from QWidget to return a sensible default size.
+         */
+    virtual QSize sizeHint() const;
+
+        /**
+         * Returns the current zoom level.
+         *
+         * A zoom level of N > 0 means that the widget displays each
+         * image pixel as a (N+1)x(N+1) square.  Defaults to zero
+         * (i.e. no zoom).  Zoom levels of N < 0 mean that only each
+         * (-N-1)th pixel in each dimension is displayed.  You can
+         * change the zoom level with e.g. setZoomLevel() and query
+         * the size of the zoomed image with
+         * zoomedWidth()/zoomedHeight().
+         */
     virtual int zoomLevel() const
         { return zoomLevel_; }
 
+        /**
+         * Position the pointer over the specified image pixel.
+         */
     virtual void setCursorPos(QPoint const &imagePoint) const;
-
-    virtual QSize sizeHint() const;
 
         /**
          * Map position relative to window to position in displayed image.
          */
     virtual QPoint imageCoordinate(QPoint const &windowPoint) const;
+
         /**
          * Map position in displayed image to position relative to window.
          */
     virtual QPoint windowCoordinate(QPoint const &imagePoint) const;
+
         /**
          * Map sub-pixel position in displayed image to position
          * relative to window.
          */
-    virtual QPoint windowCoordinate(float x, float y) const;
+    virtual QPoint windowCoordinate(double x, double y) const;
+
         /**
          * Map range relative to window to range in displayed image.
          *
@@ -78,6 +137,7 @@ public:
          * given windowRect.)
          */
     virtual QRect imageCoordinates(QRect const &windowRect) const;
+
         /**
          * Map range in displayed image to range relative to window.
          *
@@ -89,27 +149,28 @@ public:
 
 public slots:
         /**
-         * Change the image to be displayed.
+         * Changes the current zoom level.
          *
-         * If retainView is true, or the new image has the same size as
-         * the currently displayed one, the visible part of the image will
-         * stay the same, otherwise panning position and zoom level will
-         * be reset.
+         * See zoomLevel(), zoomUp(), zoomDown()
          */
-    virtual void setImage(QImage const &, bool retainView= false);
-        /**
-         * Change a ROI of the displayed image.
-         *
-         * The given new roiImage will be placed into originalImage_ at
-         * the position given with upperLeft.
-         */
-    virtual void updateROI(QImage const &roiImage, QPoint const &upperLeft);
-
     virtual void setZoomLevel(int level);
+
+        /**
+         * Changes the zoom level to (zoomLevel()+1) (useful for
+         * connecting UI signals to this slot).
+         */
     virtual void zoomUp();
+
+        /**
+         * Changes the zoom level to (zoomLevel()-1) (useful for
+         * connecting UI signals to this slot).
+         */
     virtual void zoomDown();
 
-    virtual void slideBy(QPoint const &);
+        /**
+         * Changes upperLeft by diff. FIXME: document upperLeft
+         */
+    virtual void slideBy(QPoint const &diff);
 
 signals:
     void mouseMoved(int x, int y);
@@ -120,19 +181,49 @@ signals:
     void mouseReleased(int x, int y, Qt::ButtonState button);
     void mouseDoubleClicked(int x, int y, Qt::ButtonState button);
 
-    void imageChanged();
+    void imageChanged(); // FIXME: add ROI param
     void zoomLevelChanged(int zoomLevel);
 
 protected:
     inline static int zoom(int value, int level)
     { return (level > 0) ? (value << level) : (value >> -level); }
 
+    virtual void setCrosshairCursor();
+    virtual void minimizeClipping();
+
+    virtual void mouseMoveEvent(QMouseEvent *e);
+    virtual void mousePressEvent(QMouseEvent *e);
+    virtual void mouseReleaseEvent(QMouseEvent *e);
+    virtual void mouseDoubleClickEvent(QMouseEvent *e);
+    virtual void keyPressEvent(QKeyEvent *e);
+    virtual void resizeEvent(QResizeEvent *e);
+
+    QImage  originalImage_;
+    bool    inSlideState_;
+    QPoint  lastMousePosition_;
+    QPoint  upperLeft_; // position of image origin in widget coordinates
+    int     zoomLevel_;
+};
+
+class QImageViewer : public QImageViewerBase
+{
+    Q_OBJECT
+
+public:
+    QImageViewer(QWidget *parent = 0, const char *name = 0);
+
+    virtual void setImage(QImage const &image, bool retainView= false);
+    virtual void updateROI(QImage const &roiImage, QPoint const &upperLeft);
+
+    virtual void slideBy(QPoint const &diff);
+
+protected slots:
     virtual void createDrawingPixmap();
+
+protected:
     virtual void updateZoomedPixmap(int xoffset, int yoffset);
     virtual void zoomImage(int left, int top,
                            QImage & dest, int w, int h);
-    virtual void setCrosshairCursor();
-    virtual void minimizeClipping();
 
     /// draw a specific cell
     virtual void paintEvent(QPaintEvent *);
@@ -142,19 +233,9 @@ protected:
     virtual void drawPixmap(QPainter &p, const QRect &r);
     virtual void drawZoomedPixmap(QPainter &p, const QRect &r);
 
-    virtual void mouseMoveEvent(QMouseEvent *e);
-    virtual void mousePressEvent(QMouseEvent *);
-    virtual void mouseReleaseEvent(QMouseEvent *);
-    virtual void mouseDoubleClickEvent(QMouseEvent *);
-    virtual void keyPressEvent (QKeyEvent *e);
     virtual void resizeEvent (QResizeEvent *e);
 
-    QImage  originalImage_;
     QPixmap drawingPixmap_;
-    bool    inSlideState_;
-    QPoint  lastMousePosition_;
-    QPoint  upperLeft_; // position of image origin in widget coordinates
-    int     zoomLevel_;
 };
 
 #endif /* IMAGEVIEWER_HXX */
