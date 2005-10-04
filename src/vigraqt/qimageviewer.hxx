@@ -93,6 +93,9 @@ public:
          */
     virtual QSize sizeHint() const;
 
+    QPoint upperLeft() const
+        { return upperLeft_; }
+
         /**
          * Returns the current zoom level.
          *
