@@ -10,6 +10,7 @@ ColorMapEditor::ColorMapEditor(QWidget *parent, const char *name)
 {
 	new ColorToolTip(this);
 	gradientRect_.setTopLeft(QPoint(xMargin, yMargin));
+	setMinimumSize(2*xMargin + 80, 2*yMargin + 8 + triangleHeight);
 }
 
 void ColorMapEditor::setColorMap(ColorMap *cm)
@@ -20,6 +21,23 @@ void ColorMapEditor::setColorMap(ColorMap *cm)
 QSize ColorMapEditor::sizeHint() const
 {
 	return QSize(240, 33);
+}
+
+double ColorMapEditor::x2Value(int x) const
+{
+	return valueOffset_ + valueScale_*(x - xMargin);
+}
+
+bool ColorMapEditor::tip(const QPoint &p, QRect &r, QString &s)
+{
+	if(gradientRect_.contains(p))
+	{
+		r.setCoords(p.x()-1, gradientRect_.top(),
+					p.x()+1, gradientRect_.bottom());
+		s = QString::number(x2Value(p.x()));
+		return true;
+	}
+	return false;
 }
 
 void ColorMapEditor::paintEvent(QPaintEvent *e)
@@ -38,7 +56,7 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 	// fill gradientRect_ with gradient and draw outline
 	for(int x = gradientRect_.left(); x <= gradientRect_.right(); ++x)
 	{
-		p.setPen(v2q((*cm_)(valueOffset_ + valueScale_*(x - xMargin))));
+		p.setPen(v2q((*cm_)(x2Value(x))));
 		p.drawLine(x, gradientRect_.top(), x, gradientRect_.bottom());
 	}
 	QRect gradOutline(gradientRect_);
@@ -96,7 +114,7 @@ void ColorMapEditor::resizeEvent(QResizeEvent *e)
 
 	valueOffset_ = cm_->domainMin();
 	valueScale_ = (cm_->domainMax() - cm_->domainMin()) /
-				  (width() - 2*xMargin);
+				  (gradientRect_.width() - 1);
 }
 
 /********************************************************************/
@@ -111,11 +129,10 @@ void ColorToolTip::maybeTip(const QPoint &p)
     if(!parentWidget()->inherits("ColorMapEditor"))
         return;
 
-//     QRect r(((ColorMapEditor*)parentWidget())->tip(pos));
-//     if(!r.isValid())
-//         return;
+    QRect r;
+    QString s;
+	if(!static_cast<ColorMapEditor*>(parentWidget())->tip(p, r, s))
+        return;
 
-//     QString s;
-//     s.sprintf("position: %d,%d", r.center().x(), r.center().y());
-//     tip(r, s);
+    tip(r, s);
 }
