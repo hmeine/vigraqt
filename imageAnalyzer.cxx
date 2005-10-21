@@ -1,10 +1,12 @@
 #include "imageAnalyzer.hxx"
 #include "colormap.hxx"
+#include "cmEditor.h"
 
 #include <vigraqimage.hxx>
 #include <qimageviewer.hxx>
 #include <imagecaption.hxx>
 
+#include <qlayout.h>
 #include <qstatusbar.h>
 
 #include <vigra/impex.hxx>
@@ -19,6 +21,7 @@ struct ImageAnalyzerPrivate
     OriginalImage                originalImage;
     vigra::FindMinMax<PixelType> minmax;
     ColorMap                    *cm;
+	ColorMapEditor              *cme;
     ImageCaption                *imageCaption;
 };
 
@@ -27,6 +30,9 @@ ImageAnalyzer::ImageAnalyzer(QWidget *parent, const char *name)
   p(new ImageAnalyzerPrivate)
 {
     p->cm = createCM();
+	p->cme = new ColorMapEditor(this, "colorMapEditor");
+	p->cme->setColorMap(p->cm);
+	static_cast<QBoxLayout *>(layout())->addWidget(p->cme);
     p->imageCaption = NULL;
 }
 
@@ -37,7 +43,7 @@ void ImageAnalyzer::load(const char *filename)
     vigra::ImageImportInfo info(filename);
     p->originalImage.resize(info.size());
     importImage(info, destImage(p->originalImage));
-    
+
     p->minmax.reset();
     vigra::inspectImage(srcImageRange(p->originalImage), p->minmax);
 
