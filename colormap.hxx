@@ -32,6 +32,11 @@ class ColorMap
         return transitionPoints_[i].position;
     }
 
+    double domainPosition(unsigned int i) const
+    {
+        return transitionPoints_[i].projected;
+    }
+
     Color color(unsigned int i) const
     {
         return vigra::NumericTraits<Color>::fromRealPromote(
