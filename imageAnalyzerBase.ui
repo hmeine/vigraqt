@@ -4,14 +4,6 @@
     <property name="name">
         <cstring>ImageAnalyzer</cstring>
     </property>
-    <property name="geometry">
-        <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>305</width>
-            <height>240</height>
-        </rect>
-    </property>
     <property name="caption">
         <string>ImageAnalyzer</string>
     </property>
