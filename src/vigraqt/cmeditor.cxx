@@ -28,12 +28,42 @@ double ColorMapEditor::x2Value(int x) const
 	return valueOffset_ + valueScale_*(x - xMargin);
 }
 
+int ColorMapEditor::value2X(double value) const
+{
+	return (int)(xMargin + (value - valueOffset_)/valueScale_ + 0.5);
+}
+
 bool ColorMapEditor::tip(const QPoint &p, QRect &r, QString &s)
 {
+	if(!cm_)
+		return false;
+
+	bool found = false;
+	for(unsigned int i = 0; i < cm_->size(); ++i)
+	{
+		QRect tr(0, 0, triangleWidth, triangleHeight);
+		tr.moveBy(value2X(cm_->domainPosition(i)) -triangleWidth/2,
+				  height()-1 - yMargin-triangleHeight);
+		if(tr.contains(p))
+		{
+			r = tr;
+			s = QString("Transition point %1 of %2\nPosition: %3\nColor: %4")
+				.arg(i+1).arg(cm_->size())
+				.arg(cm_->domainPosition(i))
+				.arg(QColor(v2q(cm_->color(i))).name());
+			if(p.x() - tr.left() < triangleWidth/2)
+				return true;
+			else
+				found = true;
+		}
+	}
+	if(found)
+		return true;
+
 	if(gradientRect_.contains(p))
 	{
-		r.setCoords(p.x()-1, gradientRect_.top(),
-					p.x()+1, gradientRect_.bottom());
+		r.setCoords(p.x(), gradientRect_.top(),
+					p.x(), gradientRect_.bottom());
 		s = QString::number(x2Value(p.x()));
 		return true;
 	}
@@ -77,8 +107,8 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 	p.setPen(QPen(Qt::NoPen));
 	for(int i = cm_->size()-1; i >= 0; --i)
 	{
-		int x = (int)((cm_->domainPosition(i)-valueOffset_) / valueScale_ + 0.5);
-		triangle.translate(xMargin + x - triangle[1].x(), 0);
+		int x = value2X(cm_->domainPosition(i)-valueOffset_);
+		triangle.translate(x - triangle[1].x(), 0);
 		p.setBrush(v2q(cm_->color(i)));
 		p.drawPolygon(triangle);
 	}
@@ -86,8 +116,8 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 	// draw right halfs of triangles from left to right:
 	for(unsigned int i = 0; i < cm_->size(); ++i)
 	{
-		int x = (int)((cm_->domainPosition(i)-valueOffset_) / valueScale_ + 0.5);
-		rightHalf.translate(xMargin + x - rightHalf[1].x(), 0);
+		int x = value2X(cm_->domainPosition(i)-valueOffset_);
+		rightHalf.translate(x - rightHalf[1].x(), 0);
 		p.setBrush(v2q(cm_->color(i)));
 		p.drawPolygon(rightHalf);
 	}
@@ -97,8 +127,8 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 	p.setBrush(Qt::NoBrush);
 	for(unsigned int i = 0; i < cm_->size(); ++i)
 	{
-		int x = (int)((cm_->domainPosition(i)-valueOffset_) / valueScale_ + 0.5);
-		triangle.translate(xMargin + x - triangle[1].x(), 0);
+		int x = value2X(cm_->domainPosition(i)-valueOffset_);
+		triangle.translate(x - triangle[1].x(), 0);
 		p.drawPolygon(triangle);
 	}
 
