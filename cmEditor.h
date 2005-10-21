@@ -17,6 +17,7 @@ public:
 
 protected:
 	double x2Value(int x) const;
+	int value2X(double value) const;
 
 	bool tip(const QPoint &p, QRect &r, QString &s);
 	friend class ColorToolTip;
