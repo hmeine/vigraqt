@@ -19,8 +19,11 @@ void ColorMap::recalculateFactors()
     while(++tpIt != tpEnd)
     {
 		tpIt->projected = min + range * tpIt->position;
-		prevTP->scale = (tpIt->color - prevTP->color) /
-						(tpIt->projected - prevTP->projected);
+		if(tpIt->projected > prevTP->projected)
+		{
+			prevTP->scale = (tpIt->color - prevTP->color) /
+							(tpIt->projected - prevTP->projected);
+		}
         prevTP = tpIt;
     }
 }
@@ -30,6 +33,19 @@ class FireMap : public ColorMap
 public:
 	FireMap()
 	{
+		transitionPoints_.push_back(TransitionPoint(0.0,   Color(0, 0, 0)));
+		transitionPoints_.push_back(TransitionPoint(1.0/3, Color(255, 0, 0)));
+		transitionPoints_.push_back(TransitionPoint(2.0/3, Color(255, 255, 0)));
+		transitionPoints_.push_back(TransitionPoint(1.0,   Color(255, 255, 255)));
+	}
+};
+
+class NegMap : public ColorMap
+{
+public:
+	NegMap()
+	{
+		transitionPoints_.push_back(TransitionPoint(0.0,   Color(0, 0, 255)));
 		transitionPoints_.push_back(TransitionPoint(0.0,   Color(0, 0, 0)));
 		transitionPoints_.push_back(TransitionPoint(1.0/3, Color(255, 0, 0)));
 		transitionPoints_.push_back(TransitionPoint(2.0/3, Color(255, 255, 0)));
@@ -49,5 +65,6 @@ public:
 
 ColorMap *createCM()
 {
-	return new GrayMap();
+	//return new FireMap();
+	return new NegMap();
 }
