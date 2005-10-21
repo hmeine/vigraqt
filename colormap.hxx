@@ -5,12 +5,13 @@
 #include <vigra/rgbvalue.hxx>
 #include <vector>
 
-// TODO: change into Accessor
+// TODO: template??
+//template<class COLOR = vigra::RGBValue<unsigned char> >
 class ColorMap
 {
   public:
+    typedef vigra::RGBValue<unsigned char> Color;
     typedef float ArgumentType;
-    typedef unsigned char ComponentType;
 
     void setDomain(ArgumentType min, ArgumentType max);
     inline ArgumentType domainMin() const
@@ -18,19 +19,34 @@ class ColorMap
     inline ArgumentType domainMax() const
     	{ return transitionPoints_.back().projected; }
 
+    inline Color operator()(ArgumentType v) const;
+
     template<class ITERATOR>
     inline void set(ArgumentType v, ITERATOR it) const;
+
+    unsigned int size() const
+    { return transitionPoints_.size(); }
+
+    double position(unsigned int i) const
+    {
+        return transitionPoints_[i].position;
+    }
+
+    Color color(unsigned int i) const
+    {
+        return vigra::NumericTraits<Color>::fromRealPromote(
+            transitionPoints_[i].color);
+    }
 
   protected:
     void recalculateFactors();
 
-    typedef vigra::NumericTraits<ArgumentType>::RealPromote PromoteType;
-    typedef vigra::RGBValue<PromoteType> Color;
+    typedef vigra::NumericTraits<Color>::RealPromote InternalColor;
 
     struct TransitionPoint
     {
         double position, projected;
-        Color color, scale;
+        InternalColor color, scale;
 
         TransitionPoint(double position, Color color)
         : position(position), color(color)
@@ -44,16 +60,15 @@ class ColorMap
 
 ColorMap *createCM();
 
-template<class ITERATOR>
-inline void ColorMap::set(ArgumentType v, ITERATOR it) const
+//template<class COLOR = vigra::RGBValue<unsigned char> >
+inline ColorMap::Color ColorMap::operator()(ArgumentType v) const
 {
     TransitionPoints::const_iterator
         tpIt(transitionPoints_.begin());
 
     if(v < tpIt->projected)
     {
-        *it = tpIt->color;
-        return;
+        return vigra::NumericTraits<Color>::fromRealPromote(tpIt->color);
     }
 
     TransitionPoints::const_iterator
@@ -63,13 +78,19 @@ inline void ColorMap::set(ArgumentType v, ITERATOR it) const
     {
         if(v < tpIt->projected)
         {
-            *it = prevTP->color + prevTP->scale * (v - prevTP->projected);
-            return;
+            return vigra::NumericTraits<Color>::fromRealPromote(
+                prevTP->color + prevTP->scale * (v - prevTP->projected));
         }
         prevTP = tpIt;
     }
 
-    *it = prevTP->color;
+    return vigra::NumericTraits<Color>::fromRealPromote(prevTP->color);
+}
+
+template<class ITERATOR>
+inline void ColorMap::set(ArgumentType v, ITERATOR it) const
+{
+    *it = operator()(v);
 }
 
 #endif // COLORMAP_HXX
