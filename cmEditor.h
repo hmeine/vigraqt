@@ -16,6 +16,11 @@ public:
 	virtual QSize sizeHint() const;
 
 protected:
+	double x2Value(int x) const;
+
+	bool tip(const QPoint &p, QRect &r, QString &s);
+	friend class ColorToolTip;
+
 	// layout constants:
 	enum { xMargin = 10, yMargin = 2, triangleWidth = 12, triangleHeight = 12 };
 
