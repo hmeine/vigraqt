@@ -30,9 +30,9 @@ ImageAnalyzer::ImageAnalyzer(QWidget *parent, const char *name)
   p(new ImageAnalyzerPrivate)
 {
     p->cm = createCM();
-	p->cme = new ColorMapEditor(this, "colorMapEditor");
+	p->cme = new ColorMapEditor(centralWidget(), "colorMapEditor");
 	p->cme->setColorMap(p->cm);
-	static_cast<QBoxLayout *>(layout())->addWidget(p->cme);
+	ImageAnalyzerLayout->addWidget(p->cme);
     p->imageCaption = NULL;
 }
 
