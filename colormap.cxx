@@ -7,25 +7,38 @@ void ColorMap::setDomain(ArgumentType min, ArgumentType max)
 	recalculateFactors();
 }
 
+double ColorMap::setDomainPosition(unsigned int i, double v)
+{
+	v = (v - domainMin()) / (domainMax() - domainMin());
+	transitionPoints_[i].position = v;
+	for(unsigned int j = 0; j < i; ++j)
+		if(transitionPoints_[j].position > v)
+			transitionPoints_[j].position = v;
+	for(unsigned int j = i + 1; j < transitionPoints_.size(); ++j)
+		if(transitionPoints_[j].position < v)
+			transitionPoints_[j].position = v;
+	recalculateFactors();
+}
+
 void ColorMap::recalculateFactors()
 {
 	double min = domainMin(), range = domainMax() - min;
 
-    TransitionPoints::iterator
-        tpIt(transitionPoints_.begin()),
-        prevTP(tpIt),
+	TransitionPoints::iterator
+		tpIt(transitionPoints_.begin()),
+		prevTP(tpIt),
 		tpEnd(transitionPoints_.end());
 
-    while(++tpIt != tpEnd)
-    {
+	while(++tpIt != tpEnd)
+	{
 		tpIt->projected = min + range * tpIt->position;
 		if(tpIt->projected > prevTP->projected)
 		{
 			prevTP->scale = (tpIt->color - prevTP->color) /
 							(tpIt->projected - prevTP->projected);
 		}
-        prevTP = tpIt;
-    }
+		prevTP = tpIt;
+	}
 }
 
 class FireMap : public ColorMap
