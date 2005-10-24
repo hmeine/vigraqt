@@ -1,7 +1,9 @@
 #include "cmEditor.h"
 #include <vigraqimage.hxx>
+#include <qcolordialog.h>
 #include <qpainter.h>
 
+using vigra::q2v;
 using vigra::v2q;
 
 ColorMapEditor::ColorMapEditor(QWidget *parent, const char *name)
@@ -22,6 +24,34 @@ void ColorMapEditor::setColorMap(ColorMap *cm)
 QSize ColorMapEditor::sizeHint() const
 {
 	return QSize(240, 33);
+}
+
+void ColorMapEditor::editColor(unsigned int i)
+{
+	QColor newColor = QColorDialog::getColor(v2q(cm_->color(i)));
+	if(newColor.isValid())
+	{
+		cm_->setColor(i, q2v(newColor));
+		update();
+		emit colorMapChanged();
+	}
+
+	/*
+	// most code borrowed from static QColorDialog::getColor():
+	int allocContext = QColor::enterAllocContext();
+	QColorDialog *dlg = new QColorDialog(this, "colorChooser", true);
+	dlg->setCaption( // custom caption
+		QString("Transition Point %1 of %2").arg(i+1).arg(cm_->size()));
+	dlg->setColor(v2q(cm_->color(i)));
+	dlg->selectColor(v2q(cm_->color(i)));
+	if(dlg->exec() == QDialog::Accepted)
+	{
+		cm_->setColor(i, q2v(dlg->color()));
+	}
+	QColor::leaveAllocContext();
+	QColor::destroyAllocContext(allocContext);
+	delete dlg;
+	*/
 }
 
 void ColorMapEditor::rereadColorMap()
@@ -128,6 +158,23 @@ void ColorMapEditor::mouseReleaseEvent(QMouseEvent *e)
 
 void ColorMapEditor::mouseDoubleClickEvent(QMouseEvent *e)
 {
+	if(!cm_ || (e->button() != Qt::LeftButton))
+	{
+		e->ignore();
+		return;
+	}
+	for(unsigned int i = 0; i < cm_->size(); ++i)
+	{
+		if(triangles_[i].points.boundingRect().contains(e->pos()))
+		{
+			editColor(i);
+			return;
+		}
+	}
+	if(gradientRect_.contains(e->pos()))
+	{
+		editColor(cm_->insert(x2Value(e->pos().x())));
+	}
 }
 
 double ColorMapEditor::x2Value(int x) const
@@ -266,13 +313,13 @@ ColorToolTip::ColorToolTip(QWidget *parent)
 
 void ColorToolTip::maybeTip(const QPoint &p)
 {
-    if(!parentWidget()->inherits("ColorMapEditor"))
-        return;
+	if(!parentWidget()->inherits("ColorMapEditor"))
+		return;
 
-    QRect r;
-    QString s;
+	QRect r;
+	QString s;
 	if(!static_cast<ColorMapEditor*>(parentWidget())->tip(p, r, s))
-        return;
+		return;
 
-    tip(r, s);
+	tip(r, s);
 }
