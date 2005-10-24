@@ -17,6 +17,9 @@ public:
 
 	virtual QSize sizeHint() const;
 
+	// opens the color changing dialog:
+	void editColor(unsigned int i);
+
 public slots:
 	void rereadColorMap();
 
