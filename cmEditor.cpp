@@ -43,6 +43,7 @@ void ColorMapEditor::editColor(unsigned int i)
 void ColorMapEditor::remove(unsigned int i)
 {
 	cm_->remove(i);
+	triangles_.erase(triangles_.begin() + i);
 	update();
 	emit colorMapChanged();
 }
@@ -172,7 +173,11 @@ void ColorMapEditor::mouseDoubleClickEvent(QMouseEvent *e)
 	}
 	if(gradientRect_.contains(e->pos()))
 	{
-		editColor(cm_->insert(x2Value(e->pos().x())));
+		int newIndex = cm_->insert(x2Value(e->pos().x()));
+		triangles_.insert(triangles_.begin() + newIndex, Triangle());
+		updateTriangles();
+		triangles_[newIndex].selected = true;
+		editColor(newIndex);
 	}
 }
 
