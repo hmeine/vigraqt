@@ -15,9 +15,9 @@ class ColorMap
 
     void setDomain(ArgumentType min, ArgumentType max);
     inline ArgumentType domainMin() const
-    	{ return transitionPoints_.front().projected; }
+    { return transitionPoints_.front().projected; }
     inline ArgumentType domainMax() const
-    	{ return transitionPoints_.back().projected; }
+    { return transitionPoints_.back().projected; }
 
     inline Color operator()(ArgumentType v) const;
 
@@ -25,12 +25,16 @@ class ColorMap
     inline void set(ArgumentType v, ITERATOR it) const;
 
     unsigned int size() const
-    { return transitionPoints_.size(); }
+    {
+        return transitionPoints_.size();
+    }
 
     double position(unsigned int i) const
     {
         return transitionPoints_[i].position;
     }
+
+    double setDomainPosition(unsigned int i, double v);
 
     double domainPosition(unsigned int i) const
     {
