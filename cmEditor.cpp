@@ -5,7 +5,7 @@
 using vigra::v2q;
 
 ColorMapEditor::ColorMapEditor(QWidget *parent, const char *name)
-: QWidget(parent, name),
+: QWidget(parent, name, Qt::WNoAutoErase),
   cm_(NULL)
 {
 	new ColorToolTip(this);
@@ -16,11 +16,118 @@ ColorMapEditor::ColorMapEditor(QWidget *parent, const char *name)
 void ColorMapEditor::setColorMap(ColorMap *cm)
 {
 	cm_ = cm;
+	updateTriangles();
 }
 
 QSize ColorMapEditor::sizeHint() const
 {
 	return QSize(240, 33);
+}
+
+void ColorMapEditor::rereadColorMap()
+{
+	updateTriangles();
+	update();
+}
+
+void ColorMapEditor::mousePressEvent(QMouseEvent *e)
+{
+	changed_ = false;
+	dragStartX_ = e->pos().x();
+	selectIndex_ = -1;
+	for(unsigned int i = 0; i < cm_->size(); ++i)
+	{
+		if(triangles_[i].points.boundingRect().contains(e->pos()))
+		{
+			if(e->state() & Qt::ControlButton)
+			{
+				// Ctrl-press: toggle selection
+				if(!triangles_[i].selected)
+					triangles_[i].selected = true;
+				else
+					selectIndex_ = i;
+			}
+			else
+			{
+				// unselect all other if not dragging:
+				if(!triangles_[i].selected)
+				{
+					for(unsigned int j = 0; j < cm_->size(); ++j)
+						triangles_[j].selected = (j == i);
+				}
+				else
+					selectIndex_ = i;
+			}
+			dragging_ = true;
+			break; // pointer can only be over one handle at a time anyhow
+		}
+	}
+
+	if(!(e->state() & Qt::ControlButton) && !dragging_) // click outside handles
+		for(unsigned int i = 0; i < cm_->size(); ++i)
+			triangles_[i].selected = false;
+
+	update();
+}
+
+void ColorMapEditor::mouseMoveEvent(QMouseEvent *e)
+{
+	int dragDist = e->pos().x() - dragStartX_;
+	if(!dragging_ || !dragDist)
+		return;
+
+	bool changed = false;
+	// skip outermost as long as we do not have our own domain:
+	for(unsigned int i = 1; i < cm_->size() - 1; ++i)
+	{
+		if(triangles_[i].selected)
+		{
+			double newPos = cm_->domainPosition(i) + valueScale_ * dragDist;
+			if(newPos < cm_->domainMin())
+				newPos = cm_->domainMin();
+			if(newPos > cm_->domainMax())
+				newPos = cm_->domainMax();
+			if(cm_->domainPosition(i) != newPos)
+			{
+				cm_->setDomainPosition(i, newPos);
+				changed = true;
+			}
+		}
+	}
+
+	if(changed)
+	{
+		changed_ = true;
+		update();
+		dragStartX_ = e->pos().x();
+	}
+}
+
+void ColorMapEditor::mouseReleaseEvent(QMouseEvent *e)
+{
+	dragging_ = false;
+
+	if(changed_)
+	{
+		emit colorMapChanged();
+	}
+	else if(selectIndex_ >= 0)
+	{
+		if(!(e->state() & Qt::ControlButton))
+		{
+			for(unsigned int i = 0; i < cm_->size(); ++i)
+			{
+				triangles_[i].selected = (i == selectIndex_);
+			}
+		}
+		else
+			triangles_[selectIndex_].selected = false;
+		update();
+	}
+}
+
+void ColorMapEditor::mouseDoubleClickEvent(QMouseEvent *e)
+{
 }
 
 double ColorMapEditor::x2Value(int x) const
@@ -33,32 +140,51 @@ int ColorMapEditor::value2X(double value) const
 	return (int)(xMargin + (value - valueOffset_)/valueScale_ + 0.5);
 }
 
+void ColorMapEditor::updateTriangles()
+{
+	if(!cm_)
+		return;
+
+	QPointArray triangle(3);
+	triangle.setPoint(0, -triangleWidth/2, height()-1 - yMargin);
+	triangle.setPoint(1, 0, height()-1 - yMargin-triangleHeight);
+	triangle.setPoint(2, triangle[0].x()+triangleWidth, height()-1 - yMargin);
+	triangles_.resize(cm_->size());
+	for(unsigned int i = 0; i < cm_->size(); ++i)
+	{
+		triangles_[i].points = triangle.copy();
+		triangles_[i].points.translate(value2X(cm_->domainPosition(i)), 0);
+	}
+	for(unsigned int i = 1; i < cm_->size(); ++i)
+	{
+		if(triangles_[i-1].points[2].x() > triangles_[i].points[0].x())
+		{
+			int meetX = (triangles_[i-1].points[2].x() +
+						 triangles_[i].points[0].x()) / 2;
+			triangles_[i-1].points[2].setX(meetX);
+			triangles_[i].points[0].setX(meetX);
+			// TODO: add intersection points
+		}
+	}
+}
+
 bool ColorMapEditor::tip(const QPoint &p, QRect &r, QString &s)
 {
 	if(!cm_)
 		return false;
 
-	bool found = false;
 	for(unsigned int i = 0; i < cm_->size(); ++i)
 	{
-		QRect tr(0, 0, triangleWidth, triangleHeight);
-		tr.moveBy(value2X(cm_->domainPosition(i)) -triangleWidth/2,
-				  height()-1 - yMargin-triangleHeight);
-		if(tr.contains(p))
+		if(triangles_[i].points.boundingRect().contains(p))
 		{
-			r = tr;
+			r = triangles_[i].points.boundingRect();
 			s = QString("Transition point %1 of %2\nPosition: %3\nColor: %4")
 				.arg(i+1).arg(cm_->size())
 				.arg(cm_->domainPosition(i))
 				.arg(QColor(v2q(cm_->color(i))).name());
-			if(p.x() - tr.left() < triangleWidth/2)
-				return true;
-			else
-				found = true;
+			return true;
 		}
 	}
-	if(found)
-		return true;
 
 	if(gradientRect_.contains(p))
 	{
@@ -67,6 +193,7 @@ bool ColorMapEditor::tip(const QPoint &p, QRect &r, QString &s)
 		s = QString::number(x2Value(p.x()));
 		return true;
 	}
+
 	return false;
 }
 
@@ -94,42 +221,24 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 	p.setPen(Qt::black);
 	p.drawRect(gradOutline);
 
-	// setup triangle QPointArray and derive right half from it:
-	QPointArray triangle(3), rightHalf(3);
-	triangle.setPoint(0, -triangleWidth/2, height()-1 - yMargin);
-	triangle.setPoint(1, 0, height()-1 - yMargin-triangleHeight);
-	triangle.setPoint(2, triangle[0].x()+triangleWidth, height()-1 - yMargin);
-	for(unsigned int i = 0; i < 3; ++i)
-		rightHalf.setPoint(i, triangle[i]);
-	rightHalf[0].setX(0);
-
-	// draw filled triangles from right to left:
-	p.setPen(QPen(Qt::NoPen));
-	for(int i = cm_->size()-1; i >= 0; --i)
-	{
-		int x = value2X(cm_->domainPosition(i)-valueOffset_);
-		triangle.translate(x - triangle[1].x(), 0);
-		p.setBrush(v2q(cm_->color(i)));
-		p.drawPolygon(triangle);
-	}
-
-	// draw right halfs of triangles from left to right:
+	// draw filled triangles:
+	updateTriangles();
+	QPen pen(Qt::black);
+	p.setPen(pen);
 	for(unsigned int i = 0; i < cm_->size(); ++i)
 	{
-		int x = value2X(cm_->domainPosition(i)-valueOffset_);
-		rightHalf.translate(x - rightHalf[1].x(), 0);
 		p.setBrush(v2q(cm_->color(i)));
-		p.drawPolygon(rightHalf);
-	}
-
-	// draw complete triangle outlines
-	p.setPen(Qt::black);
-	p.setBrush(Qt::NoBrush);
-	for(unsigned int i = 0; i < cm_->size(); ++i)
-	{
-		int x = value2X(cm_->domainPosition(i)-valueOffset_);
-		triangle.translate(x - triangle[1].x(), 0);
-		p.drawPolygon(triangle);
+		if(triangles_[i].selected)
+		{
+			pen.setWidth(2);
+			p.setPen(pen);
+		}
+		p.drawPolygon(triangles_[i].points);
+		if(triangles_[i].selected)
+		{
+			pen.setWidth(0);
+			p.setPen(pen);
+		}
 	}
 
 	bitBlt(this, 0, 0, &pm);
@@ -145,6 +254,7 @@ void ColorMapEditor::resizeEvent(QResizeEvent *e)
 	valueOffset_ = cm_->domainMin();
 	valueScale_ = (cm_->domainMax() - cm_->domainMin()) /
 				  (gradientRect_.width() - 1);
+	updateTriangles();
 }
 
 /********************************************************************/
