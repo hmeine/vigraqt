@@ -692,6 +692,7 @@ void QImageViewer::createDrawingPixmap()
     if(zoomLevel_ == 0)
     {
         drawingPixmap_.convertFromImage(originalImage_);
+        update();
         return;
     }
 
