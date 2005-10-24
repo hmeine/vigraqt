@@ -7,7 +7,7 @@ void ColorMap::setDomain(ArgumentType min, ArgumentType max)
 	recalculateFactors();
 }
 
-double ColorMap::setDomainPosition(unsigned int i, double v)
+void ColorMap::setDomainPosition(unsigned int i, double v)
 {
 	v = (v - domainMin()) / (domainMax() - domainMin());
 	transitionPoints_[i].position = v;
@@ -18,6 +18,30 @@ double ColorMap::setDomainPosition(unsigned int i, double v)
 		if(transitionPoints_[j].position < v)
 			transitionPoints_[j].position = v;
 	recalculateFactors();
+}
+
+void ColorMap::setColor(unsigned int i, Color c)
+{
+	transitionPoints_[i].color = c;
+	recalculateFactors();
+}
+
+unsigned int ColorMap::insert(double domainPosition)
+{
+    TransitionPoints::iterator
+        insertPos(transitionPoints_.begin());
+	while((domainPosition > insertPos->projected) &&
+		  (insertPos != transitionPoints_.end()))
+		++insertPos;
+
+	transitionPoints_.insert(
+		insertPos, TransitionPoint(
+			(domainPosition - domainMin()) / (domainMax() - domainMin()),
+			operator()(domainPosition)));
+
+	recalculateFactors();
+
+	return insertPos-transitionPoints_.begin();
 }
 
 void ColorMap::recalculateFactors()

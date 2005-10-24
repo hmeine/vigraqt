@@ -34,18 +34,21 @@ class ColorMap
         return transitionPoints_[i].position;
     }
 
-    double setDomainPosition(unsigned int i, double v);
-
     double domainPosition(unsigned int i) const
     {
         return transitionPoints_[i].projected;
     }
+    void setDomainPosition(unsigned int i, double v);
 
     Color color(unsigned int i) const
     {
         return vigra::NumericTraits<Color>::fromRealPromote(
             transitionPoints_[i].color);
     }
+    void setColor(unsigned int i, Color c);
+
+        // TODO: improved name indicating domain position?
+    unsigned int insert(double domainPosition);
 
   protected:
     void recalculateFactors();
