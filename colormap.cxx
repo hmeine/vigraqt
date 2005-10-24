@@ -41,7 +41,14 @@ unsigned int ColorMap::insert(double domainPosition)
 
 	recalculateFactors();
 
-	return insertPos-transitionPoints_.begin();
+	return insertPos - transitionPoints_.begin();
+}
+
+void ColorMap::remove(unsigned int i)
+{
+	transitionPoints_.erase(transitionPoints_.begin() + i);
+
+	recalculateFactors();
 }
 
 void ColorMap::recalculateFactors()
