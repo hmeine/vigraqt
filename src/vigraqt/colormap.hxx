@@ -50,6 +50,8 @@ class ColorMap
         // TODO: improved name indicating domain position?
     unsigned int insert(double domainPosition);
 
+    void remove(unsigned int i);
+
   protected:
     void recalculateFactors();
 
