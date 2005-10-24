@@ -4,3 +4,4 @@ imageAnalyzerBase.cpp
 imageAnalyzerBase.h
 moc_imageAnalyzerBase.cpp
 moc_cmEditor.cpp
+moc_imageAnalyzer.cpp
