@@ -32,6 +32,7 @@ ImageAnalyzer::ImageAnalyzer(QWidget *parent, const char *name)
     p->cm = createCM();
 	p->cme = new ColorMapEditor(centralWidget(), "colorMapEditor");
 	p->cme->setColorMap(p->cm);
+	connect(p->cme, SIGNAL(colorMapChanged()), SLOT(updateDisplay()));
 	ImageAnalyzerLayout->addWidget(p->cme);
     p->imageCaption = NULL;
 }

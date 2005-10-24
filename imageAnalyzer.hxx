@@ -7,11 +7,15 @@ struct ImageAnalyzerPrivate;
 
 class ImageAnalyzer : public ImageAnalyzerBase
 {
+    Q_OBJECT
+
     ImageAnalyzerPrivate *p;
 
-  public:
+public:
     ImageAnalyzer(QWidget *parent = NULL, const char *name = NULL);
     void load(const char *filename);
+
+public slots:
     void updateDisplay();
 };
 
