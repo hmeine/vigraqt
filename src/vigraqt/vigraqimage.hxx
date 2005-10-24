@@ -46,6 +46,8 @@ inline Rect2D q2v(const QRect &r)
     { return Rect2D(q2v(r.topLeft()), q2v(r.size())); }
 inline RGBValue<unsigned char> q2v(const QRgb &qrgb)
     { return RGBValue<unsigned char>(qRed(qrgb), qGreen(qrgb), qBlue(qrgb)); }
+inline RGBValue<unsigned char> q2v(const QColor &qcolor)
+    { return RGBValue<unsigned char>(qcolor.red(), qcolor.green(), qcolor.blue()); }
 
 inline QPoint v2q(const Point2D &vp)
     { return QPoint(vp.px(), vp.py()); }
