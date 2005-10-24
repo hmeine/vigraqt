@@ -36,9 +36,14 @@ public:
     void resizeGL(int w, int h);
 
 protected:
-    void initObjects();
+    void initTexture();
 
-    GLuint textureID_, objectID_;
+        // should be user-configurable properties in the future:
+    bool useTexture_, compression_;
+
+    unsigned int textureWidth_, textureHeight_;
+    GLint pixelFormat_, pixelType_;
+    GLuint textureID_;
     const QImage *image_;
 };
 

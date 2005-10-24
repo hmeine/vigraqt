@@ -4,8 +4,9 @@
 
 QGLImageWidget::QGLImageWidget(QWidget *parent, const char *name)
 : QGLWidget(parent, name),
+  useTexture_(true),
+  compression_(true),
   textureID_(0),
-  objectID_(0),
   image_(NULL)
 {
 }
@@ -13,35 +14,37 @@ QGLImageWidget::QGLImageWidget(QWidget *parent, const char *name)
 void QGLImageWidget::setImage(QImage const &image)
 {
     image_ = &image;
-    if(objectID_)
-        initObjects();
 
-    updateGL();
+	if(image_->depth() == 32)
+	{
+		pixelFormat_ = GL_BGRA;
+		pixelType_ = GL_UNSIGNED_INT_8_8_8_8_REV;
+	}
+	else if(image_->depth() == 8)
+	{
+		pixelFormat_ = GL_LUMINANCE;
+		pixelType_ = GL_UNSIGNED_BYTE;
+	}
+	else
+	{
+		std::cerr << "setImage(): Unhandled depth (" << image_->depth() << ").\n";
+		return;
+	}
+
+    if(textureID_) // initializeGL finished?
+    {
+        if(useTexture_)
+            initTexture();
+        updateGL();
+    }
 }
 
 void QGLImageWidget::roiChanged(QPoint upperLeft, QSize size)
 {
-	GLint pixelFormat, pixelType;
-	if(image_->depth() == 32)
-	{
-		pixelFormat = GL_BGRA;
-		pixelType = GL_UNSIGNED_INT_8_8_8_8_REV;
-	}
-	else if(image_->depth() == 8)
-	{
-		pixelFormat = GL_LUMINANCE;
-		pixelType = GL_UNSIGNED_BYTE;
-	}
-	else
-	{
-		std::cerr << "setImage(): Unhandled depth.\n";
-		return;
-	}
-
     glTexSubImage2D(GL_TEXTURE_2D, 0,
                     upperLeft.x(), upperLeft.y(),
                     size.width(), size.height(),
-                    pixelFormat, pixelType, image_->bits());
+                    pixelFormat_, pixelType_, image_->bits());
     updateGL();
 }
 
@@ -49,9 +52,6 @@ void QGLImageWidget::initializeGL()
 {
     qglClearColor(backgroundColor());
     glGenTextures(1, &textureID_);
-    objectID_ = glGenLists(1);
-    std::cerr << "using texture " << textureID_
-              << " and object " << objectID_ << "\n";
 
     glShadeModel(GL_FLAT);
     glDisable(GL_DEPTH_TEST);
@@ -61,15 +61,16 @@ void QGLImageWidget::initializeGL()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    if(image_)
-        initObjects();
+    if(image_ && useTexture_)
+        initTexture();
 }
 
 void QGLImageWidget::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    if(image_) {
+    if(image_)
+    {
         glEnable(GL_TEXTURE_2D);
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
         glBindTexture(GL_TEXTURE_2D, textureID_);
@@ -79,9 +80,27 @@ void QGLImageWidget::paintGL()
         glLoadIdentity();
         glTranslatef(ul.x(), height()-ul.y(), 0);
         glScalef(pow(2.0, viewer->zoomLevel()),
-                 pow(2.0, viewer->zoomLevel()), 1.f);
-        glTranslatef(0, -image_->height(), 0);
-        glCallList(objectID_);
+                 -pow(2.0, viewer->zoomLevel()), 1.f);
+
+        if(useTexture_)
+        {
+            double tw = (double)image_->width() / textureWidth_;
+            double th = (double)image_->height() / textureHeight_;
+            glBegin(GL_QUADS);
+            glTexCoord2f(0.0, 0.0); glVertex2i(0, 0);
+            glTexCoord2f(0.0,  th); glVertex2i(0, image_->height());
+            glTexCoord2f( tw,  th); glVertex2i(image_->width(), image_->height());
+            glTexCoord2f( tw, 0.0); glVertex2i(image_->width(), 0);
+            glEnd();
+        }
+        else
+        {
+            // TODO: vertically mirrored, only work on visible region
+            glRasterPos2i(0, 0);
+            glBitmap(0, 0, 0, 0, 0, -height(), NULL);
+            glDrawPixels(image_->width(), image_->height(),
+                         pixelFormat_, pixelType_, image_->bits());
+        }
 
         glDisable(GL_TEXTURE_2D);
     }
@@ -101,52 +120,59 @@ void QGLImageWidget::resizeGL(int w, int h)
     glLoadIdentity();
 }
 
-void QGLImageWidget::initObjects()
+void QGLImageWidget::initTexture()
 {
     // setup texture
     glBindTexture(GL_TEXTURE_2D, textureID_);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-	GLint pixelFormat, pixelType, targetFormat = GL_RGB;
-	if(image_->depth() == 32)
-	{
-        if(image_->hasAlphaBuffer())
-            targetFormat = GL_RGBA;
-		pixelFormat = GL_BGRA;
-		pixelType = GL_UNSIGNED_INT_8_8_8_8_REV;
-	}
-	else if(image_->depth() == 8)
-	{
-		pixelFormat = GL_LUMINANCE;
-		pixelType = GL_UNSIGNED_BYTE;
-	}
-	else
-	{
-		std::cerr << "setImage(): Unhandled depth (" << image_->depth() << ").\n";
-		return;
-	}
+    textureWidth_ = 2;
+    while(textureWidth_ < (unsigned)image_->width())
+        textureWidth_ *= 2;
+    textureHeight_ = 2;
+    while(textureHeight_ < (unsigned)height())
+        textureHeight_ *= 2;
 
-    glTexImage2D(GL_TEXTURE_2D,
-                 0, // level of detail
-                 targetFormat,
-                 image_->width(), image_->height(), 0,
-                 pixelFormat, pixelType, image_->bits());
+	GLint targetFormat = compression_ ? GL_COMPRESSED_RGB_ARB : GL_RGB;
+    if(image_->hasAlphaBuffer())
+        targetFormat = compression_ ? GL_COMPRESSED_RGBA_ARB : GL_RGBA;
+    std::cerr << "target texture format: " << targetFormat << "\n";
 
-    // setup rectangle object
-    glNewList(objectID_, GL_COMPILE);
+    if((textureWidth_ != (unsigned)image_->width()) ||
+       (textureHeight_ != (unsigned)image_->height()))
+    {
+        QImage uploadImage(textureWidth_, textureHeight_,
+                           image_->depth(), image_->numColors());
 
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 0.0); glVertex2i(0, image_->height());
-    glTexCoord2f(0.0, 1.0); glVertex2i(0, 0);
-    glTexCoord2f(1.0, 1.0); glVertex2i(image_->width(), 0);
-    glTexCoord2f(1.0, 0.0); glVertex2i(image_->width(), image_->height());
-    glEnd();
+        // improve compression by clearing unused pixel data:
+        if(compression_)
+            memset(uploadImage.bits(), 0, uploadImage.numBytes());
 
-    glEndList();
+        // clean, but not really needed ;-)
+        uploadImage.setAlphaBuffer(image_->hasAlphaBuffer());
 
-    std::cerr << "  texture " << textureID_
-              << " and object " << objectID_ << " initialized\n";
+        // copy pixel data
+        for(unsigned int y = 0; y < (unsigned)image_->height(); ++y)
+        {
+            memcpy(uploadImage.scanLine(y), image_->scanLine(y),
+                   image_->bytesPerLine());
+        }
+
+        glTexImage2D(GL_TEXTURE_2D,
+                     0, // level of detail
+                     targetFormat,
+                     textureWidth_, textureHeight_, 0,
+                     pixelFormat_, pixelType_, uploadImage.bits());
+    }
+    else
+    {
+        glTexImage2D(GL_TEXTURE_2D,
+                     0, // level of detail
+                     targetFormat,
+                     image_->width(), image_->height(), 0,
+                     pixelFormat_, pixelType_, image_->bits());
+    }
 }
 
 /********************************************************************/
@@ -164,7 +190,7 @@ QGLImageViewer::QGLImageViewer(QWidget *parent, const char *name)
 void QGLImageViewer::setImage(QImage const &image, bool retainView)
 {
     QImageViewerBase::setImage(image, retainView);
-    glWidget_->setImage(image);
+    glWidget_->setImage(originalImage_);
 }
 
 void QGLImageViewer::updateROI(QImage const &roiImage, QPoint const &upperLeft)
