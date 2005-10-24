@@ -1,7 +1,9 @@
 #include "cmEditor.h"
 #include <vigraqimage.hxx>
 #include <qcolordialog.h>
+#include <qlabel.h>
 #include <qpainter.h>
+#include <qpopupmenu.h>
 
 using vigra::q2v;
 using vigra::v2q;
@@ -13,6 +15,7 @@ ColorMapEditor::ColorMapEditor(QWidget *parent, const char *name)
 	new ColorToolTip(this);
 	gradientRect_.setTopLeft(QPoint(xMargin, yMargin));
 	setMinimumSize(2*xMargin + 80, 2*yMargin + 8 + triangleHeight);
+	setFocusPolicy(QWidget::StrongFocus);
 }
 
 void ColorMapEditor::setColorMap(ColorMap *cm)
@@ -35,23 +38,13 @@ void ColorMapEditor::editColor(unsigned int i)
 		update();
 		emit colorMapChanged();
 	}
+}
 
-	/*
-	// most code borrowed from static QColorDialog::getColor():
-	int allocContext = QColor::enterAllocContext();
-	QColorDialog *dlg = new QColorDialog(this, "colorChooser", true);
-	dlg->setCaption( // custom caption
-		QString("Transition Point %1 of %2").arg(i+1).arg(cm_->size()));
-	dlg->setColor(v2q(cm_->color(i)));
-	dlg->selectColor(v2q(cm_->color(i)));
-	if(dlg->exec() == QDialog::Accepted)
-	{
-		cm_->setColor(i, q2v(dlg->color()));
-	}
-	QColor::leaveAllocContext();
-	QColor::destroyAllocContext(allocContext);
-	delete dlg;
-	*/
+void ColorMapEditor::remove(unsigned int i)
+{
+	cm_->remove(i);
+	update();
+	emit colorMapChanged();
 }
 
 void ColorMapEditor::rereadColorMap()
@@ -62,6 +55,9 @@ void ColorMapEditor::rereadColorMap()
 
 void ColorMapEditor::mousePressEvent(QMouseEvent *e)
 {
+	if((e->button() != Qt::LeftButton) || !cm_)
+		return;
+
 	changed_ = false;
 	dragStartX_ = e->pos().x();
 	selectIndex_ = -1;
@@ -135,6 +131,9 @@ void ColorMapEditor::mouseMoveEvent(QMouseEvent *e)
 
 void ColorMapEditor::mouseReleaseEvent(QMouseEvent *e)
 {
+	if((e->button() != Qt::LeftButton) || !cm_)
+		return;
+
 	dragging_ = false;
 
 	if(changed_)
@@ -147,7 +146,7 @@ void ColorMapEditor::mouseReleaseEvent(QMouseEvent *e)
 		{
 			for(unsigned int i = 0; i < cm_->size(); ++i)
 			{
-				triangles_[i].selected = (i == selectIndex_);
+				triangles_[i].selected = (i == (unsigned int)selectIndex_);
 			}
 		}
 		else
@@ -174,6 +173,46 @@ void ColorMapEditor::mouseDoubleClickEvent(QMouseEvent *e)
 	if(gradientRect_.contains(e->pos()))
 	{
 		editColor(cm_->insert(x2Value(e->pos().x())));
+	}
+}
+
+void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
+{
+	for(unsigned int i = 0; i < cm_->size(); ++i)
+	{
+		if(triangles_[i].points.boundingRect().contains(e->pos()))
+		{
+			QPopupMenu* contextMenu = new QPopupMenu(this);
+			QLabel *caption = new QLabel(
+				QString("<b>Transition Point %1</b>").arg(i+1), contextMenu);
+			caption->setAlignment(Qt::AlignCenter);
+			contextMenu->insertItem(caption);
+			int editID = contextMenu->insertItem("Change Color");
+			int removeID = contextMenu->insertItem("Delete");
+			contextMenu->setItemEnabled(removeID, (i > 0) && (i < cm_->size()-1));
+			int action = contextMenu->exec(e->globalPos());
+			delete contextMenu;
+			if(action == editID)
+				editColor(i);
+			else if (action == removeID)
+				remove(i);
+		}
+	}	
+}
+
+void ColorMapEditor::keyPressEvent(QKeyEvent *e)
+{
+	switch(e->key())
+	{
+	case Qt::Key_Delete:
+	{
+		unsigned int i = 1;
+		while(i < cm_->size() - 1)
+			if(triangles_[i].selected)
+				remove(i);
+			else
+				++i;
+	}
 	}
 }
 
