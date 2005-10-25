@@ -1,6 +1,8 @@
 #include "cmEditor.h"
 #include <vigraqimage.hxx>
 #include <qcolordialog.h>
+#include <qdragobject.h>
+#include <qinputdialog.h>
 #include <qlabel.h>
 #include <qpainter.h>
 #include <qpopupmenu.h>
@@ -12,16 +14,17 @@ ColorMapEditor::ColorMapEditor(QWidget *parent, const char *name)
 : QWidget(parent, name, Qt::WNoAutoErase),
   cm_(NULL)
 {
-	new ColorToolTip(this);
-	gradientRect_.setTopLeft(QPoint(xMargin, yMargin));
 	setMinimumSize(2*xMargin + 80, 2*yMargin + 8 + triangleHeight);
 	setFocusPolicy(QWidget::StrongFocus);
+	setAcceptDrops(true);
+	gradientRect_.setTopLeft(QPoint(xMargin, yMargin));
+	new ColorToolTip(this);
 }
 
 void ColorMapEditor::setColorMap(ColorMap *cm)
 {
 	cm_ = cm;
-	updateTriangles();
+	rereadColorMap();
 }
 
 QSize ColorMapEditor::sizeHint() const
@@ -35,7 +38,7 @@ void ColorMapEditor::editColor(unsigned int i)
 	if(newColor.isValid())
 	{
 		cm_->setColor(i, q2v(newColor));
-		update();
+		rereadColorMap();
 		emit colorMapChanged();
 	}
 }
@@ -44,8 +47,16 @@ void ColorMapEditor::remove(unsigned int i)
 {
 	cm_->remove(i);
 	triangles_.erase(triangles_.begin() + i);
-	update();
+	rereadColorMap();
 	emit colorMapChanged();
+}
+
+unsigned int ColorMapEditor::insert(double domainPosition)
+{
+	unsigned int result = cm_->insert(domainPosition);
+	triangles_.insert(triangles_.begin() + result, Triangle());
+	rereadColorMap();
+	return result;
 }
 
 void ColorMapEditor::rereadColorMap()
@@ -125,7 +136,7 @@ void ColorMapEditor::mouseMoveEvent(QMouseEvent *e)
 	if(changed)
 	{
 		changed_ = true;
-		update();
+		rereadColorMap();
 		dragStartX_ = e->pos().x();
 	}
 }
@@ -152,7 +163,7 @@ void ColorMapEditor::mouseReleaseEvent(QMouseEvent *e)
 		}
 		else
 			triangles_[selectIndex_].selected = false;
-		update();
+		rereadColorMap();
 	}
 }
 
@@ -173,9 +184,7 @@ void ColorMapEditor::mouseDoubleClickEvent(QMouseEvent *e)
 	}
 	if(gradientRect_.contains(e->pos()))
 	{
-		int newIndex = cm_->insert(x2Value(e->pos().x()));
-		triangles_.insert(triangles_.begin() + newIndex, Triangle());
-		updateTriangles();
+		unsigned int newIndex = insert(x2Value(e->pos().x()));
 		triangles_[newIndex].selected = true;
 		editColor(newIndex);
 	}
@@ -192,14 +201,26 @@ void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 				QString("<b>Transition Point %1</b>").arg(i+1), contextMenu);
 			caption->setAlignment(Qt::AlignCenter);
 			contextMenu->insertItem(caption);
-			int editID = contextMenu->insertItem("Change Color");
+			int editColorID = contextMenu->insertItem("Change Color");
+			int editPosID = contextMenu->insertItem("Change Position");
 			int removeID = contextMenu->insertItem("Delete");
 			contextMenu->setItemEnabled(removeID, (i > 0) && (i < cm_->size()-1));
 			int action = contextMenu->exec(e->globalPos());
 			delete contextMenu;
-			if(action == editID)
+			if(action == editColorID)
 				editColor(i);
-			else if (action == removeID)
+			else if(action == editPosID)
+			{
+				double newPos = QInputDialog::getDouble(
+					QString("Transition Point %1").arg(i+1),
+					"Position:", cm_->domainPosition(i));
+				if(cm_->domainPosition(i) != newPos)
+				{
+					cm_->setDomainPosition(i, newPos);
+					rereadColorMap();
+				}
+			}
+			else if(action == removeID)
 				remove(i);
 		}
 	}
@@ -218,6 +239,26 @@ void ColorMapEditor::keyPressEvent(QKeyEvent *e)
 			else
 				++i;
 	}
+	}
+}
+
+void ColorMapEditor::dragMoveEvent(QDragMoveEvent *e)
+{
+	if(gradientRect_.contains(e->pos()) && QColorDrag::canDecode(e))
+	{
+		e->accept(gradientRect_);
+	}
+}
+
+void ColorMapEditor::dropEvent(QDropEvent *e)
+{
+	QColor newColor;
+    if(gradientRect_.contains(e->pos()) && QColorDrag::decode(e, newColor))
+    {
+		unsigned int newIndex = insert(x2Value(e->pos().x()));
+		cm_->setColor(newIndex, q2v(newColor));
+		rereadColorMap();
+		emit colorMapChanged();
 	}
 }
 
@@ -327,7 +368,6 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 	p.drawRect(gradOutline);
 
 	// draw filled triangles:
-	updateTriangles();
 	QPen pen(Qt::black, 1);
 	pen.setJoinStyle(Qt::RoundJoin);
 	p.setPen(pen);

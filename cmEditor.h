@@ -20,6 +20,7 @@ public:
 	// opens the color changing dialog:
 	void editColor(unsigned int i);
 	void remove(unsigned int i);
+	unsigned int insert(double domainPosition);
 
 public slots:
 	void rereadColorMap();
@@ -34,6 +35,8 @@ protected:
 	virtual void mouseDoubleClickEvent(QMouseEvent *e);
 	virtual void contextMenuEvent(QContextMenuEvent *e);
 	virtual void keyPressEvent(QKeyEvent *e);
+	virtual void dragMoveEvent(QDragMoveEvent *e);
+	virtual void dropEvent(QDropEvent *e);
 
 	double x2Value(int x) const;
 	int value2X(double value) const;
