@@ -202,7 +202,7 @@ void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 			else if (action == removeID)
 				remove(i);
 		}
-	}	
+	}
 }
 
 void ColorMapEditor::keyPressEvent(QKeyEvent *e)
@@ -238,7 +238,7 @@ void ColorMapEditor::updateTriangles()
 
 	QPointArray triangle(3);
 	triangle.setPoint(0, -triangleWidth/2, height()-1 - yMargin);
-	triangle.setPoint(1, 0, height()-1 - yMargin-triangleHeight);
+	triangle.setPoint(1, 0, height()-1 - yMargin - triangleHeight);
 	triangle.setPoint(2, triangle[0].x()+triangleWidth, height()-1 - yMargin);
 	triangles_.resize(cm_->size());
 	for(unsigned int i = 0; i < cm_->size(); ++i)
@@ -252,9 +252,23 @@ void ColorMapEditor::updateTriangles()
 		{
 			int meetX = (triangles_[i-1].points[2].x() +
 						 triangles_[i].points[0].x()) / 2;
+			int meetY =
+				triangles_[i-1].points[1].y() +
+				triangleHeight * (meetX - triangles_[i-1].points[1].x()) /
+				(triangles_[i-1].points[2].x() - triangles_[i-1].points[1].x());
+
+			triangles_[i-1].points.resize(4);
+			triangles_[i-1].points[3] = triangles_[i].points[2];
+			triangles_[i-1].points[3].setX(meetX);
 			triangles_[i-1].points[2].setX(meetX);
+			triangles_[i-1].points[2].setY(meetY);
+
+			triangles_[i].points.resize(4);
+			triangles_[i].points[3] = triangles_[i].points[2];
+			triangles_[i].points[2] = triangles_[i].points[1];
+			triangles_[i].points[1].setX(meetX);
+			triangles_[i].points[1].setY(meetY);
 			triangles_[i].points[0].setX(meetX);
-			// TODO: add intersection points
 		}
 	}
 }
@@ -314,7 +328,8 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 
 	// draw filled triangles:
 	updateTriangles();
-	QPen pen(Qt::black);
+	QPen pen(Qt::black, 1);
+	pen.setJoinStyle(Qt::RoundJoin);
 	p.setPen(pen);
 	for(unsigned int i = 0; i < cm_->size(); ++i)
 	{
@@ -327,7 +342,7 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 		p.drawPolygon(triangles_[i].points);
 		if(triangles_[i].selected)
 		{
-			pen.setWidth(0);
+			pen.setWidth(1);
 			p.setPen(pen);
 		}
 	}
