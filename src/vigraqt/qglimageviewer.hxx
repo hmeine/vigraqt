@@ -35,6 +35,9 @@ public:
     void paintGL();
     void resizeGL(int w, int h);
 
+    void initGLTransform();
+    void paintImage();
+
 protected:
     void initTexture();
 

@@ -71,38 +71,8 @@ void QGLImageWidget::paintGL()
 
     if(image_)
     {
-        glEnable(GL_TEXTURE_2D);
-        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-        glBindTexture(GL_TEXTURE_2D, textureID_);
-
-        QImageViewerBase *viewer = (QImageViewerBase *)parent();
-        QPoint ul(viewer->upperLeft());
-        glLoadIdentity();
-        glTranslatef(ul.x(), height()-ul.y(), 0);
-        glScalef(pow(2.0, viewer->zoomLevel()),
-                 -pow(2.0, viewer->zoomLevel()), 1.f);
-
-        if(useTexture_)
-        {
-            double tw = (double)image_->width() / textureWidth_;
-            double th = (double)image_->height() / textureHeight_;
-            glBegin(GL_QUADS);
-            glTexCoord2f(0.0, 0.0); glVertex2i(0, 0);
-            glTexCoord2f(0.0,  th); glVertex2i(0, image_->height());
-            glTexCoord2f( tw,  th); glVertex2i(image_->width(), image_->height());
-            glTexCoord2f( tw, 0.0); glVertex2i(image_->width(), 0);
-            glEnd();
-        }
-        else
-        {
-            // TODO: vertically mirrored, only work on visible region
-            glRasterPos2i(0, 0);
-            glBitmap(0, 0, 0, 0, 0, -height(), NULL);
-            glDrawPixels(image_->width(), image_->height(),
-                         pixelFormat_, pixelType_, image_->bits());
-        }
-
-        glDisable(GL_TEXTURE_2D);
+        initGLTransform();
+        paintImage();
     }
 
     glFlush();
@@ -118,6 +88,48 @@ void QGLImageWidget::resizeGL(int w, int h)
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+}
+
+void QGLImageWidget::initGLTransform()
+{
+    QImageViewerBase *viewer = (QImageViewerBase *)parent();
+    QPoint ul(viewer->upperLeft());
+    glLoadIdentity();
+    glTranslatef(ul.x(), height()-ul.y(), 0);
+    glScalef(pow(2.0, viewer->zoomLevel()),
+             -pow(2.0, viewer->zoomLevel()), 1.f);
+}
+
+void QGLImageWidget::paintImage()
+{
+    if(!image_)
+        return;
+
+    glEnable(GL_TEXTURE_2D);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glBindTexture(GL_TEXTURE_2D, textureID_);
+
+    if(useTexture_)
+    {
+        double tw = (double)image_->width() / textureWidth_;
+        double th = (double)image_->height() / textureHeight_;
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0, 0.0); glVertex2i(0, 0);
+        glTexCoord2f(0.0,  th); glVertex2i(0, image_->height());
+        glTexCoord2f( tw,  th); glVertex2i(image_->width(), image_->height());
+        glTexCoord2f( tw, 0.0); glVertex2i(image_->width(), 0);
+        glEnd();
+    }
+    else
+    {
+        // TODO: vertically mirrored, only work on visible region
+        glRasterPos2i(0, 0);
+        glBitmap(0, 0, 0, 0, 0, -height(), NULL);
+        glDrawPixels(image_->width(), image_->height(),
+                     pixelFormat_, pixelType_, image_->bits());
+    }
+
+    glDisable(GL_TEXTURE_2D);
 }
 
 void QGLImageWidget::initTexture()
