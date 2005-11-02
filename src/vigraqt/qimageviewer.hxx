@@ -63,30 +63,30 @@ public:
         /**
          * Return a reference to the displayed image.
          */
-    virtual const QImage &originalImage() const
+    const QImage &originalImage() const
         { return originalImage_; }
 
         /**
          * Return (unzoomed, original) width of displayed image.
          */
-    virtual int originalWidth() const
+    int originalWidth() const
         { return originalImage_.width(); }
 
         /**
          * Return (unzoomed, original) height of displayed image.
          */
-    virtual int originalHeight() const
+    int originalHeight() const
         { return originalImage_.height(); }
 
         /**
          * Return zoomed width of displayed image.
          */
-    virtual int zoomedWidth() const;
+    int zoomedWidth() const;
 
         /**
          * Return zoomed height of displayed image.
          */
-    virtual int zoomedHeight() const;
+    int zoomedHeight() const;
 
         /**
          * Overloaded from QWidget to return a sensible default size.
@@ -107,7 +107,7 @@ public:
          * the size of the zoomed image with
          * zoomedWidth()/zoomedHeight().
          */
-    virtual int zoomLevel() const
+    int zoomLevel() const
         { return zoomLevel_; }
 
         /**
@@ -228,7 +228,6 @@ protected:
     virtual void zoomImage(int left, int top,
                            QImage & dest, int w, int h);
 
-    /// draw a specific cell
     virtual void paintEvent(QPaintEvent *);
     virtual void paintImage(QPainter &p, const QRect &r);
 
@@ -236,7 +235,7 @@ protected:
     virtual void drawPixmap(QPainter &p, const QRect &r);
     virtual void drawZoomedPixmap(QPainter &p, const QRect &r);
 
-    virtual void resizeEvent (QResizeEvent *e);
+    virtual void resizeEvent(QResizeEvent *e);
 
     QPixmap drawingPixmap_;
 };
