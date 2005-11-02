@@ -17,6 +17,9 @@ public:
     virtual void slideBy(QPoint const &diff);
 
 protected:
+    bool ensureGLWidget();
+    virtual QGLImageWidget *createGLWidget();
+
     QGLImageWidget *glWidget_;
 };
 
@@ -40,6 +43,7 @@ public:
 
 protected:
     void initTexture();
+    void checkGLError(const char *where);
 
         // should be user-configurable properties in the future:
     bool useTexture_, compression_;

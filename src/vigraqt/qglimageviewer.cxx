@@ -5,7 +5,7 @@
 QGLImageWidget::QGLImageWidget(QWidget *parent, const char *name)
 : QGLWidget(parent, name),
   useTexture_(true),
-  compression_(true),
+  compression_(false),
   textureID_(0),
   image_(NULL)
 {
@@ -149,7 +149,6 @@ void QGLImageWidget::initTexture()
 	GLint targetFormat = compression_ ? GL_COMPRESSED_RGB_ARB : GL_RGB;
     if(image_->hasAlphaBuffer())
         targetFormat = compression_ ? GL_COMPRESSED_RGBA_ARB : GL_RGBA;
-    std::cerr << "target texture format: " << targetFormat << "\n";
 
     if((textureWidth_ != (unsigned)image_->width()) ||
        (textureHeight_ != (unsigned)image_->height()))
@@ -187,32 +186,74 @@ void QGLImageWidget::initTexture()
     }
 }
 
+void QGLImageWidget::checkGLError(const char *where)
+{
+	GLenum error = glGetError();
+	if(error)
+	{
+		std::cerr << "ERROR";
+		if(where)
+			std::cerr << " (" << where << ")";
+		std::cerr << ": OpenGL reports '" << gluErrorString(error) << "'.\n";
+		while(error)
+		{
+			error = glGetError();
+			if(error)
+				std::cerr << "  and subsequently: '"
+						  << gluErrorString(error) << "'.\n";
+		}
+		return true;
+	}
+	return false;
+}
+
 /********************************************************************/
 
 QGLImageViewer::QGLImageViewer(QWidget *parent, const char *name)
-: QImageViewerBase(parent, name)
+: QImageViewerBase(parent, name),
+  glWidget_(NULL)
 {
     QBoxLayout *l = new QHBoxLayout(this);
     l->setAutoAdd(true);
-    glWidget_ = new QGLImageWidget(this, "glWidget");
-    connect(this, SIGNAL(zoomLevelChanged(int)),
-            glWidget_, SLOT(updateGL()));
 }
 
 void QGLImageViewer::setImage(QImage const &image, bool retainView)
 {
     QImageViewerBase::setImage(image, retainView);
-    glWidget_->setImage(originalImage_);
+    if(ensureGLWidget())
+        glWidget_->setImage(originalImage_);
 }
 
 void QGLImageViewer::updateROI(QImage const &roiImage, QPoint const &upperLeft)
 {
     QImageViewerBase::updateROI(roiImage, upperLeft);
-    glWidget_->roiChanged(upperLeft, roiImage.size());
+    if(ensureGLWidget())
+        glWidget_->roiChanged(upperLeft, roiImage.size());
 }
 
 void QGLImageViewer::slideBy(QPoint const &diff)
 {
     QImageViewerBase::slideBy(diff);
-    glWidget_->updateGL();
+    if(ensureGLWidget())
+        glWidget_->updateGL();
+}
+
+bool QGLImageViewer::ensureGLWidget()
+{
+    if(glWidget_)
+        return true;
+
+    glWidget_ = createGLWidget();
+    if(glWidget_)
+        connect(this, SIGNAL(zoomLevelChanged(int)),
+                glWidget_, SLOT(updateGL()));
+    else
+        std::cerr << "ensureGLWidget(): OOPS!\n";
+
+    return glWidget_ != NULL;
+}
+
+QGLImageWidget *QGLImageViewer::createGLWidget()
+{
+    return new QGLImageWidget(this, "glWidget");
 }
