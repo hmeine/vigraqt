@@ -109,4 +109,5 @@ AC_CONFIG_FILES([src/Makefile])
 AC_CONFIG_FILES([src/vigraqt/Makefile])
 AC_CONFIG_FILES([src/designer-plugin/Makefile])
 dnl AC_CONFIG_FILES([src/sip/Makefile])
+AC_CONFIG_FILES([vigraqt.pc])
 AC_OUTPUT

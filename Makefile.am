@@ -5,3 +5,6 @@ $(top_srcdir)/acinclude.m4: $(ACINCLUDE_PARTS)
 	@cd $(top_srcdir) && cat $(ACINCLUDE_PARTS) > acinclude.m4
 
 AUTOMAKE_OPTIONS = foreign 1.5
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = vigraqt.pc

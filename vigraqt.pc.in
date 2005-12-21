@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: vigraqt
+Description: Qt bindings for the VIGRA library
+Version: 0.2
+Libs: -L${libdir} -lvigraqt
+Cflags: -I${includedir}
