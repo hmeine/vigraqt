@@ -43,7 +43,7 @@ public:
 
 protected:
     void initTexture();
-    void checkGLError(const char *where);
+    bool checkGLError(const char *where);
 
         // should be user-configurable properties in the future:
     bool useTexture_, compression_;
@@ -51,7 +51,7 @@ protected:
     unsigned int textureWidth_, textureHeight_;
     GLint pixelFormat_, pixelType_;
     GLuint textureID_;
-    const QImage *image_;
+    QImage image_;
 };
 
 #endif // QGLIMAGEVIEWER_HXX

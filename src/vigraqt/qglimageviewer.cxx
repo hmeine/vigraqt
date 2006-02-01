@@ -1,4 +1,5 @@
 #include "qglimageviewer.hxx"
+#include <qimage.h>
 #include <qlayout.h>
 #include <iostream>
 
@@ -6,28 +7,27 @@ QGLImageWidget::QGLImageWidget(QWidget *parent, const char *name)
 : QGLWidget(parent, name),
   useTexture_(true),
   compression_(false),
-  textureID_(0),
-  image_(NULL)
+  textureID_(0)
 {
 }
 
 void QGLImageWidget::setImage(QImage const &image)
 {
-    image_ = &image;
+    image_ = image;
 
-	if(image_->depth() == 32)
+	if(image_.depth() == 32)
 	{
 		pixelFormat_ = GL_BGRA;
 		pixelType_ = GL_UNSIGNED_INT_8_8_8_8_REV;
 	}
-	else if(image_->depth() == 8)
+	else if(image_.depth() == 8)
 	{
 		pixelFormat_ = GL_LUMINANCE;
 		pixelType_ = GL_UNSIGNED_BYTE;
 	}
 	else
 	{
-		std::cerr << "setImage(): Unhandled depth (" << image_->depth() << ").\n";
+		std::cerr << "setImage(): Unhandled depth (" << image_.depth() << ").\n";
 		return;
 	}
 
@@ -44,7 +44,7 @@ void QGLImageWidget::roiChanged(QPoint upperLeft, QSize size)
     glTexSubImage2D(GL_TEXTURE_2D, 0,
                     upperLeft.x(), upperLeft.y(),
                     size.width(), size.height(),
-                    pixelFormat_, pixelType_, image_->bits());
+                    pixelFormat_, pixelType_, image_.bits());
     updateGL();
 }
 
@@ -61,7 +61,7 @@ void QGLImageWidget::initializeGL()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    if(image_ && useTexture_)
+    if(!image_.isNull() && useTexture_)
         initTexture();
 }
 
@@ -69,7 +69,7 @@ void QGLImageWidget::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    if(image_)
+    if(!image_.isNull())
     {
         initGLTransform();
         paintImage();
@@ -102,7 +102,7 @@ void QGLImageWidget::initGLTransform()
 
 void QGLImageWidget::paintImage()
 {
-    if(!image_)
+    if(image_.isNull())
         return;
 
     glEnable(GL_TEXTURE_2D);
@@ -111,13 +111,13 @@ void QGLImageWidget::paintImage()
 
     if(useTexture_)
     {
-        double tw = (double)image_->width() / textureWidth_;
-        double th = (double)image_->height() / textureHeight_;
+        double tw = (double)image_.width() / textureWidth_;
+        double th = (double)image_.height() / textureHeight_;
         glBegin(GL_QUADS);
         glTexCoord2f(0.0, 0.0); glVertex2i(0, 0);
-        glTexCoord2f(0.0,  th); glVertex2i(0, image_->height());
-        glTexCoord2f( tw,  th); glVertex2i(image_->width(), image_->height());
-        glTexCoord2f( tw, 0.0); glVertex2i(image_->width(), 0);
+        glTexCoord2f(0.0,  th); glVertex2i(0, image_.height());
+        glTexCoord2f( tw,  th); glVertex2i(image_.width(), image_.height());
+        glTexCoord2f( tw, 0.0); glVertex2i(image_.width(), 0);
         glEnd();
     }
     else
@@ -125,8 +125,8 @@ void QGLImageWidget::paintImage()
         // TODO: vertically mirrored, only work on visible region
         glRasterPos2i(0, 0);
         glBitmap(0, 0, 0, 0, 0, -height(), NULL);
-        glDrawPixels(image_->width(), image_->height(),
-                     pixelFormat_, pixelType_, image_->bits());
+        glDrawPixels(image_.width(), image_.height(),
+                     pixelFormat_, pixelType_, image_.bits());
     }
 
     glDisable(GL_TEXTURE_2D);
@@ -140,34 +140,34 @@ void QGLImageWidget::initTexture()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
     textureWidth_ = 2;
-    while(textureWidth_ < (unsigned)image_->width())
+    while(textureWidth_ < (unsigned)image_.width())
         textureWidth_ *= 2;
     textureHeight_ = 2;
     while(textureHeight_ < (unsigned)height())
         textureHeight_ *= 2;
 
 	GLint targetFormat = compression_ ? GL_COMPRESSED_RGB_ARB : GL_RGB;
-    if(image_->hasAlphaBuffer())
+    if(image_.hasAlphaBuffer())
         targetFormat = compression_ ? GL_COMPRESSED_RGBA_ARB : GL_RGBA;
 
-    if((textureWidth_ != (unsigned)image_->width()) ||
-       (textureHeight_ != (unsigned)image_->height()))
+    if((textureWidth_ != (unsigned)image_.width()) ||
+       (textureHeight_ != (unsigned)image_.height()))
     {
         QImage uploadImage(textureWidth_, textureHeight_,
-                           image_->depth(), image_->numColors());
+                           image_.depth(), image_.numColors());
 
         // improve compression by clearing unused pixel data:
         if(compression_)
             memset(uploadImage.bits(), 0, uploadImage.numBytes());
 
         // clean, but not really needed ;-)
-        uploadImage.setAlphaBuffer(image_->hasAlphaBuffer());
+        uploadImage.setAlphaBuffer(image_.hasAlphaBuffer());
 
         // copy pixel data
-        for(unsigned int y = 0; y < (unsigned)image_->height(); ++y)
+        for(unsigned int y = 0; y < (unsigned)image_.height(); ++y)
         {
-            memcpy(uploadImage.scanLine(y), image_->scanLine(y),
-                   image_->bytesPerLine());
+            memcpy(uploadImage.scanLine(y), image_.scanLine(y),
+                   image_.bytesPerLine());
         }
 
         glTexImage2D(GL_TEXTURE_2D,
@@ -181,12 +181,12 @@ void QGLImageWidget::initTexture()
         glTexImage2D(GL_TEXTURE_2D,
                      0, // level of detail
                      targetFormat,
-                     image_->width(), image_->height(), 0,
-                     pixelFormat_, pixelType_, image_->bits());
+                     image_.width(), image_.height(), 0,
+                     pixelFormat_, pixelType_, image_.bits());
     }
 }
 
-void QGLImageWidget::checkGLError(const char *where)
+bool QGLImageWidget::checkGLError(const char *where)
 {
 	GLenum error = glGetError();
 	if(error)
