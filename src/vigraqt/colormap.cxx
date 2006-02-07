@@ -109,6 +109,5 @@ public:
 
 ColorMap *createCM()
 {
-	//return new FireMap();
-	return new NegMap();
+	return new GrayMap();
 }
