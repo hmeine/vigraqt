@@ -1,5 +1,5 @@
-#ifndef CMEDITOR_H
-#define CMEDITOR_H
+#ifndef CMEDITOR_HXX
+#define CMEDITOR_HXX
 
 #include <qpointarray.h>
 #include <qtooltip.h>
@@ -77,4 +77,4 @@ protected:
 	void maybeTip(const QPoint &p);
 };
 
-#endif // CMEDITOR_H
+#endif // CMEDITOR_HXX

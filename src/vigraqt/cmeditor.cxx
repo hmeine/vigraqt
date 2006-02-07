@@ -1,4 +1,4 @@
-#include "cmEditor.h"
+#include "cmeditor.hxx"
 #include <vigraqimage.hxx>
 #include <qcolordialog.h>
 #include <qdragobject.h>
