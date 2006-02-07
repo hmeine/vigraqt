@@ -1,20 +1,26 @@
-class QImageViewer : QWidget
+class QImageViewerBase : QWidget
 {
 %TypeHeaderCode
 #include <qimageviewer.hxx>
 %End
 
 public:
-	QImageViewer(QWidget */TransferThis/ = 0, const char * = 0);
+    QImageViewerBase(QWidget */TransferThis/ = 0, const char * = 0);
+
+public slots:
+    virtual void setImage(const QImage &, bool = false);
+    virtual void updateROI(const QImage &, const QPoint &);
+
+public:
+    const QImage &originalImage() const;
+    int originalWidth() const;
+    int originalHeight() const;
+    int zoomedWidth() const;
+    int zoomedHeight() const;
 
     virtual QSize sizeHint() const;
-
-    virtual const QImage &originalImage() const;
-    virtual int originalWidth() const;
-    virtual int originalHeight() const;
-    virtual int zoomedWidth() const;
-    virtual int zoomedHeight() const;
-    virtual int zoomLevel() const;
+    QPoint upperLeft() const;
+    int zoomLevel() const;
 
     virtual void setCursorPos(const QPoint &) const;
 
@@ -25,9 +31,6 @@ public:
     virtual QRect windowCoordinates(const QRect &) const;
 
 public slots:
-    virtual void setImage(const QImage &, bool = false);
-    virtual void updateROI(const QImage &, const QPoint &);
-
     virtual void setZoomLevel(int);
     virtual void zoomUp();
     virtual void zoomDown();
@@ -47,6 +50,36 @@ signals:
     void zoomLevelChanged(int);
 
 protected:
+    static int zoom(int, int);
+
     virtual void setCrosshairCursor();
     virtual void minimizeClipping();
+
+    virtual void mouseMoveEvent(QMouseEvent *);
+    virtual void mousePressEvent(QMouseEvent *);
+    virtual void mouseReleaseEvent(QMouseEvent *);
+    virtual void mouseDoubleClickEvent(QMouseEvent *);
+    virtual void keyPressEvent(QKeyEvent *);
+    virtual void resizeEvent(QResizeEvent *);
+};
+
+class QImageViewer : QImageViewerBase
+{
+%TypeHeaderCode
+#include <qimageviewer.hxx>
+%End
+
+public:
+    QImageViewer(QWidget */TransferThis/ = 0, const char * = 0);
+
+    virtual void setImage(const QImage &, bool = false);
+    virtual void updateROI(const QImage &, const QPoint &);
+
+    virtual void slideBy(const QPoint &);
+
+protected:
+    virtual void paintEvent(QPaintEvent *);
+    virtual void paintImage(QPainter &, const QRect &);
+
+    virtual void resizeEvent(QResizeEvent *);
 };

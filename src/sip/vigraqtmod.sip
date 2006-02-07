@@ -1,8 +1,10 @@
 %Module vigraqt 1
 
 %Import qt/qtmod.sip
+%Import qtgl/qtglmod.sip
 
 %Include qimageviewer.sip
+%Include qglimageviewer.sip
 %Include wrapper.sip
 
 %Makefile Makefile.am
