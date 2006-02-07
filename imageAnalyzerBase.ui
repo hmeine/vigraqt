@@ -21,4 +21,7 @@
 <toolbars>
 </toolbars>
 <layoutdefaults spacing="6" margin="11"/>
+<includehints>
+    <includehint>qimageviewer.hxx</includehint>
+</includehints>
 </UI>
