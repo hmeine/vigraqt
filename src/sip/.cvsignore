@@ -1,6 +1,7 @@
-vigraqt.sbf
 Makefile
 sipqtQ*.h
+sipqtglQ*.h
 sipvigraqt*
 sipAPIvigraqt.h
 moc_sip*.cpp
+vigraqt_buildinfo
