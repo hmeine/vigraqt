@@ -28,11 +28,13 @@ void ColorMap::setColor(unsigned int i, Color c)
 
 unsigned int ColorMap::insert(double domainPosition)
 {
-    TransitionPoints::iterator
-        insertPos(transitionPoints_.begin());
+	TransitionPoints::iterator
+		insertPos(transitionPoints_.begin());
 	while((domainPosition > insertPos->projected) &&
 		  (insertPos != transitionPoints_.end()))
 		++insertPos;
+
+	unsigned int result = insertPos - transitionPoints_.begin();
 
 	transitionPoints_.insert(
 		insertPos, TransitionPoint(
@@ -41,7 +43,7 @@ unsigned int ColorMap::insert(double domainPosition)
 
 	recalculateFactors();
 
-	return insertPos - transitionPoints_.begin();
+	return result;
 }
 
 void ColorMap::remove(unsigned int i)

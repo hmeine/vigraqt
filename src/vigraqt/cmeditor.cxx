@@ -6,7 +6,6 @@
 #include <qlabel.h>
 #include <qpainter.h>
 #include <qpopupmenu.h>
-#include <iostream>
 
 using vigra::q2v;
 using vigra::v2q;
@@ -201,11 +200,8 @@ void ColorMapEditor::mouseDoubleClickEvent(QMouseEvent *e)
 
 	if(gradientRect_.contains(e->pos()))
 	{
-		std::cerr << "calling insert..\n";
 		unsigned int newIndex = insert(x2Value(e->pos().x()));
-		std::cerr << "done (" << newIndex << ").\n";
 		triangles_[newIndex].selected = true;
-		std::cerr << "calling editColor.\n";
 		editColor(newIndex);
 	}
 }
@@ -296,7 +292,6 @@ void ColorMapEditor::dropEvent(QDropEvent *e)
 
 double ColorMapEditor::x2Value(int x) const
 {
-	std::cerr << "x2Value" << x << ", "  << valueOffset_ << ", " << valueScale_ << "\n";
 	return valueOffset_ + valueScale_*(x - xMargin);
 }
 
