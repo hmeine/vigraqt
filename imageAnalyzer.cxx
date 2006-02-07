@@ -1,6 +1,6 @@
 #include "imageAnalyzer.hxx"
 #include "colormap.hxx"
-#include "cmEditor.h"
+#include "cmeditor.hxx"
 
 #include <vigraqimage.hxx>
 #include <qimageviewer.hxx>
