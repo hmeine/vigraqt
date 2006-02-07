@@ -1,23 +1,26 @@
 #define QT_PLUGIN
 #include "qimageviewer.hxx"
 #include "fimageviewer.hxx"
+#include "cmeditor.hxx"
 
 #include <qwidgetplugin.h>
 #include <iostream>
 
-class ImageViewersPlugin : public QWidgetPlugin
+class VigraQtPlugin : public QWidgetPlugin
 {
   public:
     virtual QStringList keys() const
     {
         return QStringList()
             << "QImageViewer"
-            << "FImageViewer";
+            << "FImageViewer"
+            << "ColorMapEditor"
+        ;
     }
 
-    virtual QString group (const QString &) const
+    virtual QString group(const QString &) const
     {
-        return "Image Viewers";
+        return "VigraQt";
     }
 
     virtual QWidget *create(const QString &key,
@@ -27,6 +30,12 @@ class ImageViewersPlugin : public QWidgetPlugin
             return new QImageViewer(parent, name);
         if(key == "FImageViewer")
             return new FImageViewer(parent, name);
+        if(key == "ColorMapEditor")
+        {
+            ColorMapEditor *e = new ColorMapEditor(parent, name);
+            e->setColorMap(createCM());
+            return e;
+        }
         return NULL;
     }
 
@@ -36,6 +45,8 @@ class ImageViewersPlugin : public QWidgetPlugin
             return "qimageviewer.hxx";
         if(key == "FImageViewer")
             return "fimageviewer.hxx";
+        if(key == "ColorMapEditor")
+            return "cmeditor.hxx";
         return QString::null;
     }
 
@@ -45,9 +56,11 @@ class ImageViewersPlugin : public QWidgetPlugin
             return "QImage display widget (zooming, panning..)";
         if(key == "FImageViewer")
             return "vigra::FImage display widget (auto-scaling, logarithmic display..)";
+//         if(key == "ColorMapEditor")
+//             return "ColorMap editor widget)";
         return QString::null;
     }
         //virtual QString whatsThis(const QString &key) const;
 };
 
-Q_EXPORT_PLUGIN(ImageViewersPlugin)
+Q_EXPORT_PLUGIN(VigraQtPlugin)
