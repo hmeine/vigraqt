@@ -6,6 +6,7 @@
 #include <qlabel.h>
 #include <qpainter.h>
 #include <qpopupmenu.h>
+#include <iostream>
 
 using vigra::q2v;
 using vigra::v2q;
@@ -19,11 +20,13 @@ ColorMapEditor::ColorMapEditor(QWidget *parent, const char *name)
 	setAcceptDrops(true);
 	gradientRect_.setTopLeft(QPoint(xMargin, yMargin));
 	new ColorToolTip(this);
+	setEnabled(false);
 }
 
 void ColorMapEditor::setColorMap(ColorMap *cm)
 {
 	cm_ = cm;
+	setEnabled(cm_ != NULL);
 	rereadColorMap();
 }
 
@@ -34,6 +37,9 @@ QSize ColorMapEditor::sizeHint() const
 
 void ColorMapEditor::editColor(unsigned int i)
 {
+	if(!cm_ || !(i < cm_->size()))
+		return; // TODO: warning -> stderr
+
 	QColor newColor = QColorDialog::getColor(v2q(cm_->color(i)));
 	if(newColor.isValid())
 	{
@@ -45,6 +51,9 @@ void ColorMapEditor::editColor(unsigned int i)
 
 void ColorMapEditor::remove(unsigned int i)
 {
+	if(!cm_ || !(i < cm_->size()))
+		return; // TODO: warning -> stderr
+
 	cm_->remove(i);
 	triangles_.erase(triangles_.begin() + i);
 	rereadColorMap();
@@ -53,6 +62,9 @@ void ColorMapEditor::remove(unsigned int i)
 
 unsigned int ColorMapEditor::insert(double domainPosition)
 {
+	if(!cm_)
+		return 0; // TODO: warning -> stderr FIXME: return value?
+
 	unsigned int result = cm_->insert(domainPosition);
 	triangles_.insert(triangles_.begin() + result, Triangle());
 	rereadColorMap();
@@ -61,13 +73,13 @@ unsigned int ColorMapEditor::insert(double domainPosition)
 
 void ColorMapEditor::rereadColorMap()
 {
-	updateTriangles();
+	updateDomain();
 	update();
 }
 
 void ColorMapEditor::mousePressEvent(QMouseEvent *e)
 {
-	if((e->button() != Qt::LeftButton) || !cm_)
+	if((e->button() != Qt::LeftButton) || !isEnabled() || !cm_)
 		return;
 
 	changed_ = false;
@@ -110,6 +122,9 @@ void ColorMapEditor::mousePressEvent(QMouseEvent *e)
 
 void ColorMapEditor::mouseMoveEvent(QMouseEvent *e)
 {
+	if(!isEnabled() || !cm_)
+		return;
+
 	int dragDist = e->pos().x() - dragStartX_;
 	if(!dragging_ || !dragDist)
 		return;
@@ -143,7 +158,7 @@ void ColorMapEditor::mouseMoveEvent(QMouseEvent *e)
 
 void ColorMapEditor::mouseReleaseEvent(QMouseEvent *e)
 {
-	if((e->button() != Qt::LeftButton) || !cm_)
+	if((e->button() != Qt::LeftButton) || !isEnabled() || !cm_)
 		return;
 
 	dragging_ = false;
@@ -169,11 +184,12 @@ void ColorMapEditor::mouseReleaseEvent(QMouseEvent *e)
 
 void ColorMapEditor::mouseDoubleClickEvent(QMouseEvent *e)
 {
-	if(!cm_ || (e->button() != Qt::LeftButton))
+	if((e->button() != Qt::LeftButton) || !isEnabled() || !cm_)
 	{
 		e->ignore();
 		return;
 	}
+
 	for(unsigned int i = 0; i < cm_->size(); ++i)
 	{
 		if(triangles_[i].points.boundingRect().contains(e->pos()))
@@ -182,16 +198,23 @@ void ColorMapEditor::mouseDoubleClickEvent(QMouseEvent *e)
 			return;
 		}
 	}
+
 	if(gradientRect_.contains(e->pos()))
 	{
+		std::cerr << "calling insert..\n";
 		unsigned int newIndex = insert(x2Value(e->pos().x()));
+		std::cerr << "done (" << newIndex << ").\n";
 		triangles_[newIndex].selected = true;
+		std::cerr << "calling editColor.\n";
 		editColor(newIndex);
 	}
 }
 
 void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 {
+	if(!cm_)
+		return;
+
 	for(unsigned int i = 0; i < cm_->size(); ++i)
 	{
 		if(triangles_[i].points.boundingRect().contains(e->pos()))
@@ -228,6 +251,9 @@ void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 
 void ColorMapEditor::keyPressEvent(QKeyEvent *e)
 {
+	if(!isEnabled() || !cm_)
+		return;
+
 	switch(e->key())
 	{
 	case Qt::Key_Delete:
@@ -244,6 +270,9 @@ void ColorMapEditor::keyPressEvent(QKeyEvent *e)
 
 void ColorMapEditor::dragMoveEvent(QDragMoveEvent *e)
 {
+	if(!isEnabled() || !cm_)
+		return;
+
 	if(gradientRect_.contains(e->pos()) && QColorDrag::canDecode(e))
 	{
 		e->accept(gradientRect_);
@@ -252,9 +281,12 @@ void ColorMapEditor::dragMoveEvent(QDragMoveEvent *e)
 
 void ColorMapEditor::dropEvent(QDropEvent *e)
 {
+	if(!isEnabled() || !cm_)
+		return;
+
 	QColor newColor;
-    if(gradientRect_.contains(e->pos()) && QColorDrag::decode(e, newColor))
-    {
+	if(gradientRect_.contains(e->pos()) && QColorDrag::decode(e, newColor))
+	{
 		unsigned int newIndex = insert(x2Value(e->pos().x()));
 		cm_->setColor(newIndex, q2v(newColor));
 		rereadColorMap();
@@ -264,6 +296,7 @@ void ColorMapEditor::dropEvent(QDropEvent *e)
 
 double ColorMapEditor::x2Value(int x) const
 {
+	std::cerr << "x2Value" << x << ", "  << valueOffset_ << ", " << valueScale_ << "\n";
 	return valueOffset_ + valueScale_*(x - xMargin);
 }
 
@@ -272,10 +305,24 @@ int ColorMapEditor::value2X(double value) const
 	return (int)(xMargin + (value - valueOffset_)/valueScale_ + 0.5);
 }
 
+void ColorMapEditor::updateDomain()
+{
+	if(cm_)
+	{
+		valueOffset_ = cm_->domainMin();
+		valueScale_ = (cm_->domainMax() - cm_->domainMin()) /
+					  (gradientRect_.width() - 1);
+	}
+	updateTriangles();
+}
+
 void ColorMapEditor::updateTriangles()
 {
 	if(!cm_)
+	{
+		triangles_.resize(0);
 		return;
+	}
 
 	QPointArray triangle(3);
 	triangle.setPoint(0, -triangleWidth/2, height()-1 - yMargin);
@@ -397,10 +444,8 @@ void ColorMapEditor::resizeEvent(QResizeEvent *e)
 	gradientRect_.setBottomRight(
 		QPoint(width()-1 - xMargin, height()-1 - yMargin - triangleHeight + 2));
 
-	valueOffset_ = cm_->domainMin();
-	valueScale_ = (cm_->domainMax() - cm_->domainMin()) /
-				  (gradientRect_.width() - 1);
-	updateTriangles();
+	if(cm_)
+		updateDomain();
 }
 
 /********************************************************************/
