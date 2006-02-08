@@ -13,8 +13,6 @@ include_HEADERS = \
 
 INCLUDES = $(all_includes)
 
-METASOURCES = AUTO
-
 libvigraqt_la_LDFLAGS = -avoid-version -no-undefined $(all_libraries)
 libvigraqt_la_LIBADD = $(LIB_QT) -lGL -lGLU
 libvigraqt_la_SOURCES = \
@@ -32,3 +30,7 @@ test_LDADD = libvigraqt.la
 
 %.moc: $(srcdir)/%.hxx
 	$(MOC) $< -o $@
+
+qimageviewer.lo: qimageviewer.moc
+fimageviewer.lo: fimageviewer.moc
+imagecaption.lo: imagecaption.moc
