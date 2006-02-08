@@ -13,7 +13,7 @@ dnl Perform program name transformation
 AC_ARG_PROGRAM
 
 dnl Automake doc recommends to do this only here. (Janos)
-AM_INIT_AUTOMAKE(bvp_retrieval, 0.2) dnl searches for some needed programs
+AM_INIT_AUTOMAKE(vigraqt, 0.3) dnl searches for some needed programs
 
 dnl generate the config header
 AM_CONFIG_HEADER(config.h)
@@ -33,9 +33,11 @@ if test -z "$designer_plugindir"; then
 fi
 AC_SUBST(designer_plugindir)
 
-dnl-------------------------------------------------------------------
-dnl                          vigra-config
-dnl-------------------------------------------------------------------
+CXXFLAGS="$CXXFLAGS $USE_EXCEPTIONS $USE_RTTI"
+
+dnl ------------------------------------------------------------------
+dnl 							 vigra-config
+dnl ------------------------------------------------------------------
 AC_PATH_PROG(VIGRA_CONFIG, vigra-config)
 if test -n "$VIGRA_CONFIG"; then
     all_includes="`"$VIGRA_CONFIG" --cppflags` $all_includes"
@@ -48,41 +50,41 @@ AC_SUBST(VIGRA_CONFIG)
 LIB_VIGRAIMPEX="`"$VIGRA_CONFIG" --impex-lib`"
 AC_SUBST(LIB_VIGRAIMPEX)
 
+dnl ------------------------------------------------------------------
+dnl 							 python stuff
+dnl ------------------------------------------------------------------
+
 AC_ARG_ENABLE(python,
 	AC_HELP_STRING([--enable-python],
 				   [enable generation of vigraqt python module (default=off)]),
 	with_python=$enableval, with_python=no)
 
+AM_CONDITIONAL(USE_PYTHON, test "$with_python" = yes)
+
 if test $with_python = yes; then
 
-dnl-------------------------------------------------------------------
-dnl                        python includes
-dnl-------------------------------------------------------------------
-AC_MSG_CHECKING([for python includes])
-AC_ARG_WITH(pythoninc, AC_HELP_STRING([--with-pythoninc=dir], [path to your python include files]), PYTHON_INCLUDES="-I$with_pythoninc")
-if test -n "$PYTHON_INCLUDES"; then
-    CPPFLAGS="$PYTHON_INCLUDES $CPPFLAGS"
-    all_includes="$PYTHON_INCLUDES $all_includes"
+dnl ------------------------------------------------------------------
+dnl 					  python: vigra-interactive
+dnl ------------------------------------------------------------------
+
+AC_PATH_PROG(VIGRA_INTERACTIVE_CONFIG, vigra-interactive-config)
+if test -n "$VIGRA_INTERACTIVE_CONFIG"; then
+    all_includes="`"$VIGRA_INTERACTIVE_CONFIG" --cppflags` $all_includes"
 else
-    echo "ERROR: python include files not given (use --with-pythoninc)!"
+    echo 'ERROR: vigra-interactive-config not found! Please make sure it is in your $PATH.'
     exit 2
 fi
-AC_ARG_WITH(pyconfig,
-  AC_HELP_STRING([--with-pyconfig=dir], [directory where your pyconfig.h is (default: same directory as --with-pythoninc)]),
-  [CPPFLAGS="-I$with_pyconfig $CPPFLAGS"
-   all_includes="-I$with_pyconfig $all_includes"])
-AC_TRY_COMPILE([#include "Python.h"],
-[],
-[AC_MSG_RESULT($with_pythoninc $with_pyconfig)],
-[AC_MSG_RESULT([not found])
-AC_MSG_ERROR([python include paths missing, check --with-pythoninc and --with-pyconfig])])
+AC_SUBST(VIGRA_INTERACTIVE_CONFIG)
 
-dnl-------------------------------------------------------------------
-dnl                  python module target dir(s)
-dnl-------------------------------------------------------------------
+LIB_BOOST_PYTHON="`"$VIGRA_INTERACTIVE_CONFIG" --boost-python-lib`"
+AC_SUBST(LIB_BOOST_PYTHON)
+
+dnl ------------------------------------------------------------------
+dnl 					 python: module target dir(s)
+dnl ------------------------------------------------------------------
 
 python_sitedir=""
-AC_ARG_WITH(python-sitedir, AC_HELP_STRING([--with-python-sitedir], [install VIGRA python modules as site package
+AC_ARG_WITH(python-sitedir, AC_HELP_STRING([--with-python-sitedir], [install python modules as site package
       --with-python-sitedir=no:    install into libdir under chosen $prefix (default)
       --with-python-sitedir=path:  install into given sitedir <path>
       --with-python-sitedir[=yes]: install into default sitedir]),
@@ -97,17 +99,18 @@ dynmoddir="$python_sitedir/vigra"],
 dynmoddir=["$libdir/python"`python -c "import sys; print sys.version[:3]"`]])
 AC_SUBST(pymoddir)
 AC_SUBST(dynmoddir)
-AC_SUBST(python_sitedir)
+
+AC_CONFIG_FILES([src/sip/Makefile])
 
 fi # $with_python
 
-AM_CONDITIONAL(USE_PYTHON, test "$with_python" = yes)
+dnl ------------------------------------------------------------------
+dnl 								output
+dnl ------------------------------------------------------------------
 
-CXXFLAGS="$CXXFLAGS $USE_EXCEPTIONS $USE_RTTI"
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([src/Makefile])
 AC_CONFIG_FILES([src/vigraqt/Makefile])
 AC_CONFIG_FILES([src/designer-plugin/Makefile])
-dnl AC_CONFIG_FILES([src/sip/Makefile])
 AC_CONFIG_FILES([vigraqt.pc])
 AC_OUTPUT
