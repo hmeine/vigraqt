@@ -36,7 +36,7 @@ AC_SUBST(designer_plugindir)
 CXXFLAGS="$CXXFLAGS $USE_EXCEPTIONS $USE_RTTI"
 
 dnl ------------------------------------------------------------------
-dnl 							 vigra-config
+dnl                              vigra-config
 dnl ------------------------------------------------------------------
 AC_PATH_PROG(VIGRA_CONFIG, vigra-config)
 if test -n "$VIGRA_CONFIG"; then
@@ -51,37 +51,17 @@ LIB_VIGRAIMPEX="`"$VIGRA_CONFIG" --impex-lib`"
 AC_SUBST(LIB_VIGRAIMPEX)
 
 dnl ------------------------------------------------------------------
-dnl 							 python stuff
+dnl                              python stuff
 dnl ------------------------------------------------------------------
 
 AC_ARG_ENABLE(python,
-	AC_HELP_STRING([--enable-python],
-				   [enable generation of vigraqt python module (default=off)]),
-	with_python=$enableval, with_python=no)
+    AC_HELP_STRING([--enable-python],
+                   [enable generation of vigraqt python module (default=off)]),
+    with_python=$enableval, with_python=no)
 
 AM_CONDITIONAL(USE_PYTHON, test "$with_python" = yes)
 
 if test $with_python = yes; then
-
-dnl ------------------------------------------------------------------
-dnl 					  python: vigra-interactive
-dnl ------------------------------------------------------------------
-
-AC_PATH_PROG(VIGRA_INTERACTIVE_CONFIG, vigra-interactive-config)
-if test -n "$VIGRA_INTERACTIVE_CONFIG"; then
-    all_includes="`"$VIGRA_INTERACTIVE_CONFIG" --cppflags` $all_includes"
-else
-    echo 'ERROR: vigra-interactive-config not found! Please make sure it is in your $PATH.'
-    exit 2
-fi
-AC_SUBST(VIGRA_INTERACTIVE_CONFIG)
-
-LIB_BOOST_PYTHON="`"$VIGRA_INTERACTIVE_CONFIG" --boost-python-lib`"
-AC_SUBST(LIB_BOOST_PYTHON)
-
-dnl ------------------------------------------------------------------
-dnl 					 python: module target dir(s)
-dnl ------------------------------------------------------------------
 
 python_sitedir=""
 AC_ARG_WITH(python-sitedir, AC_HELP_STRING([--with-python-sitedir], [install python modules as site package
@@ -105,7 +85,7 @@ AC_CONFIG_FILES([src/sip/Makefile])
 fi # $with_python
 
 dnl ------------------------------------------------------------------
-dnl 								output
+dnl                                 output
 dnl ------------------------------------------------------------------
 
 AC_CONFIG_FILES([Makefile])
