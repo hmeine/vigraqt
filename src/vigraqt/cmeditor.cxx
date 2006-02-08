@@ -462,3 +462,7 @@ void ColorToolTip::maybeTip(const QPoint &p)
 
 	tip(r, s);
 }
+
+#ifndef NO_MOC_INCLUSION
+#include "cmeditor.moc"
+#endif
