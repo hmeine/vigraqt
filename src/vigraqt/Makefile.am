@@ -34,3 +34,4 @@ test_LDADD = libvigraqt.la
 qimageviewer.lo: qimageviewer.moc
 fimageviewer.lo: fimageviewer.moc
 imagecaption.lo: imagecaption.moc
+cmeditor.lo: cmeditor.moc
