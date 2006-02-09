@@ -2,6 +2,7 @@
 #include <qimage.h>
 #include <qlayout.h>
 #include <iostream>
+#include <cmath>
 
 QGLImageWidget::QGLImageWidget(QWidget *parent, const char *name)
 : QGLWidget(parent, name),
@@ -96,8 +97,8 @@ void QGLImageWidget::initGLTransform()
     QPoint ul(viewer->upperLeft());
     glLoadIdentity();
     glTranslatef(ul.x(), height()-ul.y(), 0);
-    glScalef(pow(2.0, viewer->zoomLevel()),
-             -pow(2.0, viewer->zoomLevel()), 1.f);
+    glScalef( std::pow(2.0, viewer->zoomLevel()),
+             -std::pow(2.0, viewer->zoomLevel()), 1.f);
 }
 
 void QGLImageWidget::paintImage()
