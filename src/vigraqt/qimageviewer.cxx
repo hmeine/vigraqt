@@ -27,7 +27,7 @@
 #include <qbitmap.h>
 #include <qcursor.h>
 #include <qapplication.h>
-#include <math.h>
+#include <cmath>
 #include <algorithm>
 
 /****************************************************************/
@@ -193,8 +193,8 @@ QPoint QImageViewerBase::windowCoordinate(double x, double y) const
 {
     if(zoomLevel_ > 0)
     {
-        return QPoint((int)(x * pow(2, zoomLevel_)),
-                      (int)(y * pow(2, zoomLevel_)))
+        return QPoint((int)(x * std::pow(2, zoomLevel_)),
+                      (int)(y * std::pow(2, zoomLevel_)))
             + upperLeft_;
     }
     else
