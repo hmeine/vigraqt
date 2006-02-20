@@ -21,7 +21,7 @@ struct ImageAnalyzerPrivate
     OriginalImage                originalImage;
     vigra::FindMinMax<PixelType> minmax;
     ColorMap                    *cm;
-	ColorMapEditor              *cme;
+    ColorMapEditor              *cme;
     ImageCaption                *imageCaption;
 };
 
@@ -30,10 +30,10 @@ ImageAnalyzer::ImageAnalyzer(QWidget *parent, const char *name)
   p(new ImageAnalyzerPrivate)
 {
     p->cm = createCM();
-	p->cme = new ColorMapEditor(centralWidget(), "colorMapEditor");
-	p->cme->setColorMap(p->cm);
-	connect(p->cme, SIGNAL(colorMapChanged()), SLOT(updateDisplay()));
-	ImageAnalyzerLayout->addWidget(p->cme);
+    p->cme = new ColorMapEditor(centralWidget(), "colorMapEditor");
+    p->cme->setColorMap(p->cm);
+    connect(p->cme, SIGNAL(colorMapChanged()), SLOT(updateDisplay()));
+    ImageAnalyzerLayout->addWidget(p->cme);
     p->imageCaption = NULL;
 }
 
@@ -43,7 +43,18 @@ void ImageAnalyzer::load(const char *filename)
 
     vigra::ImageImportInfo info(filename);
     p->originalImage.resize(info.size());
-    importImage(info, destImage(p->originalImage));
+
+    if(info.isGrayscale())
+        importImage(info, destImage(p->originalImage));
+    else
+    {
+        typedef vigra::BasicImage<vigra::RGBValue<PixelType> > TempImage;
+        TempImage tempColor(info.size());
+        importImage(info, destImage(tempColor));
+        copyImage(srcImageRange(
+                      tempColor, vigra::RGBToGrayAccessor<TempImage::PixelType>()),
+                  destImage(p->originalImage));
+    }
 
     p->minmax.reset();
     vigra::inspectImage(srcImageRange(p->originalImage), p->minmax);
