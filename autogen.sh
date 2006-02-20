@@ -1,4 +1,4 @@
-VERSION=`grep AM_INIT_AUTOMAKE configure.in | sed 's,[^0-9]*\([0-9.]\+\).*,\1,'`
+VERSION=`grep AM_INIT_AUTOMAKE configure.in | sed 's,[^0-9]*\([0-9.a-z]\+\).*,\1,'`
 echo "Preparing VigraQt v$VERSION..."
 
 touch src/sip/vigraqt_buildinfo
