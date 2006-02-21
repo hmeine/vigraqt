@@ -1,18 +1,34 @@
-dynmod_LTLIBRARIES = vigraqt.la
-
 AM_CXXFLAGS = -DSIP_MAKE_MODULE_DLL
 
-include $(srcdir)/vigraqt_buildinfo
-
 INCLUDES = -I$(top_srcdir)/src/vigraqt $(all_includes) $(SIP_INCLUDES)
+
+dynmod_LTLIBRARIES = vigraqt.la
 
 vigraqt_la_LDFLAGS = -module -avoid-version $(all_libraries) -L/usr/lib/python2.3/site-packages
 vigraqt_la_LIBADD = $(LIB_QT) ../vigraqt/libvigraqt.la
 vigraqt_la_SOURCES = \
-	$(sources) \
-#	moc_sipvigraqtcmodule.cpp
+	sipvigraqtcmodule.cpp sipvigraqtQGLImageWidget.cpp sipvigraqtQGLImageViewer.cpp sipvigraqtQImageViewer.cpp sipvigraqtQImageViewerBase.cpp
+
+SIP=sip
+SIP_PYQT_PARAMS=`python -c 'import pyqtconfig; c = pyqtconfig.Configuration(); print c.pyqt_qt_sip_flags, "-I", c.pyqt_sip_dir'`
+SIP_INCLUDES=`python -c 'import pyqtconfig; c = pyqtconfig.Configuration(); print "-I" + c.sip_inc_dir + " -I" + c.py_inc_dir'`
+
+vigraqt_buildinfo: $(srcdir)/vigraqtmod.sip $(srcdir)/qimageviewer.sip $(srcdir)/qglimageviewer.sip $(srcdir)/wrapper.sip
+	$(SIP) $(SIP_PYQT_PARAMS) -b $@ -c . $< && \
+	echo "SIP_INCLUDES = $(SIP_INCLUDES)" >> $@
+
+sipvigraqtcmodule.lo: sipvigraqtcmodule.cpp
+
+sipvigraqtcmodule.cpp: vigraqt_buildinfo
+
+# "sip" target for your convenience
+.PHONY: sip
+sip: vigraqt_buildinfo
 
 # $(patsubst %.h, moc_%.cpp, $(moc_headers))
 
 moc_%.cpp: $(srcdir)/%.h
 	$(MOC) -o $@ $<
+
+clean-hook:
+	rm -f sipqtQ*.h sipqtglQ*.h sipvigraqt* sipAPIvigraqt.h moc_sip*.cpp vigraqt_buildinfo
