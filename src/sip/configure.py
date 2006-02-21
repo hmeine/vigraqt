@@ -1,12 +1,17 @@
 #!/usr/bin/env python
-build_file = "vigraqt.sbf"
+import os, sys
 
-print "checking SIP configuration..."
+srcdir = "."
+if len(sys.argv) > 1:
+	srcdir = sys.argv[1]
+
+print "checking SIP configuration...",
 import pyqtconfig
 config = pyqtconfig.Configuration()
+print config
 
 print "running SIP..."
-import os
+build_file = "vigraqt.sbf"
 os.system(" ".join([
 	config.sip_bin,
 	"-c", ".",
@@ -20,8 +25,8 @@ makefile = pyqtconfig.QtModuleMakefile(config, build_file)
 # for i in dir(makefile):
 # 	print i
 makefile.extra_libs = ["vigraqt"]
-makefile.extra_include_dirs = ["../vigraqt"]
-makefile.extra_lib_dirs = ["../vigraqt"]
+makefile.extra_include_dirs = [os.path.join(srcdir, "..", "vigraqt")]
+makefile.extra_lib_dirs = [os.path.join(srcdir, "..", "vigraqt")]
 makefile.generate()
 
 print "done (you can run 'make' now)."
