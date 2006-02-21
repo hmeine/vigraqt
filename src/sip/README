@@ -1,10 +1,7 @@
-Unfortunately, it is non-trivial to compile this python module.
-If you find a way to integrate this in the autoconf/automake system, I
-would be very grateful for any hints.  The same goes for additional
-documentation / information to put here.
+I re-worked the build system, so that it should now be possible to
+just give --enable-python to configure and get SIP called and a python
+module built. (This has been tested with SIP 4.1 and SIP 4.3.1.)
 
-ATM, you have to do a "make -f Makefile.sip" in src/sip, then
-configure with --enable-python and "make && make install".
-
-Unfortunately, automake parses the "include vigraqt_buildinfo" which
-means that I cannot simply call sip in the builddir automatically. :-(
+Unfortunately, automake cannot parse the "vigraqt_buildinfo" file
+(since it is created by sip at build time), so I had to manually copy
+the list of source files to Makefile.am.
