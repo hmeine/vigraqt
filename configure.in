@@ -63,20 +63,45 @@ AM_CONDITIONAL(USE_PYTHON, test "$with_python" = yes)
 
 if test $with_python = yes; then
 
+dnl python includes
+AC_MSG_CHECKING([for python includes])
+AC_ARG_WITH(pythoninc,
+	AC_HELP_STRING([--with-pythoninc=dir], [path to your python include files]),
+	PYTHON_INCLUDES="-I$with_pythoninc",
+	PYTHON_INCLUDES="`python -c 'from distutils.sysconfig import *; print "-I"+get_python_inc()+ (get_python_inc(True) != get_python_inc() and (" -I"+get_python_inc(True)) or "")'`")
+if test -n "$PYTHON_INCLUDES"; then
+    CPPFLAGS="$PYTHON_INCLUDES $CPPFLAGS"
+    all_includes="$PYTHON_INCLUDES $all_includes"
+fi
+AC_ARG_WITH(pyconfig,
+  AC_HELP_STRING([--with-pyconfig=dir], [directory where your pyconfig.h is (default: same directory as --with-pythoninc)]), [
+	CPPFLAGS="-I$with_pyconfig $CPPFLAGS"
+  	all_includes="-I$with_pyconfig $all_includes"])
+
+AC_TRY_COMPILE([#include "Python.h"],
+[],
+[AC_MSG_RESULT(`echo $PYTHON_INCLUDES | sed 's,-I,,'`)],
+[AC_MSG_RESULT([not found])
+AC_MSG_ERROR([python include paths missing, check --with-pythoninc and --with-pyconfig])])
+
 python_sitedir=""
-AC_ARG_WITH(python-sitedir, AC_HELP_STRING([--with-python-sitedir], [install python modules as site package
+AC_ARG_WITH(python-sitedir,
+	AC_HELP_STRING([--with-python-sitedir], [install python modules as site package
       --with-python-sitedir=no:    install into libdir under chosen $prefix (default)
       --with-python-sitedir=path:  install into given sitedir <path>
       --with-python-sitedir[=yes]: install into default sitedir]),
-[if test "$with_python_sitedir" = "yes"; then
-    python_sitedir="`python -c 'import site; print site.here+"/site-packages"'`"
-else
-    python_sitedir="$with_python_sitedir"
-fi
-pymoddir="$python_sitedir/vigra"
-dynmoddir="$python_sitedir/vigra"],
-[pymoddir="$libdir"
-dynmoddir=["$libdir/python"`python -c "import sys; print sys.version[:3]"`]])
+[
+	if test "$with_python_sitedir" = "yes"; then
+	    python_sitedir="`python -c 'import site; print site.here+"/site-packages"'`"
+	else
+	    python_sitedir="$with_python_sitedir"
+	fi
+	pymoddir="$python_sitedir/vigra"
+	dynmoddir="$python_sitedir/vigra"
+],[
+	pymoddir="$libdir"
+	dynmoddir=["$libdir/python"`python -c "import sys; print sys.version[:3]"`]
+])
 AC_SUBST(pymoddir)
 AC_SUBST(dynmoddir)
 
