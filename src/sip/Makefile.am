@@ -30,5 +30,5 @@ sip: vigraqt_buildinfo
 moc_%.cpp: $(srcdir)/%.h
 	$(MOC) -o $@ $<
 
-clean-hook:
+clean-local:
 	rm -f sipqtQ*.h sipqtglQ*.h sipvigraqt* sipAPIvigraqt.h moc_sip*.cpp vigraqt_buildinfo
