@@ -18,6 +18,7 @@ vigraqt_buildinfo: $(srcdir)/vigraqtmod.sip $(srcdir)/qimageviewer.sip $(srcdir)
 	echo "SIP_INCLUDES = $(SIP_INCLUDES)" >> $@
 
 sipvigraqtcmodule.cpp: vigraqt_buildinfo
+sipvigraqtcmodule.h: vigraqt_buildinfo
 sipvigraqtQGLImageWidget.cpp: vigraqt_buildinfo
 sipvigraqtQGLImageViewer.cpp: vigraqt_buildinfo
 sipvigraqtQImageViewer.cpp: vigraqt_buildinfo
