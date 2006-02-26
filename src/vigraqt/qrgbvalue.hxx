@@ -64,7 +64,7 @@ public:
 
         /** Construct gray value
          */
-    QRGBValue(value_type gray, value_type opacity)
+    QRGBValue(value_type gray, value_type opacity = 255)
     : Base(gray, gray, gray, opacity)
     {}
 
