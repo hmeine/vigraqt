@@ -29,7 +29,7 @@ AC_SUBST(all_includes)
 AC_SUBST(all_libraries)
 
 if test -z "$designer_plugindir"; then
-  designer_plugindir='\${libdir}/plugins/designer'
+  designer_plugindir='${libdir}/plugins/designer'
 fi
 AC_SUBST(designer_plugindir)
 
