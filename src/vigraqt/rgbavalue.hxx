@@ -26,12 +26,12 @@ public:
         /** Construct from explicit color and opacity values
          */
     RGBAValue(value_type red, value_type green, value_type blue, value_type opacity)
-    : Base(red, green, blue, opacity)
+    : Base(red, green, blue, opacity = 255)
     {}
 
         /** Construct gray value
          */
-    RGBAValue(value_type gray, value_type opacity)
+    RGBAValue(value_type gray, value_type opacity = 255)
     : Base(gray, gray, gray, opacity)
     {}
 
@@ -84,9 +84,9 @@ public:
     template <class U>
     RGBAValue & operator=(RGBValue<U> const & r)
     {
-        (*this)[0] = r[0]; // FIXME: promote?
-        (*this)[1] = r[1];
-        (*this)[2] = r[2];
+        (*this)[0] = vigra::NumericTraits<value_type>::fromRealPromote(r[0]);
+        (*this)[1] = vigra::NumericTraits<value_type>::fromRealPromote(r[1]);
+        (*this)[2] = vigra::NumericTraits<value_type>::fromRealPromote(r[2]);
         return *this;
     }
 
@@ -94,40 +94,40 @@ public:
          */
     RGBAValue operator-() const
     {
-        return RGBAValue(-red(), -green(), -blue(), -opacity());
+        return RGBAValue(-red(), -green(), -blue(), opacity());
     }
 
         /** Access red component.
         */
-    value_type & red() { return data_[0]; }
+    value_type & red() { return this->data_[0]; }
 
         /** Access green component.
         */
-    value_type & green() { return data_[1]; }
+    value_type & green() { return this->data_[1]; }
 
         /** Access blue component.
         */
-    value_type & blue() { return data_[2]; }
+    value_type & blue() { return this->data_[2]; }
 
         /** Access opacity component.
         */
-    value_type & opacity() { return data_[3]; }
+    value_type & opacity() { return this->data_[3]; }
 
         /** Read red component.
         */
-    value_type const & red() const { return data_[0]; }
+    value_type const & red() const { return this->data_[0]; }
 
         /** Read green component.
         */
-    value_type const & green() const { return data_[1]; }
+    value_type const & green() const { return this->data_[1]; }
 
         /** Read blue component.
         */
-    value_type const & blue() const { return data_[2]; }
+    value_type const & blue() const { return this->data_[2]; }
 
         /** Read opacity component.
         */
-    value_type const & opacity() const { return data_[3]; }
+    value_type const & opacity() const { return this->data_[3]; }
 
         /** Calculate luminance.
         */
@@ -154,53 +154,100 @@ public:
         */
     template <class V>
     void setRed(V value)
-    { data_[0] = detail::RequiresExplicitCast<value_type>::cast(value); }
+    { this->data_[0] = detail::RequiresExplicitCast<value_type>::cast(value); }
 
         /** Set green component.The type <TT>V</TT> of the passed
             in <TT>value</TT> is automatically converted to <TT>VALUETYPE</TT>.
         */
     template <class V>
     void setGreen(V value)
-    { data_[1] = detail::RequiresExplicitCast<value_type>::cast(value); }
+    { this->data_[1] = detail::RequiresExplicitCast<value_type>::cast(value); }
 
         /** Set blue component.The type <TT>V</TT> of the passed
             in <TT>value</TT> is automatically converted to <TT>VALUETYPE</TT>.
         */
     template <class V>
     void setBlue(V value)
-    { data_[2] = detail::RequiresExplicitCast<value_type>::cast(value); }
+    { this->data_[2] = detail::RequiresExplicitCast<value_type>::cast(value); }
 
         /** Set opacity component.The type <TT>V</TT> of the passed
             in <TT>value</TT> is automatically converted to <TT>VALUETYPE</TT>.
         */
     template <class V>
     void setOpacity(V value)
-    { data_[3] = detail::RequiresExplicitCast<value_type>::cast(value); }
+    { this->data_[3] = detail::RequiresExplicitCast<value_type>::cast(value); }
 };
 
-    /// component-wise equal
-template <class V1, class V2>
-inline
-bool
-operator==(RGBAValue<V1> const & l, RGBAValue<V2> const & r)
-{
-    return ((l.red() == r.red()) &&
-            (l.green() == r.green()) &&
-            (l.blue() == r.blue()) &&
-            (l.opacity() == r.opacity()));
-}
+/********************************************************************/
 
-    /// component-wise not equal
-template <class V1, class V2>
-inline
-bool
-operator!=(RGBAValue<V1> const & l, RGBAValue<V2> const & r)
+template <class T>
+struct NumericTraits<RGBAValue<T> >
 {
-    return ((l.red() != r.red()) ||
-            (l.green() != r.green()) ||
-            (l.blue() != r.blue()) ||
-            (l.opacity() != r.opacity()));
-}
+    typedef RGBAValue<T> Type;
+    typedef RGBAValue<typename NumericTraits<T>::Promote> Promote;
+    typedef RGBAValue<typename NumericTraits<T>::RealPromote> RealPromote;
+    typedef RGBAValue<typename NumericTraits<T>::ComplexPromote> ComplexPromote;
+    typedef T ValueType;
+
+    typedef typename NumericTraits<T>::isIntegral isIntegral;
+    typedef VigraFalseType isScalar;
+    typedef VigraFalseType isOrdered;
+    typedef VigraFalseType isComplex;
+
+    static RGBAValue<T> zero() {
+        return RGBAValue<T>();
+    }
+    static RGBAValue<T> one() {
+        return RGBAValue<T>(NumericTraits<T>::one());
+    }
+    static RGBAValue<T> nonZero() {
+        return RGBAValue<T>(NumericTraits<T>::nonZero());
+    }
+
+    static Promote toPromote(RGBAValue<T> const & v) {
+        return Promote(v);
+    }
+    static RealPromote toRealPromote(RGBAValue<T> const & v) {
+        return RealPromote(v);
+    }
+    static RGBAValue<T> fromPromote(Promote const & v) {
+        return RGBAValue<T>(NumericTraits<T>::fromPromote(v.red()),
+                           NumericTraits<T>::fromPromote(v.green()),
+                           NumericTraits<T>::fromPromote(v.blue()));
+    }
+    static RGBAValue<T> fromRealPromote(RealPromote const & v) {
+        return RGBAValue<T>(NumericTraits<T>::fromRealPromote(v.red()),
+                           NumericTraits<T>::fromRealPromote(v.green()),
+                           NumericTraits<T>::fromRealPromote(v.blue()));
+    }
+};
+
+// left NormTraits away due to alpha discussions
+
+template <class T1, class T2>
+struct PromoteTraits<RGBAValue<T1>, RGBAValue<T2> >
+{
+    typedef RGBAValue<typename PromoteTraits<T1, T2>::Promote> Promote;
+};
+
+template <class T>
+struct PromoteTraits<RGBAValue<T>, double >
+{
+    typedef RGBAValue<typename NumericTraits<T>::RealPromote> Promote;
+};
+
+template <class T>
+struct PromoteTraits<double, RGBAValue<T> >
+{
+    typedef RGBAValue<typename NumericTraits<T>::RealPromote> Promote;
+};
+
+template <class T>
+struct AccessorTraits<RGBAValue<T> >
+{
+    typedef VectorAccessor<RGBAValue<T> >   default_accessor;
+    typedef VectorAccessor<RGBAValue<T> >   default_const_accessor;
+};
 
 } // namespace vigra
 
