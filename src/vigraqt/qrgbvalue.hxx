@@ -23,8 +23,8 @@
 /*                                                                      */
 /************************************************************************/
 
-#ifndef RGBAVALUE_HXX
-#define RGBAVALUE_HXX
+#ifndef QRGBVALUE_HXX
+#define QRGBVALUE_HXX
 
 #include <vigra/tinyvector.hxx>
 #include <vigra/rgbvalue.hxx>
@@ -292,32 +292,6 @@ struct AccessorTraits<QRGBValue<T> >
     typedef VectorAccessor<QRGBValue<T> >   default_const_accessor;
 };
 
-// THOSE ARE OBVIOUSLY UNNEEDED BECAUSE INHERITED FROM TinyVector:
-
-//     /// component-wise equal
-// template <class V1, class V2>
-// inline
-// bool
-// operator==(QRGBValue<V1> const & l, QRGBValue<V2> const & r)
-// {
-//     return ((l.red() == r.red()) &&
-//             (l.green() == r.green()) &&
-//             (l.blue() == r.blue()) &&
-//             (l.opacity() == r.opacity()));
-// }
-
-//     /// component-wise not equal
-// template <class V1, class V2>
-// inline
-// bool
-// operator!=(QRGBValue<V1> const & l, QRGBValue<V2> const & r)
-// {
-//     return ((l.red() != r.red()) ||
-//             (l.green() != r.green()) ||
-//             (l.blue() != r.blue()) ||
-//             (l.opacity() != r.opacity()));
-// }
-
 } // namespace vigra
 
-#endif // RGBAVALUE_HXX
+#endif // QRGBVALUE_HXX
