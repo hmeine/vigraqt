@@ -10,6 +10,7 @@ void OverlayViewer::addOverlay(Overlay *o)
 {
     overlays_.push_back(o);
 
+    o->viewer_ = this;
     o->setZoomLevel(zoomLevel());
 
     connect(this, SIGNAL(zoomLevelChanged(int)),
@@ -21,6 +22,8 @@ void OverlayViewer::removeOverlay(Overlay *o)
     disconnect(this, SIGNAL(zoomLevelChanged(int)),
                o, SLOT(setZoomLevel(int)));
 
+    o->viewer_ = NULL;
+
     Overlays::iterator it = std::find(overlays_.begin(), overlays_.end(), o);
     // FIXME assert it != end()
     overlays_.erase(it);
@@ -29,25 +32,30 @@ void OverlayViewer::removeOverlay(Overlay *o)
 void OverlayViewer::paintOverlays(QPainter &p, const QRect &r)
 {
     p.save();
-    p.translate(-upperLeft_.x(), -upperLeft_.y());
+    p.translate(upperLeft_.x(), upperLeft_.y());
     for(unsigned int i = 0; i < overlays_.size(); ++i)
+    {
+        p.save();
         overlays_[i]->draw(p, r);
+        p.restore();
+    }
     p.restore();
 }
 
 void OverlayViewer::paintEvent(QPaintEvent *e)
 {
-	if(!isVisible()) return;
+    if(!isVisible()) return;
 
-	QRect r= e->rect();
+    QRect r= e->rect();
 
-	QPainter p;
-	p.begin(this);
+    QPainter p;
+    p.begin(this);
 
-	paintImage(p, r);
+    paintImage(p, r);
+
     paintOverlays(p, r);
 
-	p.end();
+    p.end();
 }
 
 /********************************************************************/
