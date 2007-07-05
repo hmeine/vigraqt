@@ -3,6 +3,7 @@ lib_LTLIBRARIES = libvigraqt.la
 include_HEADERS = \
 	qimageviewer.hxx \
 	qglimageviewer.hxx \
+	overlayviewer.hxx \
 	fimageviewer.hxx \
 	imagecaption.hxx \
 	vigraqimage.hxx \
@@ -18,6 +19,7 @@ libvigraqt_la_LIBADD = $(LIB_QT) -lGL -lGLU
 libvigraqt_la_SOURCES = \
 	qimageviewer.cxx \
 	qglimageviewer.cxx \
+	overlayviewer.cxx \
 	fimageviewer.cxx \
 	imagecaption.cxx \
 	colormap.cxx \
@@ -31,6 +33,7 @@ test_LDADD = libvigraqt.la
 %.moc: $(srcdir)/%.hxx
 	$(MOC) $< -o $@
 
+overlayviewer.lo: overlayviewer.moc
 qimageviewer.lo: qimageviewer.moc
 fimageviewer.lo: fimageviewer.moc
 imagecaption.lo: imagecaption.moc
