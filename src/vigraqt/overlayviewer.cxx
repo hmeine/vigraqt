@@ -33,10 +33,12 @@ void OverlayViewer::paintOverlays(QPainter &p, const QRect &r)
 {
     p.save();
     p.translate(upperLeft_.x(), upperLeft_.y());
+    QRect overlayRect(r);
+    overlayRect.moveBy(-upperLeft_.x(), -upperLeft_.y());
     for(unsigned int i = 0; i < overlays_.size(); ++i)
     {
         p.save();
-        overlays_[i]->draw(p, r);
+        overlays_[i]->draw(p, overlayRect);
         p.restore();
     }
     p.restore();
@@ -69,6 +71,13 @@ Overlay::~Overlay()
 {
 }
 
+/********************************************************************/
+
+EdgeOverlayBase::EdgeOverlayBase()
+{
+    cachedEdges_.setAutoDelete(true);
+}
+
 void EdgeOverlayBase::setPen(const QPen &pen)
 {
     pen_ = pen;
@@ -76,12 +85,11 @@ void EdgeOverlayBase::setPen(const QPen &pen)
 
 void EdgeOverlayBase::draw(QPainter &p, const QRect &r)
 {
-    // FIXME: collect bounding boxes, use parameter "r"
     p.setPen(pen_);
     for(unsigned int i = 0; i < cachedEdges_.size(); ++i)
     {
         QPointArray *a = cachedEdges_[i];
-        if(a)
+        if(a && r.intersects(a->boundingRect()))
             p.drawPolyline(*a);
     }
 }
