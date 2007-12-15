@@ -12,7 +12,8 @@ using vigra::v2q;
 
 ColorMapEditor::ColorMapEditor(QWidget *parent, const char *name)
 : QWidget(parent, name, Qt::WNoAutoErase),
-  cm_(NULL)
+  cm_(NULL),
+  dragging_(false)
 {
 	setMinimumSize(2*xMargin + 80, 2*yMargin + 8 + triangleHeight);
 	setFocusPolicy(QWidget::StrongFocus);
@@ -82,8 +83,9 @@ void ColorMapEditor::mousePressEvent(QMouseEvent *e)
 		return;
 
 	changed_ = false;
-	dragStartX_ = e->pos().x();
-	selectIndex_ = -1;
+	cmBackup_ = *cm_;
+	dragStartX_ = dragPrevX_ = e->pos().x();
+	selectIndex_ = -1; // this will be unselected if no dragging occured
 	for(unsigned int i = 0; i < cm_->size(); ++i)
 	{
 		if(triangles_[i].points.boundingRect().contains(e->pos()))
@@ -121,20 +123,26 @@ void ColorMapEditor::mousePressEvent(QMouseEvent *e)
 
 void ColorMapEditor::mouseMoveEvent(QMouseEvent *e)
 {
-	if(!isEnabled() || !cm_)
+	if(!isEnabled() || !cm_ || !dragging_)
 		return;
 
-	int dragDist = e->pos().x() - dragStartX_;
-	if(!dragging_ || !dragDist)
+	int dragDist = e->pos().x() - dragPrevX_;
+	if(!dragDist)
 		return;
+
+	// re-calculate change from dragStartX_; prevents permanent
+	// shifting of other transition points during one drag:
+	*cm_ = cmBackup_;
 
 	bool changed = false;
-	// skip outermost as long as we do not have our own domain:
+	// FIXME: skip outermost as long as we do not have our own domain
 	for(unsigned int i = 1; i < cm_->size() - 1; ++i)
 	{
 		if(triangles_[i].selected)
 		{
-			double newPos = cm_->domainPosition(i) + valueScale_ * dragDist;
+			double newPos =
+				cm_->domainPosition(i)
+				+ valueScale_ * (e->pos().x() - dragStartX_);
 			if(newPos < cm_->domainMin())
 				newPos = cm_->domainMin();
 			if(newPos > cm_->domainMax())
@@ -151,7 +159,7 @@ void ColorMapEditor::mouseMoveEvent(QMouseEvent *e)
 	{
 		changed_ = true;
 		rereadColorMap();
-		dragStartX_ = e->pos().x();
+		dragPrevX_ = e->pos().x();
 	}
 }
 
@@ -335,6 +343,7 @@ void ColorMapEditor::updateTriangles()
 		{
 			int meetX = (triangles_[i-1].points[2].x() +
 						 triangles_[i].points[0].x()) / 2;
+			// FIXME: div by zero happens if shifting three TP onto each other:
 			int meetY =
 				triangles_[i-1].points[1].y() +
 				triangleHeight * (meetX - triangles_[i-1].points[1].x()) /

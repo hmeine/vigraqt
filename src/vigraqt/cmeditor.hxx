@@ -77,13 +77,14 @@ protected:
 	virtual void paintEvent(QPaintEvent *e);
 	virtual void resizeEvent(QResizeEvent *e);
 
-	ColorMap *cm_;
+	ColorMap *cm_, cmBackup_;
 
 	// dynamic layout values:
 	QRect gradientRect_;
 	double valueOffset_, valueScale_;
+
 	bool dragging_, changed_;
-	int dragStartX_, selectIndex_;
+	int dragStartX_, dragPrevX_, selectIndex_;
 
 	struct Triangle
 	{
