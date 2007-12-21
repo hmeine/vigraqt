@@ -86,9 +86,10 @@ class ColorMap
     {
         double position, projected;
         InternalColor color, scale;
+        bool joinedWithNext;
 
         TransitionPoint(double position, Color color)
-        : position(position), color(color)
+        : position(position), color(color), joinedWithNext(false)
         {}
     };
 

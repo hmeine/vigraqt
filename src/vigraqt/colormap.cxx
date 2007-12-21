@@ -111,5 +111,5 @@ public:
 
 ColorMap *createCM()
 {
-	return new GrayMap();
+	return new FireMap(); // GrayMap
 }

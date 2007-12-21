@@ -263,7 +263,7 @@ void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 		int insertAtID = contextMenu->insertItem("Insert At...");
 		int action = contextMenu->exec(e->globalPos());
 		delete contextMenu;
-		
+
 		if(action == insertHereID)
 		{
 			// FIXME: next three lines + cancel -> insertInteractively()?
@@ -370,6 +370,14 @@ void ColorMapEditor::updateTriangles()
 	}
 	for(unsigned int i = 1; i < cm_->size(); ++i)
 	{
+        if(i < cm_->size()-1 &&
+           triangles_[i-1].points[1].x() == triangles_[i+1].points[1].x())
+            continue;
+
+//         unsigned int prev = i-1;
+//         while(prev > 0 &&
+//               triangles_[prev-1].points[1].x() == triangles_[i].points[1].x())
+
 		// overlapping triangles?
 		if(triangles_[i-1].points[2].x() > triangles_[i].points[0].x())
 		{
