@@ -216,7 +216,7 @@ void ColorMapEditor::mouseDoubleClickEvent(QMouseEvent *e)
 
 void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 {
-	if(!cm_)
+	if(!isEnabled() || !cm_)
 		return;
 
 	for(unsigned int i = 0; i < cm_->size(); ++i)
@@ -234,6 +234,7 @@ void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 			contextMenu->setItemEnabled(removeID, (i > 0) && (i < cm_->size()-1));
 			int action = contextMenu->exec(e->globalPos());
 			delete contextMenu;
+
 			if(action == editColorID)
 				editColor(i);
 			else if(action == editPosID)
@@ -249,6 +250,36 @@ void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 			}
 			else if(action == removeID)
 				remove(i);
+			return;
+		}
+	}
+
+	if(gradientRect_.contains(e->pos()))
+	{
+		double pos = x2Value(e->pos().x());
+		QPopupMenu* contextMenu = new QPopupMenu(this);
+		int insertHereID = contextMenu->insertItem(
+			QString("Insert here (%1)").arg(pos));
+		int insertAtID = contextMenu->insertItem("Insert At...");
+		int action = contextMenu->exec(e->globalPos());
+		delete contextMenu;
+		
+		if(action == insertHereID)
+		{
+			// FIXME: next three lines + cancel -> insertInteractively()?
+			unsigned int newIndex = insert(pos);
+			triangles_[newIndex].selected = true;
+			editColor(newIndex);
+		}
+		else if(action == insertAtID)
+		{
+			// FIXME: check for cancel (also on dblclk)
+			double newPos = QInputDialog::getDouble(
+				QString("Insert Transition Point"),
+				"Position:", pos);
+			unsigned int newIndex = insert(newPos);
+			triangles_[newIndex].selected = true;
+			editColor(newIndex);
 		}
 	}
 }
@@ -339,8 +370,10 @@ void ColorMapEditor::updateTriangles()
 	}
 	for(unsigned int i = 1; i < cm_->size(); ++i)
 	{
+		// overlapping triangles?
 		if(triangles_[i-1].points[2].x() > triangles_[i].points[0].x())
 		{
+			// calculate intersection of triangle sides
 			int meetX = (triangles_[i-1].points[2].x() +
 						 triangles_[i].points[0].x()) / 2;
 			// FIXME: div by zero happens if shifting three TP onto each other:
