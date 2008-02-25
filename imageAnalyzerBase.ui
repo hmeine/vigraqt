@@ -16,6 +16,49 @@
                 <cstring>imageViewer</cstring>
             </property>
         </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout2</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>textLabel1</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Gamma:</string>
+                    </property>
+                    <property name="buddy" stdset="0">
+                        <cstring>gammaSlider</cstring>
+                    </property>
+                </widget>
+                <widget class="QSlider">
+                    <property name="name">
+                        <cstring>gammaSlider</cstring>
+                    </property>
+                    <property name="minValue">
+                        <number>-15</number>
+                    </property>
+                    <property name="maxValue">
+                        <number>15</number>
+                    </property>
+                    <property name="pageStep">
+                        <number>5</number>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                </widget>
+                <widget class="QSpinBox">
+                    <property name="name">
+                        <cstring>gammaSpinBox</cstring>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
     </vbox>
 </widget>
 <toolbars>
