@@ -17,6 +17,8 @@ public:
 
 public slots:
     void updateDisplay();
+    void computeDisplay();
+    void gammaSliderChanged(int pos);
 };
 
 #endif // IMAGEANALYZER_HXX

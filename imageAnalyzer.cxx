@@ -7,11 +7,17 @@
 #include <imagecaption.hxx>
 
 #include <qlayout.h>
+#include <qslider.h>
+#include <qspinbox.h>
 #include <qstatusbar.h>
+#include <qtimer.h>
 
 #include <vigra/impex.hxx>
 #include <vigra/inspectimage.hxx>
+#include <vigra/transformimage.hxx>
 #include <vigra/stdimage.hxx>
+
+#include <cmath>
 
 typedef float PixelType;
 typedef vigra::BasicImage<PixelType> OriginalImage;
@@ -23,6 +29,8 @@ struct ImageAnalyzerPrivate
     ColorMap                    *cm;
     ColorMapEditor              *cme;
     ImageCaption                *imageCaption;
+    double                       gamma;
+    QTimer                      *displayTimer;
 };
 
 ImageAnalyzer::ImageAnalyzer(QWidget *parent, const char *name)
@@ -35,6 +43,13 @@ ImageAnalyzer::ImageAnalyzer(QWidget *parent, const char *name)
     connect(p->cme, SIGNAL(colorMapChanged()), SLOT(updateDisplay()));
     ImageAnalyzerLayout->addWidget(p->cme);
     p->imageCaption = NULL;
+    p->gamma = 1.0;
+    p->displayTimer = new QTimer(this);
+    connect(p->displayTimer, SIGNAL(timeout()), SLOT(computeDisplay()));
+
+    connect(gammaSlider, SIGNAL(valueChanged(int)),
+            SLOT(gammaSliderChanged(int)));
+    gammaSpinBox->hide();
 }
 
 void ImageAnalyzer::load(const char *filename)
@@ -72,10 +87,25 @@ void ImageAnalyzer::load(const char *filename)
 
 void ImageAnalyzer::updateDisplay()
 {
+    p->displayTimer->start(100, true);
+}
+
+void ImageAnalyzer::computeDisplay()
+{
     vigra::QRGBImage displayImage(p->originalImage.size());
 
-    copyImage(srcImageRange(p->originalImage),
-              destImage(displayImage, *p->cm));
+//     copyImage(srcImageRange(p->originalImage),
+//               destImage(displayImage, *p->cm));
+    transformImage(srcImageRange(p->originalImage),
+                   destImage(displayImage, *p->cm),
+                   vigra::GammaFunctor<PixelType>(
+                       p->gamma, p->minmax.min, p->minmax.max));
 
     imageViewer->setImage(displayImage.qImage());
+}
+
+void ImageAnalyzer::gammaSliderChanged(int pos)
+{
+    p->gamma = std::pow(1.1, pos);
+    updateDisplay();
 }
