@@ -86,11 +86,12 @@ void ColorMapEditor::mousePressEvent(QMouseEvent *e)
 	cmBackup_ = *cm_;
 	dragStartX_ = dragPrevX_ = e->pos().x();
 	selectIndex_ = -1; // this will be [un]selected if no dragging occured
-	unsigned int i = 0;
-	if(findTriangle(e->pos(), &i))
+	ColorMap::TransitionIterator it = findTriangle(e->pos());
+	if(it.inRange())
 	{
 		if(e->state() & Qt::ControlButton)
 		{
+			unsigned int i = editIndex(it, e->pos().x());
 			// Ctrl-press: toggle selection
 			if(!selected_[i])
 				selected_[i] = true;
@@ -100,13 +101,13 @@ void ColorMapEditor::mousePressEvent(QMouseEvent *e)
 		else
 		{
 			// unselect all other if not dragging:
-			if(!selected_[i])
+			if(!selected_[it.firstIndex()])
 			{
 				for(unsigned int j = 0; j < cm_->size(); ++j)
-					selected_[j] = (j == i);
+					selected_[j] = (j >= it.firstIndex() && j <= it.lastIndex());
 			}
 			else
-				selectIndex_ = i;
+				selectIndex_ = it.firstIndex();
 		}
 		dragging_ = true;
 	}
@@ -138,7 +139,7 @@ void ColorMapEditor::mouseMoveEvent(QMouseEvent *e)
 		if(selected_[i])
 		{
 			double newPos =
-				cm_->domainPosition(i)
+				cmBackup_.domainPosition(i)
 				+ valueScale_ * (e->pos().x() - dragStartX_);
 			if(newPos < cm_->domainMin())
 				newPos = cm_->domainMin();
@@ -180,7 +181,8 @@ void ColorMapEditor::mouseReleaseEvent(QMouseEvent *e)
 			// unselect the others):
 			for(unsigned int i = 0; i < cm_->size(); ++i)
 			{
-				selected_[i] = (i == (unsigned int)selectIndex_);
+				selected_[i] =
+					cm_->position(i) == cm_->position((unsigned int)selectIndex_);
 			}
 		}
 		else
@@ -202,10 +204,10 @@ void ColorMapEditor::mouseDoubleClickEvent(QMouseEvent *e)
 		return;
 	}
 
-	unsigned int i = 0;
-	if(findTriangle(e->pos(), &i))
+	ColorMap::TransitionIterator it = findTriangle(e->pos());
+	if(it.inRange())
 	{
-		editColor(i);
+		editColor(editIndex(it, e->pos().x()));
 		return;
 	}
 
@@ -221,9 +223,11 @@ void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 	if(!isEnabled() || !cm_)
 		return;
 
-	unsigned int i = 0;
-	if(findTriangle(e->pos(), &i))
+	ColorMap::TransitionIterator it = findTriangle(e->pos());
+	if(it.inRange())
 	{
+		unsigned int i = editIndex(it, e->pos().x());
+
 		QPopupMenu* contextMenu = new QPopupMenu(this);
 		QLabel *caption = new QLabel(
 			QString("<b>Transition Point %1</b>").arg(i+1), contextMenu);
@@ -350,25 +354,36 @@ void ColorMapEditor::updateDomain()
 		selected_.resize(0);
 }
 
-bool ColorMapEditor::findTriangle(const QPoint &pos, unsigned int *index) const
+ColorMap::TransitionIterator ColorMapEditor::findTriangle(const QPoint &pos) const
 {
+	ColorMap::TransitionIterator result(cm_->transitionsEnd());
+
 	if(pos.y() > height()-1 - yMargin ||
 	   pos.y() < height()-1 - yMargin - triangleHeight)
-		return false;
+		return result;
 
 	int bestDist = 0;
-	bool found = false;
-	for(unsigned int i = 0; i < cm_->size(); ++i)
+	for(ColorMap::TransitionIterator it = cm_->transitionsBegin();
+		it.inRange(); ++it)
 	{
-		int dist = abs(value2X(cm_->domainPosition(i)) - pos.x());
-		if((!found && dist < triangleWidth/2) || dist < bestDist)
+		int dist = abs(value2X(it.domainPosition()) - pos.x());
+		if((result.atEnd() && dist < triangleWidth/2) || dist < bestDist)
 		{
 			bestDist = dist;
-			*index = i;
-			found = true;
+			result = it;
 		}
 	}
-	return found;
+
+	return result;
+}
+
+unsigned int ColorMapEditor::editIndex(
+	const ColorMap::TransitionIterator &it, int x) const
+{
+	if(it.isStepTransition() && 
+	   x > value2X(it.domainPosition()))
+		return it.lastIndex();
+	return it.firstIndex();
 }
 
 QRect ColorMapEditor::triangleBounds(unsigned int i) const
@@ -385,9 +400,11 @@ bool ColorMapEditor::tip(const QPoint &p, QRect &r, QString &s)
 	if(!cm_)
 		return false;
 
-	unsigned int i = 0;
-	if(findTriangle(p, &i))
+	ColorMap::TransitionIterator it = findTriangle(p);
+	if(it.inRange())
 	{
+		unsigned int i = editIndex(it, p.x());
+
 		r = triangleBounds(i);
 		s = QString("Transition point %1 of %2\nPosition: %3\nColor: %4")
 			.arg(i+1).arg(cm_->size())
@@ -471,7 +488,7 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 		if(it.isStepTransition())
 		{
 			p.setClipRect(QRect(trianglePos, 0, width(), height()));
-			
+
 			p.setBrush(v2q(it.rightColor()));
 			if(selected_[it.lastIndex()])
 			{

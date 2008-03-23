@@ -67,7 +67,8 @@ protected:
 	int value2X(double value) const;
 
 	void updateDomain();
-	bool findTriangle(const QPoint &pos, unsigned int *index) const;
+	ColorMap::TransitionIterator findTriangle(const QPoint &pos) const;
+	unsigned int editIndex(const ColorMap::TransitionIterator &it, int x) const;
 	QRect triangleBounds(unsigned int i) const;
 	bool tip(const QPoint &p, QRect &r, QString &s);
 	friend class ColorToolTip;
