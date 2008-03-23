@@ -440,15 +440,18 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 	QPen pen(Qt::black, 1);
 	pen.setJoinStyle(Qt::RoundJoin);
 	p.setPen(pen);
-	int prevPos = -1;
+	int prevPos = -triangleWidth;
 	for(ColorMap::TransitionIterator it = cm_->transitionsBegin();
 		it.inRange(); ++it)
 	{
 		int trianglePos = value2X(it.domainPosition());
 		triangle.translate(trianglePos - triangle[1].x(), 0);
 
+		int midPos = (prevPos + trianglePos)/2;
+		QRect cr(midPos, 0, width(), height());
 		if(it.isStepTransition())
-			p.setClipRect(QRect(0, 0, trianglePos, height()));
+			cr.setRight(trianglePos);
+		p.setClipRect(cr);
 
 		p.setBrush(v2q(it.leftColor()));
 		if(selected_[it.firstIndex()])
@@ -463,7 +466,7 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 			p.setPen(pen);
 		}
 
-		prevPos = trianglePos;
+		prevPos = trianglePos + 1;
 
 		if(it.isStepTransition())
 		{
