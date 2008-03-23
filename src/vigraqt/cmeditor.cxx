@@ -55,7 +55,6 @@ void ColorMapEditor::remove(unsigned int i)
 		return; // TODO: warning -> stderr
 
 	cm_->remove(i);
-	triangles_.erase(triangles_.begin() + i);
 	selected_.erase(selected_.begin() + i);
 	rereadColorMap();
 	emit colorMapChanged();
@@ -67,7 +66,6 @@ unsigned int ColorMapEditor::insert(double domainPosition)
 		return 0; // TODO: warning -> stderr FIXME: return value?
 
 	unsigned int result = cm_->insert(domainPosition);
-	triangles_.insert(triangles_.begin() + result, QPointArray());
 	selected_.insert(selected_.begin() + result, false);
 	rereadColorMap();
 	return result;
@@ -349,8 +347,10 @@ void ColorMapEditor::updateDomain()
 		valueOffset_ = cm_->domainMin();
 		valueScale_ = (cm_->domainMax() - cm_->domainMin()) /
 					  (gradientRect_.width() - 1);
+		selected_.resize(cm_->size());
 	}
-	updateTriangles();
+	else
+		selected_.resize(0);
 }
 
 bool ColorMapEditor::findTriangle(const QPoint &pos, unsigned int *index) const
@@ -381,64 +381,6 @@ QRect ColorMapEditor::triangleBounds(unsigned int i) const
 	result.moveBy(value2X(cm_->domainPosition(i)),
 				  -triangleHeight);
 	return result;
-}
-
-void ColorMapEditor::updateTriangles()
-{
-	if(!cm_)
-	{
-		triangles_.resize(0);
-		selected_.resize(0);
-		return;
-	}
-
-	QPointArray triangle(3);
-	triangle.setPoint(0, -triangleWidth/2, height()-1 - yMargin);
-	triangle.setPoint(1, 0, height()-1 - yMargin - triangleHeight);
-	triangle.setPoint(2, triangle[0].x()+triangleWidth, height()-1 - yMargin);
-	triangles_.resize(cm_->size());
-	selected_.resize(cm_->size());
-	for(unsigned int i = 0; i < cm_->size(); ++i)
-	{
-		triangles_[i] = triangle.copy();
-		triangles_[i].translate(value2X(cm_->domainPosition(i)), 0);
-	}
-	for(unsigned int i = 1; i < cm_->size(); ++i)
-	{
-		if(i < cm_->size()-1 &&
-		   triangles_[i-1][1].x() == triangles_[i+1][1].x())
-			continue;
-
-//		 unsigned int prev = i-1;
-//		 while(prev > 0 &&
-//			   triangles_[prev-1][1].x() == triangles_[i][1].x())
-
-		// overlapping triangles?
-		if(triangles_[i-1][2].x() > triangles_[i][0].x())
-		{
-			// calculate intersection of triangle sides
-			int meetX = (triangles_[i-1][2].x() +
-						 triangles_[i][0].x()) / 2;
-			// FIXME: div by zero happens if shifting three TP onto each other:
-			int meetY =
-				triangles_[i-1][1].y() +
-				triangleHeight * (meetX - triangles_[i-1][1].x()) /
-				(triangles_[i-1][2].x() - triangles_[i-1][1].x());
-
-			triangles_[i-1].resize(4);
-			triangles_[i-1][3] = triangles_[i][2];
-			triangles_[i-1][3].setX(meetX);
-			triangles_[i-1][2].setX(meetX);
-			triangles_[i-1][2].setY(meetY);
-
-			triangles_[i].resize(4);
-			triangles_[i][3] = triangles_[i][2];
-			triangles_[i][2] = triangles_[i][1];
-			triangles_[i][1].setX(meetX);
-			triangles_[i][1].setY(meetY);
-			triangles_[i][0].setX(meetX);
-		}
-	}
 }
 
 bool ColorMapEditor::tip(const QPoint &p, QRect &r, QString &s)
@@ -492,19 +434,26 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 	p.setPen(Qt::black);
 	p.drawRect(gradOutline);
 
+	QPointArray triangle(3);
+	triangle.setPoint(0, -triangleWidth/2, height()-1 - yMargin);
+	triangle.setPoint(1, 0, height()-1 - yMargin - triangleHeight);
+	triangle.setPoint(2, triangle[0].x()+triangleWidth, height()-1 - yMargin);
+
 	// draw filled triangles:
 	QPen pen(Qt::black, 1);
 	pen.setJoinStyle(Qt::RoundJoin);
 	p.setPen(pen);
 	for(unsigned int i = 0; i < cm_->size(); ++i)
 	{
+		triangle.translate(value2X(cm_->domainPosition(i)) - triangle[1].x(), 0);
+
 		p.setBrush(v2q(cm_->color(i)));
 		if(selected_[i])
 		{
 			pen.setWidth(2);
 			p.setPen(pen);
 		}
-		p.drawPolygon(triangles_[i]);
+		p.drawPolygon(triangle);
 		if(selected_[i])
 		{
 			pen.setWidth(1);
