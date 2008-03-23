@@ -7,7 +7,7 @@ dynmod_LTLIBRARIES = vigraqt.la
 vigraqt_la_LDFLAGS = -module -avoid-version $(all_libraries) -L/usr/lib/python2.3/site-packages
 vigraqt_la_LIBADD = $(LIB_QT) ../vigraqt/libvigraqt.la
 vigraqt_la_SOURCES = \
-	sipvigraqtcmodule.cpp sipvigraqtQGLImageWidget.cpp sipvigraqtQGLImageViewer.cpp sipvigraqtQImageViewer.cpp sipvigraqtQImageViewerBase.cpp moc_sipvigraqtcmodule.cpp
+	sipvigraqtcmodule.cpp sipvigraqtQGLImageWidget.cpp sipvigraqtQGLImageViewer.cpp sipvigraqtQImageViewer.cpp sipvigraqtQImageViewerBase.cpp
 
 SIP=sip
 SIP_PYQT_PARAMS=`python -c 'import pyqtconfig; c = pyqtconfig.Configuration(); print c.pyqt_qt_sip_flags, "-I", c.pyqt_sip_dir'`
@@ -27,11 +27,6 @@ sipvigraqtQImageViewerBase.cpp: vigraqt_buildinfo
 # "sip" target for your convenience
 .PHONY: sip
 sip: vigraqt_buildinfo
-
-# $(patsubst %.h, moc_%.cpp, $(moc_headers))
-
-moc_%.cpp: %.h
-	$(MOC) -o $@ $<
 
 clean-local:
 	rm -f sipqtQ*.h sipqtglQ*.h sipvigraqt* sipAPIvigraqt.h moc_sip*.cpp vigraqt_buildinfo

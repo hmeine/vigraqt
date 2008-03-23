@@ -56,6 +56,7 @@ void ColorMapEditor::remove(unsigned int i)
 
 	cm_->remove(i);
 	triangles_.erase(triangles_.begin() + i);
+	selected_.erase(selected_.begin() + i);
 	rereadColorMap();
 	emit colorMapChanged();
 }
@@ -66,7 +67,8 @@ unsigned int ColorMapEditor::insert(double domainPosition)
 		return 0; // TODO: warning -> stderr FIXME: return value?
 
 	unsigned int result = cm_->insert(domainPosition);
-	triangles_.insert(triangles_.begin() + result, Triangle());
+	triangles_.insert(triangles_.begin() + result, QPointArray());
+	selected_.insert(selected_.begin() + result, false);
 	rereadColorMap();
 	return result;
 }
@@ -88,23 +90,23 @@ void ColorMapEditor::mousePressEvent(QMouseEvent *e)
 	selectIndex_ = -1; // this will be unselected if no dragging occured
 	for(unsigned int i = 0; i < cm_->size(); ++i)
 	{
-		if(triangles_[i].points.boundingRect().contains(e->pos()))
+		if(triangles_[i].boundingRect().contains(e->pos()))
 		{
 			if(e->state() & Qt::ControlButton)
 			{
 				// Ctrl-press: toggle selection
-				if(!triangles_[i].selected)
-					triangles_[i].selected = true;
+				if(!selected_[i])
+					selected_[i] = true;
 				else
 					selectIndex_ = i;
 			}
 			else
 			{
 				// unselect all other if not dragging:
-				if(!triangles_[i].selected)
+				if(!selected_[i])
 				{
 					for(unsigned int j = 0; j < cm_->size(); ++j)
-						triangles_[j].selected = (j == i);
+						selected_[j] = (j == i);
 				}
 				else
 					selectIndex_ = i;
@@ -116,7 +118,7 @@ void ColorMapEditor::mousePressEvent(QMouseEvent *e)
 
 	if(!(e->state() & Qt::ControlButton) && !dragging_) // click outside handles
 		for(unsigned int i = 0; i < cm_->size(); ++i)
-			triangles_[i].selected = false;
+			selected_[i] = false;
 
 	update();
 }
@@ -138,7 +140,7 @@ void ColorMapEditor::mouseMoveEvent(QMouseEvent *e)
 	// FIXME: skip outermost as long as we do not have our own domain
 	for(unsigned int i = 1; i < cm_->size() - 1; ++i)
 	{
-		if(triangles_[i].selected)
+		if(selected_[i])
 		{
 			double newPos =
 				cm_->domainPosition(i)
@@ -180,11 +182,11 @@ void ColorMapEditor::mouseReleaseEvent(QMouseEvent *e)
 		{
 			for(unsigned int i = 0; i < cm_->size(); ++i)
 			{
-				triangles_[i].selected = (i == (unsigned int)selectIndex_);
+				selected_[i] = (i == (unsigned int)selectIndex_);
 			}
 		}
 		else
-			triangles_[selectIndex_].selected = false;
+			selected_[selectIndex_] = false;
 		rereadColorMap();
 	}
 }
@@ -199,7 +201,7 @@ void ColorMapEditor::mouseDoubleClickEvent(QMouseEvent *e)
 
 	for(unsigned int i = 0; i < cm_->size(); ++i)
 	{
-		if(triangles_[i].points.boundingRect().contains(e->pos()))
+		if(triangles_[i].boundingRect().contains(e->pos()))
 		{
 			editColor(i);
 			return;
@@ -209,7 +211,7 @@ void ColorMapEditor::mouseDoubleClickEvent(QMouseEvent *e)
 	if(gradientRect_.contains(e->pos()))
 	{
 		unsigned int newIndex = insert(x2Value(e->pos().x()));
-		triangles_[newIndex].selected = true;
+		selected_[newIndex] = true;
 		editColor(newIndex);
 	}
 }
@@ -221,7 +223,7 @@ void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 
 	for(unsigned int i = 0; i < cm_->size(); ++i)
 	{
-		if(triangles_[i].points.boundingRect().contains(e->pos()))
+		if(triangles_[i].boundingRect().contains(e->pos()))
 		{
 			QPopupMenu* contextMenu = new QPopupMenu(this);
 			QLabel *caption = new QLabel(
@@ -268,7 +270,7 @@ void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 		{
 			// FIXME: next three lines + cancel -> insertInteractively()?
 			unsigned int newIndex = insert(pos);
-			triangles_[newIndex].selected = true;
+			selected_[newIndex] = true;
 			editColor(newIndex);
 		}
 		else if(action == insertAtID)
@@ -278,7 +280,7 @@ void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 				QString("Insert Transition Point"),
 				"Position:", pos);
 			unsigned int newIndex = insert(newPos);
-			triangles_[newIndex].selected = true;
+			selected_[newIndex] = true;
 			editColor(newIndex);
 		}
 	}
@@ -295,7 +297,7 @@ void ColorMapEditor::keyPressEvent(QKeyEvent *e)
 	{
 		unsigned int i = 1;
 		while(i < cm_->size() - 1)
-			if(triangles_[i].selected)
+			if(selected_[i])
 				remove(i);
 			else
 				++i;
@@ -355,6 +357,7 @@ void ColorMapEditor::updateTriangles()
 	if(!cm_)
 	{
 		triangles_.resize(0);
+        selected_.resize(0);
 		return;
 	}
 
@@ -363,45 +366,46 @@ void ColorMapEditor::updateTriangles()
 	triangle.setPoint(1, 0, height()-1 - yMargin - triangleHeight);
 	triangle.setPoint(2, triangle[0].x()+triangleWidth, height()-1 - yMargin);
 	triangles_.resize(cm_->size());
+	selected_.resize(cm_->size());
 	for(unsigned int i = 0; i < cm_->size(); ++i)
 	{
-		triangles_[i].points = triangle.copy();
-		triangles_[i].points.translate(value2X(cm_->domainPosition(i)), 0);
+		triangles_[i] = triangle.copy();
+		triangles_[i].translate(value2X(cm_->domainPosition(i)), 0);
 	}
 	for(unsigned int i = 1; i < cm_->size(); ++i)
 	{
         if(i < cm_->size()-1 &&
-           triangles_[i-1].points[1].x() == triangles_[i+1].points[1].x())
+           triangles_[i-1][1].x() == triangles_[i+1][1].x())
             continue;
 
 //         unsigned int prev = i-1;
 //         while(prev > 0 &&
-//               triangles_[prev-1].points[1].x() == triangles_[i].points[1].x())
+//               triangles_[prev-1][1].x() == triangles_[i][1].x())
 
 		// overlapping triangles?
-		if(triangles_[i-1].points[2].x() > triangles_[i].points[0].x())
+		if(triangles_[i-1][2].x() > triangles_[i][0].x())
 		{
 			// calculate intersection of triangle sides
-			int meetX = (triangles_[i-1].points[2].x() +
-						 triangles_[i].points[0].x()) / 2;
+			int meetX = (triangles_[i-1][2].x() +
+						 triangles_[i][0].x()) / 2;
 			// FIXME: div by zero happens if shifting three TP onto each other:
 			int meetY =
-				triangles_[i-1].points[1].y() +
-				triangleHeight * (meetX - triangles_[i-1].points[1].x()) /
-				(triangles_[i-1].points[2].x() - triangles_[i-1].points[1].x());
+				triangles_[i-1][1].y() +
+				triangleHeight * (meetX - triangles_[i-1][1].x()) /
+				(triangles_[i-1][2].x() - triangles_[i-1][1].x());
 
-			triangles_[i-1].points.resize(4);
-			triangles_[i-1].points[3] = triangles_[i].points[2];
-			triangles_[i-1].points[3].setX(meetX);
-			triangles_[i-1].points[2].setX(meetX);
-			triangles_[i-1].points[2].setY(meetY);
+			triangles_[i-1].resize(4);
+			triangles_[i-1][3] = triangles_[i][2];
+			triangles_[i-1][3].setX(meetX);
+			triangles_[i-1][2].setX(meetX);
+			triangles_[i-1][2].setY(meetY);
 
-			triangles_[i].points.resize(4);
-			triangles_[i].points[3] = triangles_[i].points[2];
-			triangles_[i].points[2] = triangles_[i].points[1];
-			triangles_[i].points[1].setX(meetX);
-			triangles_[i].points[1].setY(meetY);
-			triangles_[i].points[0].setX(meetX);
+			triangles_[i].resize(4);
+			triangles_[i][3] = triangles_[i][2];
+			triangles_[i][2] = triangles_[i][1];
+			triangles_[i][1].setX(meetX);
+			triangles_[i][1].setY(meetY);
+			triangles_[i][0].setX(meetX);
 		}
 	}
 }
@@ -413,9 +417,9 @@ bool ColorMapEditor::tip(const QPoint &p, QRect &r, QString &s)
 
 	for(unsigned int i = 0; i < cm_->size(); ++i)
 	{
-		if(triangles_[i].points.boundingRect().contains(p))
+		if(triangles_[i].boundingRect().contains(p))
 		{
-			r = triangles_[i].points.boundingRect();
+			r = triangles_[i].boundingRect();
 			s = QString("Transition point %1 of %2\nPosition: %3\nColor: %4")
 				.arg(i+1).arg(cm_->size())
 				.arg(cm_->domainPosition(i))
@@ -466,13 +470,13 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 	for(unsigned int i = 0; i < cm_->size(); ++i)
 	{
 		p.setBrush(v2q(cm_->color(i)));
-		if(triangles_[i].selected)
+		if(selected_[i])
 		{
 			pen.setWidth(2);
 			p.setPen(pen);
 		}
-		p.drawPolygon(triangles_[i].points);
-		if(triangles_[i].selected)
+		p.drawPolygon(triangles_[i]);
+		if(selected_[i])
 		{
 			pen.setWidth(1);
 			p.setPen(pen);
