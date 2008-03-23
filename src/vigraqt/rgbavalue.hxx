@@ -25,8 +25,8 @@ public:
 
         /** Construct from explicit color and opacity values
          */
-    RGBAValue(value_type red, value_type green, value_type blue, value_type opacity)
-    : Base(red, green, blue, opacity = 255)
+    RGBAValue(value_type red, value_type green, value_type blue, value_type opacity = 255)
+    : Base(red, green, blue, opacity)
     {}
 
         /** Construct gray value
