@@ -45,7 +45,7 @@ public:
 	// opens the color changing dialog:
 	void editColor(unsigned int i);
 	void remove(unsigned int i);
-	unsigned int insert(double domainPosition);
+	unsigned int insert(double domainPosition, bool select = true);
 
 public slots:
 	void rereadColorMap();

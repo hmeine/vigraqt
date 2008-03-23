@@ -60,13 +60,13 @@ void ColorMapEditor::remove(unsigned int i)
 	emit colorMapChanged();
 }
 
-unsigned int ColorMapEditor::insert(double domainPosition)
+unsigned int ColorMapEditor::insert(double domainPosition, bool select)
 {
 	if(!cm_)
 		return 0; // TODO: warning -> stderr FIXME: return value?
 
 	unsigned int result = cm_->insert(domainPosition);
-	selected_.insert(selected_.begin() + result, false);
+	selected_.insert(selected_.begin() + result, select);
 	rereadColorMap();
 	return result;
 }
@@ -212,7 +212,6 @@ void ColorMapEditor::mouseDoubleClickEvent(QMouseEvent *e)
 	if(gradientRect_.contains(e->pos()))
 	{
 		unsigned int newIndex = insert(x2Value(e->pos().x()));
-		selected_[newIndex] = true;
 		editColor(newIndex);
 	}
 }
@@ -269,7 +268,6 @@ void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 		{
 			// FIXME: next three lines + cancel -> insertInteractively()?
 			unsigned int newIndex = insert(pos);
-			selected_[newIndex] = true;
 			editColor(newIndex);
 		}
 		else if(action == insertAtID)
@@ -279,7 +277,6 @@ void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 				QString("Insert Transition Point"),
 				"Position:", pos);
 			unsigned int newIndex = insert(newPos);
-			selected_[newIndex] = true;
 			editColor(newIndex);
 		}
 	}
@@ -323,7 +320,7 @@ void ColorMapEditor::dropEvent(QDropEvent *e)
 	QColor newColor;
 	if(gradientRect_.contains(e->pos()) && QColorDrag::decode(e, newColor))
 	{
-		unsigned int newIndex = insert(x2Value(e->pos().x()));
+		unsigned int newIndex = insert(x2Value(e->pos().x()), false);
 		cm_->setColor(newIndex, q2v(newColor));
 		rereadColorMap();
 		emit colorMapChanged();
