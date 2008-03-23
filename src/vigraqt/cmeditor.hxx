@@ -86,13 +86,8 @@ protected:
 	bool dragging_, changed_;
 	int dragStartX_, dragPrevX_, selectIndex_;
 
-	struct Triangle
-	{
-		QPointArray points;
-		bool selected;
-		Triangle(): selected(false) {}
-	};
-	std::vector<Triangle> triangles_;
+	std::vector<QPointArray> triangles_;
+	std::vector<bool> selected_;
 };
 
 class ColorToolTip : public QToolTip
