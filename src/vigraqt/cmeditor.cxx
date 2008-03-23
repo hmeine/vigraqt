@@ -440,21 +440,47 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 	QPen pen(Qt::black, 1);
 	pen.setJoinStyle(Qt::RoundJoin);
 	p.setPen(pen);
-	for(unsigned int i = 0; i < cm_->size(); ++i)
+	int prevPos = -1;
+	for(ColorMap::TransitionIterator it = cm_->transitionsBegin();
+		it.inRange(); ++it)
 	{
-		triangle.translate(value2X(cm_->domainPosition(i)) - triangle[1].x(), 0);
+		int trianglePos = value2X(it.domainPosition());
+		triangle.translate(trianglePos - triangle[1].x(), 0);
 
-		p.setBrush(v2q(cm_->color(i)));
-		if(selected_[i])
+		if(it.isStepTransition())
+			p.setClipRect(QRect(0, 0, trianglePos, height()));
+
+		p.setBrush(v2q(it.leftColor()));
+		if(selected_[it.firstIndex()])
 		{
 			pen.setWidth(2);
 			p.setPen(pen);
 		}
 		p.drawPolygon(triangle);
-		if(selected_[i])
+		if(selected_[it.firstIndex()])
 		{
 			pen.setWidth(1);
 			p.setPen(pen);
+		}
+
+		prevPos = trianglePos;
+
+		if(it.isStepTransition())
+		{
+			p.setClipRect(QRect(trianglePos, 0, width(), height()));
+			
+			p.setBrush(v2q(it.rightColor()));
+			if(selected_[it.lastIndex()])
+			{
+				pen.setWidth(2);
+				p.setPen(pen);
+			}
+			p.drawPolygon(triangle);
+			if(selected_[it.lastIndex()])
+			{
+				pen.setWidth(1);
+				p.setPen(pen);
+			}
 		}
 	}
 
