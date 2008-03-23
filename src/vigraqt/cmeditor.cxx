@@ -374,6 +374,15 @@ bool ColorMapEditor::findTriangle(const QPoint &pos, unsigned int *index) const
 	return found;
 }
 
+QRect ColorMapEditor::triangleBounds(unsigned int i) const
+{
+	QRect result(-triangleWidth/2, height()-1 - yMargin,
+				 triangleWidth, triangleHeight);
+	result.moveBy(value2X(cm_->domainPosition(i)),
+				  -triangleHeight);
+	return result;
+}
+
 void ColorMapEditor::updateTriangles()
 {
 	if(!cm_)
@@ -440,7 +449,7 @@ bool ColorMapEditor::tip(const QPoint &p, QRect &r, QString &s)
 	unsigned int i = 0;
 	if(findTriangle(p, &i))
 	{
-		r = triangles_[i].boundingRect();
+		r = triangleBounds(i);
 		s = QString("Transition point %1 of %2\nPosition: %3\nColor: %4")
 			.arg(i+1).arg(cm_->size())
 			.arg(cm_->domainPosition(i))

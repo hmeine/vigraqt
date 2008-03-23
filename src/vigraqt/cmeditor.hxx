@@ -68,6 +68,7 @@ protected:
 
 	void updateDomain();
 	bool findTriangle(const QPoint &pos, unsigned int *index) const;
+	QRect triangleBounds(unsigned int i) const;
 	void updateTriangles();
 	bool tip(const QPoint &p, QRect &r, QString &s);
 	friend class ColorToolTip;
