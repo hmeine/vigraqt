@@ -266,7 +266,7 @@ void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 
 		if(action == insertHereID)
 		{
-			// FIXME: next three lines + cancel -> insertInteractively()?
+			// FIXME: next two lines + cancel -> insertInteractively()?
 			unsigned int newIndex = insert(pos);
 			editColor(newIndex);
 		}
