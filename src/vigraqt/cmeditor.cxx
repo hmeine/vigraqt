@@ -355,13 +355,23 @@ void ColorMapEditor::updateDomain()
 
 bool ColorMapEditor::findTriangle(const QPoint &pos, unsigned int *index) const
 {
+	if(pos.y() > height()-1 - yMargin ||
+	   pos.y() < height()-1 - yMargin - triangleHeight)
+		return false;
+
+	int bestDist = 0;
+	bool found = false;
 	for(unsigned int i = 0; i < cm_->size(); ++i)
-		if(triangles_[i].boundingRect().contains(pos))
+	{
+		int dist = abs(value2X(cm_->domainPosition(i)) - pos.x());
+		if((!found && dist < triangleWidth/2) || dist < bestDist)
 		{
+			bestDist = dist;
 			*index = i;
-			return true;
+			found = true;
 		}
-	return false;
+	}
+	return found;
 }
 
 void ColorMapEditor::updateTriangles()
