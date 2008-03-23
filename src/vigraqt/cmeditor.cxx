@@ -88,32 +88,29 @@ void ColorMapEditor::mousePressEvent(QMouseEvent *e)
 	cmBackup_ = *cm_;
 	dragStartX_ = dragPrevX_ = e->pos().x();
 	selectIndex_ = -1; // this will be unselected if no dragging occured
-	for(unsigned int i = 0; i < cm_->size(); ++i)
+	unsigned int i = 0;
+	if(findTriangle(e->pos(), &i))
 	{
-		if(triangles_[i].boundingRect().contains(e->pos()))
+		if(e->state() & Qt::ControlButton)
 		{
-			if(e->state() & Qt::ControlButton)
+			// Ctrl-press: toggle selection
+			if(!selected_[i])
+				selected_[i] = true;
+			else
+				selectIndex_ = i;
+		}
+		else
+		{
+			// unselect all other if not dragging:
+			if(!selected_[i])
 			{
-				// Ctrl-press: toggle selection
-				if(!selected_[i])
-					selected_[i] = true;
-				else
-					selectIndex_ = i;
+				for(unsigned int j = 0; j < cm_->size(); ++j)
+					selected_[j] = (j == i);
 			}
 			else
-			{
-				// unselect all other if not dragging:
-				if(!selected_[i])
-				{
-					for(unsigned int j = 0; j < cm_->size(); ++j)
-						selected_[j] = (j == i);
-				}
-				else
-					selectIndex_ = i;
-			}
-			dragging_ = true;
-			break; // pointer can only be over one handle at a time anyhow
+				selectIndex_ = i;
 		}
+		dragging_ = true;
 	}
 
 	if(!(e->state() & Qt::ControlButton) && !dragging_) // click outside handles
@@ -199,13 +196,11 @@ void ColorMapEditor::mouseDoubleClickEvent(QMouseEvent *e)
 		return;
 	}
 
-	for(unsigned int i = 0; i < cm_->size(); ++i)
+	unsigned int i = 0;
+	if(findTriangle(e->pos(), &i))
 	{
-		if(triangles_[i].boundingRect().contains(e->pos()))
-		{
-			editColor(i);
-			return;
-		}
+		editColor(i);
+		return;
 	}
 
 	if(gradientRect_.contains(e->pos()))
@@ -221,39 +216,37 @@ void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 	if(!isEnabled() || !cm_)
 		return;
 
-	for(unsigned int i = 0; i < cm_->size(); ++i)
+	unsigned int i = 0;
+	if(findTriangle(e->pos(), &i))
 	{
-		if(triangles_[i].boundingRect().contains(e->pos()))
-		{
-			QPopupMenu* contextMenu = new QPopupMenu(this);
-			QLabel *caption = new QLabel(
-				QString("<b>Transition Point %1</b>").arg(i+1), contextMenu);
-			caption->setAlignment(Qt::AlignCenter);
-			contextMenu->insertItem(caption);
-			int editColorID = contextMenu->insertItem("Change Color");
-			int editPosID = contextMenu->insertItem("Change Position");
-			int removeID = contextMenu->insertItem("Delete");
-			contextMenu->setItemEnabled(removeID, (i > 0) && (i < cm_->size()-1));
-			int action = contextMenu->exec(e->globalPos());
-			delete contextMenu;
+		QPopupMenu* contextMenu = new QPopupMenu(this);
+		QLabel *caption = new QLabel(
+			QString("<b>Transition Point %1</b>").arg(i+1), contextMenu);
+		caption->setAlignment(Qt::AlignCenter);
+		contextMenu->insertItem(caption);
+		int editColorID = contextMenu->insertItem("Change Color");
+		int editPosID = contextMenu->insertItem("Change Position");
+		int removeID = contextMenu->insertItem("Delete");
+		contextMenu->setItemEnabled(removeID, (i > 0) && (i < cm_->size()-1));
+		int action = contextMenu->exec(e->globalPos());
+		delete contextMenu;
 
-			if(action == editColorID)
-				editColor(i);
-			else if(action == editPosID)
+		if(action == editColorID)
+			editColor(i);
+		else if(action == editPosID)
+		{
+			double newPos = QInputDialog::getDouble(
+				QString("Transition Point %1").arg(i+1),
+				"Position:", cm_->domainPosition(i));
+			if(cm_->domainPosition(i) != newPos)
 			{
-				double newPos = QInputDialog::getDouble(
-					QString("Transition Point %1").arg(i+1),
-					"Position:", cm_->domainPosition(i));
-				if(cm_->domainPosition(i) != newPos)
-				{
-					cm_->setDomainPosition(i, newPos);
-					rereadColorMap();
-				}
+				cm_->setDomainPosition(i, newPos);
+				rereadColorMap();
 			}
-			else if(action == removeID)
-				remove(i);
-			return;
 		}
+		else if(action == removeID)
+			remove(i);
+		return;
 	}
 
 	if(gradientRect_.contains(e->pos()))
@@ -352,12 +345,23 @@ void ColorMapEditor::updateDomain()
 	updateTriangles();
 }
 
+bool ColorMapEditor::findTriangle(const QPoint &pos, unsigned int *index) const
+{
+	for(unsigned int i = 0; i < cm_->size(); ++i)
+		if(triangles_[i].boundingRect().contains(pos))
+		{
+			*index = i;
+			return true;
+		}
+	return false;
+}
+
 void ColorMapEditor::updateTriangles()
 {
 	if(!cm_)
 	{
 		triangles_.resize(0);
-        selected_.resize(0);
+		selected_.resize(0);
 		return;
 	}
 
@@ -374,13 +378,13 @@ void ColorMapEditor::updateTriangles()
 	}
 	for(unsigned int i = 1; i < cm_->size(); ++i)
 	{
-        if(i < cm_->size()-1 &&
-           triangles_[i-1][1].x() == triangles_[i+1][1].x())
-            continue;
+		if(i < cm_->size()-1 &&
+		   triangles_[i-1][1].x() == triangles_[i+1][1].x())
+			continue;
 
-//         unsigned int prev = i-1;
-//         while(prev > 0 &&
-//               triangles_[prev-1][1].x() == triangles_[i][1].x())
+//		 unsigned int prev = i-1;
+//		 while(prev > 0 &&
+//			   triangles_[prev-1][1].x() == triangles_[i][1].x())
 
 		// overlapping triangles?
 		if(triangles_[i-1][2].x() > triangles_[i][0].x())
@@ -415,17 +419,15 @@ bool ColorMapEditor::tip(const QPoint &p, QRect &r, QString &s)
 	if(!cm_)
 		return false;
 
-	for(unsigned int i = 0; i < cm_->size(); ++i)
+	unsigned int i = 0;
+	if(findTriangle(p, &i))
 	{
-		if(triangles_[i].boundingRect().contains(p))
-		{
-			r = triangles_[i].boundingRect();
-			s = QString("Transition point %1 of %2\nPosition: %3\nColor: %4")
-				.arg(i+1).arg(cm_->size())
-				.arg(cm_->domainPosition(i))
-				.arg(QColor(v2q(cm_->color(i))).name());
-			return true;
-		}
+		r = triangles_[i].boundingRect();
+		s = QString("Transition point %1 of %2\nPosition: %3\nColor: %4")
+			.arg(i+1).arg(cm_->size())
+			.arg(cm_->domainPosition(i))
+			.arg(QColor(v2q(cm_->color(i))).name());
+		return true;
 	}
 
 	if(gradientRect_.contains(p))
