@@ -87,7 +87,7 @@ void ColorMapEditor::mousePressEvent(QMouseEvent *e)
 	changed_ = false;
 	cmBackup_ = *cm_;
 	dragStartX_ = dragPrevX_ = e->pos().x();
-	selectIndex_ = -1; // this will be unselected if no dragging occured
+	selectIndex_ = -1; // this will be [un]selected if no dragging occured
 	unsigned int i = 0;
 	if(findTriangle(e->pos(), &i))
 	{
@@ -177,13 +177,21 @@ void ColorMapEditor::mouseReleaseEvent(QMouseEvent *e)
 	{
 		if(!(e->state() & Qt::ControlButton))
 		{
+			// select only selectIndex_ (if multiple triangles were
+			// selected, clicking one without Ctrl or dragging should
+			// unselect the others):
 			for(unsigned int i = 0; i < cm_->size(); ++i)
 			{
 				selected_[i] = (i == (unsigned int)selectIndex_);
 			}
 		}
 		else
+		{
+			// toggle/unselect single triangle with Ctrl pressed (only
+			// on mouse release, since this is undesirable when
+			// dragging)
 			selected_[selectIndex_] = false;
+		}
 		rereadColorMap();
 	}
 }
