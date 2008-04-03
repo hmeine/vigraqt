@@ -2,7 +2,7 @@
 #define QGLIMAGEVIEWER_HXX
 
 #include "qimageviewer.hxx"
-#include <qgl.h>
+#include <QGLWidget>
 
 class QGLImageWidget;
 

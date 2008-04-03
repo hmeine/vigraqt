@@ -1,10 +1,11 @@
 #include "qglimageviewer.hxx"
-#include <qimage.h>
-#include <qlayout.h>
-//Added by qt3to4:
+
 #include <Q3HBoxLayout>
-#include <iostream>
+#include <QImage>
+#include <QLayout>
+
 #include <cmath>
+#include <iostream>
 
 QGLImageWidget::QGLImageWidget(QWidget *parent)
 : QGLWidget(parent),
