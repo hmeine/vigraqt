@@ -95,7 +95,3 @@ void EdgeOverlayBase::draw(QPainter &p, const QRect &r)
             p.drawPolyline(*a);
     }
 }
-
-#ifndef NO_MOC_INCLUSION
-#include "overlayviewer.moc"
-#endif

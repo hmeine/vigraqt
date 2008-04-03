@@ -542,7 +542,3 @@ void ColorMapEditor::resizeEvent(QResizeEvent *e)
 	if(cm_)
 		updateDomain();
 }
-
-#ifndef NO_MOC_INCLUSION
-#include "cmeditor.moc"
-#endif

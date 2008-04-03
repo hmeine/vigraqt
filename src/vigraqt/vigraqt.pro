@@ -1,6 +1,11 @@
 TEMPLATE     = lib
 INCLUDEPATH += $$system( vigra-config --cppflags | sed "s,-I,,g" )
-DEFINES     += NO_MOC_INCLUSION
+TARGET       = vigraqt4
+VERSION      = 0.4
+
+target.path   = $$INSTALLBASE/lib
+headers.path  = $$INSTALLBASE/include/$${TARGET}
+INSTALLS      = target headers
 
 HEADERS += \
 	qimageviewer.hxx \
@@ -13,6 +18,8 @@ HEADERS += \
 	createqimage.hxx \
 	colormap.hxx \
 	cmeditor.hxx
+
+headers.files = $$HEADERS
 
 SOURCES += \
 	qimageviewer.cxx \
