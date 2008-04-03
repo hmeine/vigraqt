@@ -2,9 +2,13 @@
 #define OVERLAYVIEWER_HXX
 
 #include "qimageviewer.hxx"
-#include <qobject.h>
-#include <qpen.h>
-#include <qptrvector.h>
+
+#include <Q3PointArray>
+#include <Q3PtrVector>
+#include <QObject>
+#include <QPaintEvent>
+#include <QPen>
+
 #include <vector>
 #include <math.h>
 
@@ -13,7 +17,7 @@ class Overlay;
 class OverlayViewer : public QImageViewer
 {
   public:
-    OverlayViewer(QWidget* parent= 0, const char* name= 0);
+    OverlayViewer(QWidget* parent= 0);
 
     typedef std::vector<Overlay *> Overlays;
 
@@ -58,7 +62,7 @@ class EdgeOverlayBase : public Overlay
 
   protected:
     QPen pen_;
-    QPtrVector<QPointArray> cachedEdges_;
+    Q3PtrVector<Q3PointArray> cachedEdges_;
 };
 
 template<class POINT>
@@ -109,7 +113,7 @@ class EdgeOverlay : public EdgeOverlayBase
         {
             const Edge &edge(*edges_[index]);
 
-            QPointArray *cachedEdge = new QPointArray(edge.size());
+            Q3PointArray *cachedEdge = new Q3PointArray(edge.size());
             for(unsigned int i = 0; i < edge.size(); ++i)
                 cachedEdge->setPoint(
                     i,  // TODO: fixedpoint calculation
