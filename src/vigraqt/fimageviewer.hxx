@@ -42,7 +42,7 @@ class FImageViewer: public QWidget
 	Q_PROPERTY(bool markingMode READ markingMode WRITE setMarkingMode)
 
 public:
-	FImageViewer( QWidget* parent=0, const char* name=0  );
+	FImageViewer(QWidget* parent = 0);
 	~FImageViewer();
 
 	virtual int originalWidth() const;
