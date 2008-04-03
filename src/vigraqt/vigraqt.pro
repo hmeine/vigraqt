@@ -4,7 +4,7 @@ TARGET       = vigraqt4
 VERSION      = 0.4
 
 target.path   = $$INSTALLBASE/lib
-headers.path  = $$INSTALLBASE/include/$${TARGET}
+headers.path  = $$INSTALLBASE/include/VigraQt4
 INSTALLS      = target headers
 
 HEADERS += \
