@@ -22,10 +22,11 @@ Makefile
 \.libs
 moc_[^/]*.cpp
 .moc$
-.l[ao]$
+.l?[ao]$
 .closure$
 src/sip/sipqtQ*.h
 src/sip/sipvigraqt*
 src/sip/.*_la_closure.cpp
 src/sip/vigraqt.py
 src/sip/vigraqtcmodule.cpp
+src/vigraqt/libVigraQt
