@@ -1,16 +1,16 @@
 #include "imageAnalyzer.hxx"
-#include "VigraQt/colormap.hxx"
-#include "VigraQt/cmeditor.hxx"
 
-#include <vigraqimage.hxx>
-#include <qimageviewer.hxx>
-#include <imagecaption.hxx>
+#include <VigraQt/colormap.hxx>
+#include <VigraQt/cmeditor.hxx>
+#include <VigraQt/vigraqimage.hxx>
+#include <VigraQt/qimageviewer.hxx>
+#include <VigraQt/imagecaption.hxx>
 
-#include <qlayout.h>
-#include <qslider.h>
-#include <qspinbox.h>
-#include <qstatusbar.h>
-#include <qtimer.h>
+#include <QLayout>
+#include <QSlider>
+#include <QSpinBox>
+#include <QStatusBar>
+#include <QTimer>
 
 #include <vigra/impex.hxx>
 #include <vigra/inspectimage.hxx>
@@ -41,7 +41,7 @@ ImageAnalyzer::ImageAnalyzer(QWidget *parent, const char *name)
     p->cme = new ColorMapEditor(centralWidget(), "colorMapEditor");
     p->cme->setColorMap(p->cm);
     connect(p->cme, SIGNAL(colorMapChanged()), SLOT(updateDisplay()));
-    layout()->addWidget(p->cme);
+    centralWidget()->layout()->addWidget(p->cme);
     p->imageCaption = NULL;
     p->gamma = 1.0;
     p->displayTimer = new QTimer(this);
