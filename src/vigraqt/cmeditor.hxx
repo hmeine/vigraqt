@@ -26,11 +26,20 @@
 #ifndef CMEDITOR_HXX
 #define CMEDITOR_HXX
 
-#include <qpointarray.h>
-#include <qtooltip.h>
-#include <qwidget.h>
-#include <vector>
 #include "colormap.hxx"
+
+#include <Q3PointArray>
+#include <QContextMenuEvent>
+#include <QDragMoveEvent>
+#include <QDropEvent>
+#include <QKeyEvent>
+#include <QMouseEvent>
+#include <QPaintEvent>
+#include <QResizeEvent>
+#include <QToolTip>
+#include <QWidget>
+
+#include <vector>
 
 class ColorMapEditor : public QWidget
 {
@@ -54,6 +63,7 @@ signals:
 	void colorMapChanged();
 
 protected:
+	virtual bool event(QEvent *event);
 	virtual void mousePressEvent(QMouseEvent *e);
 	virtual void mouseMoveEvent(QMouseEvent *e);
 	virtual void mouseReleaseEvent(QMouseEvent *e);
@@ -70,8 +80,7 @@ protected:
 	ColorMap::TransitionIterator findTriangle(const QPoint &pos) const;
 	unsigned int editIndex(const ColorMap::TransitionIterator &it, int x) const;
 	QRect triangleBounds(unsigned int i) const;
-	bool tip(const QPoint &p, QRect &r, QString &s);
-	friend class ColorToolTip;
+	bool tip(const QPoint &p, QRect *r, QString *s);
 
 	// layout constants:
 	enum { xMargin = 10, yMargin = 2, triangleWidth = 12, triangleHeight = 12 };
@@ -89,15 +98,6 @@ protected:
 	int dragStartX_, dragPrevX_, selectIndex_;
 
 	std::vector<bool> selected_;
-};
-
-class ColorToolTip : public QToolTip
-{
-public:
-	ColorToolTip(QWidget *parent);
-
-protected:
-	void maybeTip(const QPoint &p);
 };
 
 #endif // CMEDITOR_HXX

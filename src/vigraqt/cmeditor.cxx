@@ -1,14 +1,24 @@
 #include "cmeditor.hxx"
-#include <vigraqimage.hxx>
-#include <qcolordialog.h>
-#include <qdragobject.h>
-#include <qinputdialog.h>
-#include <qlabel.h>
-#include <qpainter.h>
-#include <qpopupmenu.h>
+#include "vigraqimage.hxx"
+
+#include <Q3DragObject>
+#include <Q3PointArray>
+#include <QColorDialog>
+#include <QContextMenuEvent>
+#include <QDragMoveEvent>
+#include <QDropEvent>
+#include <QInputDialog>
+#include <QKeyEvent>
+#include <QLabel>
+#include <QMenu>
+#include <QMouseEvent>
+#include <QPaintEvent>
+#include <QPainter>
+#include <QPixmap>
+#include <QResizeEvent>
 
 using vigra::q2v;
-using vigra::v2q;
+using vigra::v2qc;
 
 ColorMapEditor::ColorMapEditor(QWidget *parent, const char *name)
 : QWidget(parent, name, Qt::WNoAutoErase),
@@ -16,11 +26,11 @@ ColorMapEditor::ColorMapEditor(QWidget *parent, const char *name)
   dragging_(false)
 {
 	setMinimumSize(2*xMargin + 80, 2*yMargin + 8 + triangleHeight);
-	setFocusPolicy(QWidget::StrongFocus);
+	setFocusPolicy(Qt::StrongFocus);
 	setAcceptDrops(true);
 	gradientRect_.setTopLeft(QPoint(xMargin, yMargin));
-	new ColorToolTip(this);
 	setEnabled(false);
+	setMouseTracking(true);
 }
 
 void ColorMapEditor::setColorMap(ColorMap *cm)
@@ -40,7 +50,7 @@ void ColorMapEditor::editColor(unsigned int i)
 	if(!cm_ || !(i < cm_->size()))
 		return; // TODO: warning -> stderr
 
-	QColor newColor = QColorDialog::getColor(v2q(cm_->color(i)));
+	QColor newColor = QColorDialog::getColor(v2qc(cm_->color(i)));
 	if(newColor.isValid())
 	{
 		cm_->setColor(i, q2v(newColor));
@@ -75,6 +85,22 @@ void ColorMapEditor::rereadColorMap()
 {
 	updateDomain();
 	update();
+}
+
+bool ColorMapEditor::event(QEvent *event)
+{
+	if(event->type() == QEvent::ToolTip)
+	{
+		QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
+		QRect tipRect;
+		QString tipText;
+		if(tip(helpEvent->pos(), &tipRect, &tipText))
+			QToolTip::showText(
+				helpEvent->globalPos(), tipText, this, tipRect);
+		else
+			QToolTip::hideText();
+	}
+	return QWidget::event(event);
 }
 
 void ColorMapEditor::mousePressEvent(QMouseEvent *e)
@@ -228,21 +254,17 @@ void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 	{
 		unsigned int i = editIndex(it, e->pos().x());
 
-		QPopupMenu* contextMenu = new QPopupMenu(this);
-		QLabel *caption = new QLabel(
-			QString("<b>Transition Point %1</b>").arg(i+1), contextMenu);
-		caption->setAlignment(Qt::AlignCenter);
-		contextMenu->insertItem(caption);
-		int editColorID = contextMenu->insertItem("Change Color");
-		int editPosID = contextMenu->insertItem("Change Position");
-		int removeID = contextMenu->insertItem("Delete");
-		contextMenu->setItemEnabled(removeID, (i > 0) && (i < cm_->size()-1));
-		int action = contextMenu->exec(e->globalPos());
-		delete contextMenu;
+		QMenu contextMenu(this);
+		contextMenu.setTitle(QString("Transition Point %1").arg(i+1));
+		QAction *editColorAction = contextMenu.addAction("Change Color");
+		QAction *editPosAction = contextMenu.addAction("Change Position");
+		QAction *removeAction = contextMenu.addAction("Delete");
+		removeAction->setEnabled((i > 0) && (i < cm_->size()-1));
+		QAction *action = contextMenu.exec(e->globalPos());
 
-		if(action == editColorID)
+		if(action == editColorAction)
 			editColor(i);
-		else if(action == editPosID)
+		else if(action == editPosAction)
 		{
 			double newPos = QInputDialog::getDouble(
 				QString("Transition Point %1").arg(i+1),
@@ -253,28 +275,32 @@ void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 				rereadColorMap();
 			}
 		}
-		else if(action == removeID)
+		else if(action == removeAction)
 			remove(i);
+
+		delete editColorAction;
+		delete editPosAction;
+		delete removeAction;
+
 		return;
 	}
 
 	if(gradientRect_.contains(e->pos()))
 	{
 		double pos = x2Value(e->pos().x());
-		QPopupMenu* contextMenu = new QPopupMenu(this);
-		int insertHereID = contextMenu->insertItem(
+		QMenu contextMenu(this);
+		QAction *insertHereAction = contextMenu.addAction(
 			QString("Insert here (%1)").arg(pos));
-		int insertAtID = contextMenu->insertItem("Insert At...");
-		int action = contextMenu->exec(e->globalPos());
-		delete contextMenu;
+		QAction *insertAtAction = contextMenu.addAction("Insert At...");
+		QAction *action = contextMenu.exec(e->globalPos());
 
-		if(action == insertHereID)
+		if(action == insertHereAction)
 		{
 			// FIXME: next two lines + cancel -> insertInteractively()?
 			unsigned int newIndex = insert(pos);
 			editColor(newIndex);
 		}
-		else if(action == insertAtID)
+		else if(action == insertAtAction)
 		{
 			// FIXME: check for cancel (also on dblclk)
 			double newPos = QInputDialog::getDouble(
@@ -283,6 +309,9 @@ void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 			unsigned int newIndex = insert(newPos);
 			editColor(newIndex);
 		}
+
+		delete insertAtAction;
+		delete insertHereAction;
 	}
 }
 
@@ -310,7 +339,7 @@ void ColorMapEditor::dragMoveEvent(QDragMoveEvent *e)
 	if(!isEnabled() || !cm_)
 		return;
 
-	if(gradientRect_.contains(e->pos()) && QColorDrag::canDecode(e))
+	if(gradientRect_.contains(e->pos()) && Q3ColorDrag::canDecode(e))
 	{
 		e->accept(gradientRect_);
 	}
@@ -322,7 +351,7 @@ void ColorMapEditor::dropEvent(QDropEvent *e)
 		return;
 
 	QColor newColor;
-	if(gradientRect_.contains(e->pos()) && QColorDrag::decode(e, newColor))
+	if(gradientRect_.contains(e->pos()) && Q3ColorDrag::decode(e, newColor))
 	{
 		unsigned int newIndex = insert(x2Value(e->pos().x()), false);
 		cm_->setColor(newIndex, q2v(newColor));
@@ -380,7 +409,7 @@ ColorMap::TransitionIterator ColorMapEditor::findTriangle(const QPoint &pos) con
 unsigned int ColorMapEditor::editIndex(
 	const ColorMap::TransitionIterator &it, int x) const
 {
-	if(it.isStepTransition() && 
+	if(it.isStepTransition() &&
 	   x > value2X(it.domainPosition()))
 		return it.lastIndex();
 	return it.firstIndex();
@@ -395,7 +424,7 @@ QRect ColorMapEditor::triangleBounds(unsigned int i) const
 	return result;
 }
 
-bool ColorMapEditor::tip(const QPoint &p, QRect &r, QString &s)
+bool ColorMapEditor::tip(const QPoint &p, QRect *r, QString *s)
 {
 	if(!cm_)
 		return false;
@@ -405,19 +434,19 @@ bool ColorMapEditor::tip(const QPoint &p, QRect &r, QString &s)
 	{
 		unsigned int i = editIndex(it, p.x());
 
-		r = triangleBounds(i);
-		s = QString("Transition point %1 of %2\nPosition: %3\nColor: %4")
+		*r = triangleBounds(i);
+		*s = QString("Transition point %1 of %2\nPosition: %3\nColor: %4")
 			.arg(i+1).arg(cm_->size())
 			.arg(cm_->domainPosition(i))
-			.arg(QColor(v2q(cm_->color(i))).name());
+			.arg(v2qc(cm_->color(i)).name());
 		return true;
 	}
 
 	if(gradientRect_.contains(p))
 	{
-		r.setCoords(p.x(), gradientRect_.top(),
-					p.x(), gradientRect_.bottom());
-		s = QString::number(x2Value(p.x()));
+		r->setCoords(p.x(), gradientRect_.top(),
+					 p.x(), gradientRect_.bottom());
+		*s = QString::number(x2Value(p.x()));
 		return true;
 	}
 
@@ -433,14 +462,12 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 	}
 
 	// set up double buffering and clear pixmap
-	QPixmap pm(size());
-	QPainter p(&pm, this);
-	pm.fill(backgroundColor());
+	QPainter p(this);
 
 	// fill gradientRect_ with gradient and draw outline
 	for(int x = gradientRect_.left(); x <= gradientRect_.right(); ++x)
 	{
-		p.setPen(v2q((*cm_)(x2Value(x))));
+		p.setPen(v2qc((*cm_)(x2Value(x))));
 		p.drawLine(x, gradientRect_.top(), x, gradientRect_.bottom());
 	}
 	QRect gradOutline(gradientRect_);
@@ -448,7 +475,7 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 	p.setPen(Qt::black);
 	p.drawRect(gradOutline);
 
-	QPointArray triangle(3);
+	Q3PointArray triangle(3);
 	triangle.setPoint(0, -triangleWidth/2, height()-1 - yMargin);
 	triangle.setPoint(1, 0, height()-1 - yMargin - triangleHeight);
 	triangle.setPoint(2, triangle[0].x()+triangleWidth, height()-1 - yMargin);
@@ -470,7 +497,7 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 			cr.setRight(trianglePos);
 		p.setClipRect(cr);
 
-		p.setBrush(v2q(it.leftColor()));
+		p.setBrush(v2qc(it.leftColor()));
 		if(selected_[it.firstIndex()])
 		{
 			pen.setWidth(2);
@@ -489,7 +516,7 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 		{
 			p.setClipRect(QRect(trianglePos, 0, width(), height()));
 
-			p.setBrush(v2q(it.rightColor()));
+			p.setBrush(v2qc(it.rightColor()));
 			if(selected_[it.lastIndex()])
 			{
 				pen.setWidth(2);
@@ -503,8 +530,6 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 			}
 		}
 	}
-
-	bitBlt(this, 0, 0, &pm);
 }
 
 void ColorMapEditor::resizeEvent(QResizeEvent *e)
@@ -516,26 +541,6 @@ void ColorMapEditor::resizeEvent(QResizeEvent *e)
 
 	if(cm_)
 		updateDomain();
-}
-
-/********************************************************************/
-
-ColorToolTip::ColorToolTip(QWidget *parent)
-: QToolTip(parent)
-{
-}
-
-void ColorToolTip::maybeTip(const QPoint &p)
-{
-	if(!parentWidget()->inherits("ColorMapEditor"))
-		return;
-
-	QRect r;
-	QString s;
-	if(!static_cast<ColorMapEditor*>(parentWidget())->tip(p, r, s))
-		return;
-
-	tip(r, s);
 }
 
 #ifndef NO_MOC_INCLUSION
