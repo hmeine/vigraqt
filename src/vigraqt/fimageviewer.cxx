@@ -223,7 +223,3 @@ void FImageViewer::redisplay(float min, float max)
 	//cerr << "redisplayed, emitting... " << min << "," << max << "\n";
 	emit displayedMinMaxChanged(min, max);
 }
-
-#ifndef NO_MOC_INCLUSION
-#include "fimageviewer.moc"
-#endif

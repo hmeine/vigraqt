@@ -961,7 +961,3 @@ void QImageViewer::resizeEvent(QResizeEvent *e)
     if(zoomLevel_ != 0)
         createDrawingPixmap();
 }
-
-#ifndef NO_MOC_INCLUSION
-#include "qimageviewer.moc"
-#endif
