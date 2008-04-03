@@ -1,11 +1,26 @@
 TEMPLATE     = lib
 INCLUDEPATH += $$system( vigra-config --cppflags | sed "s,-I,,g" )
+DEFINES     += NO_MOC_INCLUSION
 
-HEADERS += createqimage.hxx \
-           imagecaption.hxx \
-           qimageviewer.hxx \
-           fimageviewer.hxx \
-           qrgbvalue.hxx \
-           rgbavalue.hxx \
-           vigraqimage.hxx
-SOURCES += imagecaption.cxx qimageviewer.cxx fimageviewer.cxx
+HEADERS += \
+	qimageviewer.hxx \
+	qglimageviewer.hxx \
+	overlayviewer.hxx \
+	fimageviewer.hxx \
+	imagecaption.hxx \
+	vigraqimage.hxx \
+	qrgbvalue.hxx \
+	createqimage.hxx \
+	colormap.hxx \
+	cmeditor.hxx
+
+SOURCES += \
+	qimageviewer.cxx \
+	qglimageviewer.cxx \
+	overlayviewer.cxx \
+	fimageviewer.cxx \
+	imagecaption.cxx \
+	colormap.cxx \
+	cmeditor.cxx
+
+QT += opengl qt3support
