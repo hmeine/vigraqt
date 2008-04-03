@@ -26,11 +26,15 @@
 #ifndef IMAGECAPTION_HXX
 #define IMAGECAPTION_HXX
 
-#include <stdlib.h>
-#include <math.h>
-#include <qobject.h>
 #include <vigra/rgbvalue.hxx>
 #include <vigra/numerictraits.hxx>
+
+#include <QObject>
+#include <QPoint>
+#include <QString>
+
+#include <stdlib.h>
+#include <math.h>
 
 template <class T>
 QString argPixelValue(QString s, T const & data)
