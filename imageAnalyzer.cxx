@@ -1,6 +1,6 @@
 #include "imageAnalyzer.hxx"
-#include "colormap.hxx"
-#include "cmeditor.hxx"
+#include "VigraQt/colormap.hxx"
+#include "VigraQt/cmeditor.hxx"
 
 #include <vigraqimage.hxx>
 #include <qimageviewer.hxx>
@@ -41,7 +41,7 @@ ImageAnalyzer::ImageAnalyzer(QWidget *parent, const char *name)
     p->cme = new ColorMapEditor(centralWidget(), "colorMapEditor");
     p->cme->setColorMap(p->cm);
     connect(p->cme, SIGNAL(colorMapChanged()), SLOT(updateDisplay()));
-    ImageAnalyzerLayout->addWidget(p->cme);
+    layout()->addWidget(p->cme);
     p->imageCaption = NULL;
     p->gamma = 1.0;
     p->displayTimer = new QTimer(this);
