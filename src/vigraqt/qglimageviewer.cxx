@@ -1,11 +1,13 @@
 #include "qglimageviewer.hxx"
 #include <qimage.h>
 #include <qlayout.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
 #include <iostream>
 #include <cmath>
 
-QGLImageWidget::QGLImageWidget(QWidget *parent, const char *name)
-: QGLWidget(parent, name),
+QGLImageWidget::QGLImageWidget(QWidget *parent)
+: QGLWidget(parent),
   useTexture_(true),
   compression_(false),
   textureID_(0)
@@ -210,11 +212,11 @@ bool QGLImageWidget::checkGLError(const char *where)
 
 /********************************************************************/
 
-QGLImageViewer::QGLImageViewer(QWidget *parent, const char *name)
-: QImageViewerBase(parent, name),
+QGLImageViewer::QGLImageViewer(QWidget *parent)
+: QImageViewerBase(parent),
   glWidget_(NULL)
 {
-    QBoxLayout *l = new QHBoxLayout(this);
+    Q3BoxLayout *l = new Q3HBoxLayout(this);
     l->setAutoAdd(true);
 }
 
@@ -256,5 +258,5 @@ bool QGLImageViewer::ensureGLWidget()
 
 QGLImageWidget *QGLImageViewer::createGLWidget()
 {
-    return new QGLImageWidget(this, "glWidget");
+    return new QGLImageWidget(this);
 }
