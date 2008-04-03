@@ -26,10 +26,14 @@
 #ifndef IMAGEVIEWER_HXX
 #define IMAGEVIEWER_HXX
 
-#include <qwidget.h>
-#include <qpainter.h>
-#include <qpixmap.h>
-#include <qimage.h>
+#include <QImage>
+#include <QKeyEvent>
+#include <QMouseEvent>
+#include <QPaintEvent>
+#include <QPainter>
+#include <QPixmap>
+#include <QResizeEvent>
+#include <QWidget>
 
 class QImageViewerBase : public QWidget
 {
@@ -38,7 +42,7 @@ class QImageViewerBase : public QWidget
     Q_PROPERTY(int zoomLevel READ zoomLevel WRITE setZoomLevel)
 
 public:
-    QImageViewerBase(QWidget *parent = 0, const char *name = 0);
+    QImageViewerBase(QWidget *parent = 0);
 
 public slots:
         /**
@@ -213,7 +217,7 @@ class QImageViewer : public QImageViewerBase
     Q_OBJECT
 
 public:
-    QImageViewer(QWidget *parent = 0, const char *name = 0);
+    QImageViewer(QWidget *parent = 0);
 
     virtual void setImage(QImage const &image, bool retainView= false);
     virtual void updateROI(QImage const &roiImage, QPoint const &upperLeft);

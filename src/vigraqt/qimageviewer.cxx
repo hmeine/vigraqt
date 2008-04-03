@@ -24,9 +24,14 @@
 /************************************************************************/
 
 #include "qimageviewer.hxx"
-#include <qbitmap.h>
-#include <qcursor.h>
-#include <qapplication.h>
+#include <QBitmap>
+#include <QCursor>
+#include <QApplication>
+#include <QPaintEvent>
+#include <QResizeEvent>
+#include <QPixmap>
+#include <QMouseEvent>
+#include <QKeyEvent>
 #include <cmath>
 #include <algorithm>
 
@@ -36,16 +41,16 @@
 /*                                                              */
 /****************************************************************/
 
-QImageViewerBase::QImageViewerBase(QWidget *parent, const char *name)
-: QWidget(parent, name, WResizeNoErase | WRepaintNoErase),
+QImageViewerBase::QImageViewerBase(QWidget *parent)
+: QWidget(parent),
   inSlideState_(false),
   upperLeft_(0, 0),
   zoomLevel_(0)
 {
     setMouseTracking(true);
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-    setBackgroundMode(NoBackground);
-    setFocusPolicy(QWidget::StrongFocus);
+    setAttribute(Qt::WA_NoSystemBackground, true);
+    setFocusPolicy(Qt::StrongFocus);
     setCrosshairCursor();
 }
 
@@ -97,7 +102,7 @@ void QImageViewerBase::updateROI(QImage const &roiImage, QPoint const &upperLeft
     if(roiImage.depth() <= 8)
         for(y= 0, yy= upperLeft.y(); y<roiImage.height(); ++y, ++yy)
         {
-            uchar * s = roiImage.scanLine(y);
+            const uchar * s = roiImage.scanLine(y);
             uchar * d = originalImage_.scanLine(yy);
 
             for(x= 0, xx= upperLeft.x(); x<roiImage.width(); ++x, ++xx)
@@ -391,7 +396,9 @@ void QImageViewerBase::setCrosshairCursor()
         0x00, 0x00  // ................
     };
 
-    QCursor cursor(QBitmap(16, 16, bm), QBitmap(16, 16, mm), 7, 7);
+    QCursor cursor(QBitmap::fromData(QSize(16, 16), bm, QImage::Format_Mono),
+                   QBitmap::fromData(QSize(16, 16), mm, QImage::Format_Mono),
+                   7, 7);
     setCursor(cursor);
 }
 
@@ -464,7 +471,7 @@ void QImageViewerBase::mousePressEvent(QMouseEvent *e)
 {
     if(!isEnabled())
         return;
-    if(e->state() == ShiftButton && e->button() == LeftButton)
+    if(e->state() == Qt::ShiftModifier && e->button() == Qt::LeftButton)
     {
         inSlideState_ = true;
     }
@@ -473,13 +480,13 @@ void QImageViewerBase::mousePressEvent(QMouseEvent *e)
         QPoint p(imageCoordinate(e->pos()));
         switch(e->button())
         {
-        case LeftButton:
+        case Qt::LeftButton:
             emit mousePressedLeft(p.x(), p.y());
             break;
-        case RightButton:
+        case Qt::RightButton:
             emit mousePressedRight(p.x(), p.y());
             break;
-        case MidButton:
+        case Qt::MidButton:
             emit mousePressedMiddle(p.x(), p.y());
             break;
         default:
@@ -542,22 +549,22 @@ void QImageViewerBase::keyPressEvent(QKeyEvent *e)
     QPoint moveOffset(0, 0);
     switch (e->key())
     {
-    case Key_Right:
+    case Qt::Key_Right:
         moveOffset = QPoint(moveOffsetSize, 0);
         break;
-    case Key_Left:
+    case Qt::Key_Left:
         moveOffset = QPoint(-moveOffsetSize, 0);
         break;
-    case Key_Down:
+    case Qt::Key_Down:
         moveOffset = QPoint(0, moveOffsetSize);
         break;
-    case Key_Up:
+    case Qt::Key_Up:
         moveOffset = QPoint(0, -moveOffsetSize);
         break;
-    case Key_Plus:
+    case Qt::Key_Plus:
         zoomUp();
         break;
-    case Key_Minus:
+    case Qt::Key_Minus:
         zoomDown();
         break;
     default:
@@ -603,8 +610,8 @@ void QImageViewerBase::resizeEvent(QResizeEvent *e)
 /*                                                              */
 /****************************************************************/
 
-QImageViewer::QImageViewer(QWidget *parent, const char *name)
-: QImageViewerBase(parent, name)
+QImageViewer::QImageViewer(QWidget *parent)
+: QImageViewerBase(parent)
 {
     connect(this, SIGNAL(zoomLevelChanged(int)), SLOT(createDrawingPixmap()));
 }
@@ -624,8 +631,8 @@ void QImageViewer::updateROI(QImage const &roiImage, QPoint const &upperLeft)
         QPixmap replacement;
 
         replacement.convertFromImage(roiImage);
-        bitBlt(&drawingPixmap_, upperLeft.x(), upperLeft.y(), &replacement, 0, 0,
-               replacement.width(), replacement.height(), CopyROP, TRUE);
+        QPainter painter(&drawingPixmap_);
+        painter.drawPixmap(upperLeft, replacement);
 
         update(windowCoordinates(QRect(upperLeft, roiImage.size())));
     }
@@ -737,9 +744,12 @@ void QImageViewer::updateZoomedPixmap(int xoffset, int yoffset)
     if(zoomLevel_ == 0)
         return;
 
+    QPainter p;
+    p.begin(&drawingPixmap_);
+
     // move pixmap contents to new location
-    bitBlt(&drawingPixmap_, xoffset, yoffset,
-           &drawingPixmap_, 0, 0, width(), height(), CopyROP, TRUE);
+    p.drawPixmap(QPoint(xoffset, yoffset),
+                 drawingPixmap_, QRect(0, 0, width(), height()));
 
     // fill out newly visible parts
 
@@ -764,24 +774,25 @@ void QImageViewer::updateZoomedPixmap(int xoffset, int yoffset)
     for(int i=0; i<originalImage_.numColors(); ++i)
         zoomed.setColor(i, originalImage_.color(i));
 
-    QPainter p;
-    p.begin(&drawingPixmap_);
-
     if(xoffset > 0)
     {
-        p.fillRect(0, 0, xoffset, height(), backgroundColor());
+        p.fillRect(0, 0, xoffset, height(),
+                   palette().brush(backgroundRole()));
     }
     else if(xoffset < 0)
     {
-        p.fillRect(width()+xoffset, 0, -xoffset, height(), backgroundColor());
+        p.fillRect(width()+xoffset, 0, -xoffset, height(),
+                   palette().brush(backgroundRole()));
     }
     if(yoffset > 0)
     {
-        p.fillRect(0, 0, width(), yoffset, backgroundColor());
+        p.fillRect(0, 0, width(), yoffset,
+                   palette().brush(backgroundRole()));
     }
     else if(yoffset < 0)
     {
-        p.fillRect(0, height()+yoffset, width(), -yoffset, backgroundColor());
+        p.fillRect(0, height()+yoffset, width(), -yoffset,
+                   palette().brush(backgroundRole()));
     }
 
     if(xoffset > 0 && x0 < xoffset)
