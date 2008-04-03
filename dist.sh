@@ -1,15 +1,14 @@
-cvs -d ~/cvsroot co vigraqt
-cd vigraqt
+#!/bin/sh
+hg clone vigraqt vigraqt.release
+cd $_
 
+# fetches $VERSION from AM_INIT_AUTOMAKE line in configure.in:
 source autogen.sh
 
-function distclean {
-   find . -name CVS -o -name .cvsignore | xargs rm -rv README.CVS autom4te.cache
-}
-
+rm -rv README.CVS autom4te.cache .hg* && \
 (
-  cd .. && cp -va vigraqt vigraqt.testing && (
-    cd $_ && distclean && mkdir build && cd $_ && \
+  cd .. && cp -va vigraqt.release vigraqt.testing && (
+    cd $_ && mkdir build && cd $_ && \
     ../configure --prefix=/tmp/testing-vigraqt && make && make install && \
     echo 'SUCCESSFULLY FINISHED INSTALL!'
   ) && \
@@ -17,8 +16,11 @@ function distclean {
 )
 
 #cvs ci -m "checking in working set of auto-generated files for release $VERSION"
-cvs tag -F `echo release_$VERSION | tr . _`
 
-distclean && \
-cd .. && mv vigraqt vigraqt-$VERSION && \
+cd .. && mv vigraqt.release vigraqt-$VERSION && \
 tar cvzf vigraqt-$VERSION.tar.gz vigraqt-$VERSION
+
+echo "############ TODO: ############"
+echo hg tag `echo release_$VERSION | tr . _`
+echo mv vigraqt-$VERSION.tar.gz ~/public_html/software/vigraqt
+echo rm -r vigraqt-$VERSION vigraqt.testing/
