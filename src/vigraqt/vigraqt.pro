@@ -1,10 +1,10 @@
 TEMPLATE     = lib
 INCLUDEPATH += $$system( vigra-config --cppflags | sed "s,-I,,g" )
-TARGET       = vigraqt4
+TARGET       = VigraQt
 VERSION      = 0.4
 
 target.path   = $$INSTALLBASE/lib
-headers.path  = $$INSTALLBASE/include/VigraQt4
+headers.path  = $$INSTALLBASE/include/$${TARGET}
 INSTALLS      = target headers
 
 HEADERS += \
