@@ -27,7 +27,7 @@ class QImageViewerPlugin : public QObject, public PluginBase
 public:
     QImageViewerPlugin(QObject *parent = 0) : QObject(parent) { }
 
-    QString includeFile() const { return "qimageviewer.hxx"; }
+    QString includeFile() const { return "VigraQt/qimageviewer.hxx"; }
     QString name() const { return "QImageViewer"; }
 
     QWidget *createWidget(QWidget *parent)
@@ -43,7 +43,7 @@ class FImageViewerPlugin : public QObject, public PluginBase
 public:
     FImageViewerPlugin(QObject *parent = 0) : QObject(parent) { }
 
-    QString includeFile() const { return "fimageviewer.hxx"; }
+    QString includeFile() const { return "VigraQt/fimageviewer.hxx"; }
     QString name() const { return "FImageViewer"; }
 
     QWidget *createWidget(QWidget *parent)
@@ -59,7 +59,7 @@ class CMEditorPlugin : public QObject, public PluginBase
 public:
     CMEditorPlugin(QObject *parent = 0) : QObject(parent) { }
 
-    QString includeFile() const { return "cmeditor.hxx"; }
+    QString includeFile() const { return "VigraQt/cmeditor.hxx"; }
     QString name() const { return "ColorMapEditor"; }
 
     QWidget *createWidget(QWidget *parent)
