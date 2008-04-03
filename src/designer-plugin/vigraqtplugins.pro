@@ -6,7 +6,7 @@ QT          += qt3support
 target.path  = $$[QT_INSTALL_PLUGINS]/designer
 INSTALLS    += target
 
-INCLUDEPATH += $$system( vigra-config --cppflags | sed "s,-I,,g" ) ../vigraqt
+INCLUDEPATH += ../vigraqt $$system( vigra-config --cppflags | sed "s,-I,,g" )
 LIBS        += -lvigraqt -L../vigraqt
 
 SOURCES     += vigraqtplugins.cxx
