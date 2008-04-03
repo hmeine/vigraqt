@@ -13,10 +13,6 @@ class PluginBase : public QDesignerCustomWidgetInterface
     Q_INTERFACES(QDesignerCustomWidgetInterface)
 
 public:
-    PluginBase()
-    : initialized_(false)
-    {}
-
     bool isContainer() const { return false; }
     QIcon icon() const { return QIcon(); }
     QString whatsThis() const { return QString(); }
