@@ -9,7 +9,7 @@ class QGLImageWidget;
 class QGLImageViewer : public QImageViewerBase
 {
 public:
-    QGLImageViewer(QWidget *parent = 0, const char *name = 0);
+    QGLImageViewer(QWidget *parent = 0);
 
     virtual void setImage(QImage const &image, bool retainView= false);
     virtual void updateROI(QImage const &roiImage, QPoint const &upperLeft);
@@ -29,7 +29,7 @@ protected:
 class QGLImageWidget : public QGLWidget
 {
 public:
-    QGLImageWidget(QWidget *parent = 0, const char *name = 0);
+    QGLImageWidget(QWidget *parent = 0);
 
     void setImage(QImage const &image);
     void roiChanged(QPoint upperLeft, QSize size);
