@@ -28,7 +28,6 @@
 
 #include "colormap.hxx"
 
-#include <Q3PointArray>
 #include <QContextMenuEvent>
 #include <QDragMoveEvent>
 #include <QDropEvent>
@@ -46,7 +45,7 @@ class ColorMapEditor : public QWidget
 	Q_OBJECT
 
 public:
-	ColorMapEditor(QWidget *parent, const char *name = NULL);
+	ColorMapEditor(QWidget *parent);
 	void setColorMap(ColorMap *cm);
 
 	virtual QSize sizeHint() const;

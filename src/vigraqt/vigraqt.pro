@@ -30,4 +30,4 @@ SOURCES += \
 	colormap.cxx \
 	cmeditor.cxx
 
-QT += opengl qt3support
+QT += opengl

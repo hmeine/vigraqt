@@ -25,8 +25,7 @@
 
 #include "imagecaption.hxx"
 
-ImageCaption::ImageCaption(const QPoint &offset,
-                           QObject *parent, const char *name)
-: QObject(parent, name),
+ImageCaption::ImageCaption(const QPoint &offset, QObject *parent)
+: QObject(parent),
   offset_(offset)
 {}

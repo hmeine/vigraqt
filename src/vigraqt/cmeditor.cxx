@@ -1,8 +1,6 @@
 #include "cmeditor.hxx"
 #include "vigraqimage.hxx"
 
-#include <Q3DragObject>
-#include <Q3PointArray>
 #include <QColorDialog>
 #include <QContextMenuEvent>
 #include <QDragMoveEvent>
@@ -20,13 +18,14 @@
 using vigra::q2v;
 using vigra::v2qc;
 
-ColorMapEditor::ColorMapEditor(QWidget *parent, const char *name)
-: QWidget(parent, name, Qt::WNoAutoErase),
+ColorMapEditor::ColorMapEditor(QWidget *parent)
+: QWidget(parent),
   cm_(NULL),
   dragging_(false)
 {
 	setMinimumSize(2*xMargin + 80, 2*yMargin + 8 + triangleHeight);
 	setFocusPolicy(Qt::StrongFocus);
+    setAttribute(Qt::WA_NoSystemBackground, true);
 	setAcceptDrops(true);
 	gradientRect_.setTopLeft(QPoint(xMargin, yMargin));
 	setEnabled(false);
@@ -115,7 +114,7 @@ void ColorMapEditor::mousePressEvent(QMouseEvent *e)
 	ColorMap::TransitionIterator it = findTriangle(e->pos());
 	if(it.inRange())
 	{
-		if(e->state() & Qt::ControlButton)
+		if(e->modifiers() & Qt::ControlModifier)
 		{
 			unsigned int i = editIndex(it, e->pos().x());
 			// Ctrl-press: toggle selection
@@ -138,7 +137,7 @@ void ColorMapEditor::mousePressEvent(QMouseEvent *e)
 		dragging_ = true;
 	}
 
-	if(!(e->state() & Qt::ControlButton) && !dragging_) // click outside handles
+	if(!(e->modifiers() & Qt::ControlModifier) && !dragging_) // click outside handles
 		for(unsigned int i = 0; i < cm_->size(); ++i)
 			selected_[i] = false;
 
@@ -200,7 +199,7 @@ void ColorMapEditor::mouseReleaseEvent(QMouseEvent *e)
 	}
 	else if(selectIndex_ >= 0)
 	{
-		if(!(e->state() & Qt::ControlButton))
+		if(!(e->modifiers() & Qt::ControlModifier))
 		{
 			// select only selectIndex_ (if multiple triangles were
 			// selected, clicking one without Ctrl or dragging should
@@ -267,7 +266,7 @@ void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 		else if(action == editPosAction)
 		{
 			double newPos = QInputDialog::getDouble(
-				QString("Transition Point %1").arg(i+1),
+                this, QString("Transition Point %1").arg(i+1),
 				"Position:", cm_->domainPosition(i));
 			if(cm_->domainPosition(i) != newPos)
 			{
@@ -304,7 +303,7 @@ void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 		{
 			// FIXME: check for cancel (also on dblclk)
 			double newPos = QInputDialog::getDouble(
-				QString("Insert Transition Point"),
+				this, QString("Insert Transition Point"),
 				"Position:", pos);
 			unsigned int newIndex = insert(newPos);
 			editColor(newIndex);
@@ -339,7 +338,7 @@ void ColorMapEditor::dragMoveEvent(QDragMoveEvent *e)
 	if(!isEnabled() || !cm_)
 		return;
 
-	if(gradientRect_.contains(e->pos()) && Q3ColorDrag::canDecode(e))
+	if(gradientRect_.contains(e->pos()) && e->mimeData()->hasColor())
 	{
 		e->accept(gradientRect_);
 	}
@@ -351,10 +350,11 @@ void ColorMapEditor::dropEvent(QDropEvent *e)
 		return;
 
 	QColor newColor;
-	if(gradientRect_.contains(e->pos()) && Q3ColorDrag::decode(e, newColor))
+	if(gradientRect_.contains(e->pos()) && e->mimeData()->hasColor())
 	{
 		unsigned int newIndex = insert(x2Value(e->pos().x()), false);
-		cm_->setColor(newIndex, q2v(newColor));
+		cm_->setColor(
+            newIndex, q2v(qvariant_cast<QColor>(e->mimeData()->colorData())));
 		rereadColorMap();
 		emit colorMapChanged();
 	}
@@ -419,8 +419,8 @@ QRect ColorMapEditor::triangleBounds(unsigned int i) const
 {
 	QRect result(-triangleWidth/2, height()-1 - yMargin,
 				 triangleWidth, triangleHeight);
-	result.moveBy(value2X(cm_->domainPosition(i)),
-				  -triangleHeight);
+	result.translate(value2X(cm_->domainPosition(i)),
+                     -triangleHeight);
 	return result;
 }
 
@@ -471,14 +471,14 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 		p.drawLine(x, gradientRect_.top(), x, gradientRect_.bottom());
 	}
 	QRect gradOutline(gradientRect_);
-	gradOutline.addCoords(-1, -1, 1, 1);
+	gradOutline.adjust(-1, -1, 1, 1);
 	p.setPen(Qt::black);
 	p.drawRect(gradOutline);
 
-	Q3PointArray triangle(3);
-	triangle.setPoint(0, -triangleWidth/2, height()-1 - yMargin);
-	triangle.setPoint(1, 0, height()-1 - yMargin - triangleHeight);
-	triangle.setPoint(2, triangle[0].x()+triangleWidth, height()-1 - yMargin);
+	QPolygon triangle(3);
+	triangle[0] = QPoint(-triangleWidth/2, height()-1 - yMargin);
+	triangle[1] = QPoint(0, height()-1 - yMargin - triangleHeight);
+	triangle[2] = QPoint(triangle[0].x()+triangleWidth, height()-1 - yMargin);
 
 	// draw filled triangles:
 	QPen pen(Qt::black, 1);
