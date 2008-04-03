@@ -30,7 +30,7 @@
 #include <vigra/diff2d.hxx>
 #include "qrgbvalue.hxx"
 
-#include <qimage.h>
+#include <QImage>
 
 namespace vigra {
 
@@ -57,13 +57,15 @@ inline QRect v2q(const Rect2D &r)
     { return QRect(v2q(r.upperLeft()), v2q(r.size())); }
 inline QRgb v2q(const RGBValue<unsigned char> &vrgb)
     { return qRgb(vrgb.red(), vrgb.green(), vrgb.blue()); }
+inline QColor v2qc(const RGBValue<unsigned char> &vrgb)
+    { return QColor(vrgb.red(), vrgb.green(), vrgb.blue()); }
 
 } // namespace qt_converters
 
 using namespace qt_converters;
 
 // -------------------------------------------------------------------
-//                              VigraQImage
+//                            VigraQImage
 // -------------------------------------------------------------------
 template <class VALUE_TYPE>
 class VigraQImage
@@ -133,8 +135,8 @@ public:
             "VigraQImage::resize() cannot be called on zero-sized images "
             "(depth unknown)!");
 
-        QImage newImage(v2q(newSize), qImage_.depth(),
-                        qImage_.numColors(), qImage_.bitOrder());
+        QImage newImage(v2q(newSize), qImage_.format());
+
         // numColors() returns 0 if the colorTable is not used
         for(unsigned short c = 0; c < qImage_.numColors(); ++c)
             newImage.setColor(c, qImage_.color(c));
@@ -223,8 +225,8 @@ class QRGBImage : public VigraQImage<QRGBValue<uchar> >
     typedef VigraQImage<QRGBValue<uchar> > Base;
 
 public:
-//     typedef SequenceAccessor<value_type> Accessor;
-//     typedef SequenceAccessor<const value_type> ConstAccessor;
+//   typedef SequenceAccessor<value_type> Accessor;
+//   typedef SequenceAccessor<const value_type> ConstAccessor;
     typedef RGBAccessor<value_type> RGBAccessor;
 
     QRGBImage(const QImage &qImage)
@@ -232,11 +234,11 @@ public:
     {}
 
     QRGBImage(int width, int height)
-        : Base(QImage(width, height, 32))
+        : Base(QImage(width, height, QImage::Format_RGB32))
     {}
 
     QRGBImage(Size2D size)
-        : Base(QImage(size.width(), size.height(), 32))
+        : Base(QImage(size.width(), size.height(), QImage::Format_RGB32))
     {}
 };
 
@@ -252,13 +254,13 @@ public:
     {}
 
     QByteImage(int width, int height, int colorCount = 256)
-        : Base(QImage(width, height, 8, colorCount))
+        : Base(QImage(width, height, QImage::Format_Indexed8))
     {
         setGrayLevelColors(colorCount);
     }
 
     QByteImage(Size2D size, int colorCount = 256)
-        : Base(QImage(size.width(), size.height(), 8, colorCount))
+        : Base(QImage(size.width(), size.height(), QImage::Format_Indexed8))
     {
         setGrayLevelColors(colorCount);
     }
