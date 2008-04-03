@@ -23,8 +23,8 @@
 /*                                                                      */
 /************************************************************************/
 
-#include "qimageviewer.hxx"
 #include "fimageviewer.hxx"
+#include "qimageviewer.hxx"
 
 #include <vigraqimage.hxx>
 
@@ -32,21 +32,22 @@
 #include <vigra/copyimage.hxx>
 #include <vigra/stdimagefunctions.hxx>
 
-#include <qimage.h>
-#include <qlayout.h>
+#include <QImage>
+#include <QLayout>
+#include <Q3VBoxLayout>
 
 #include <math.h>
 
-FImageViewer::FImageViewer(QWidget* parent, const char* name)
-	: QWidget(parent, name),
-	  qimageviewer_(new QImageViewer(this, "qimageviewer")),
-	  image_(0),
-	  qByteImage_(0),
-	  autoScaleMode_(true),
-	  logarithmicMode_(false),
-	  markingMode_(false)
+FImageViewer::FImageViewer(QWidget* parent)
+: QWidget(parent),
+  qimageviewer_(new QImageViewer(this)),
+  image_(0),
+  qByteImage_(0),
+  autoScaleMode_(true),
+  logarithmicMode_(false),
+  markingMode_(false)
 {
-	QLayout *imageLayout= new QVBoxLayout( this );
+	QLayout *imageLayout= new Q3VBoxLayout( this );
 	imageLayout->add(qimageviewer_);
 }
 
