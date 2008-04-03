@@ -65,8 +65,7 @@ protected:
     QPoint offset_;
 
 public:
-    ImageCaption(const QPoint &offset,
-                 QObject *parent= 0, const char *name = "imageCaption");
+    ImageCaption(const QPoint &offset, QObject *parent = NULL);
 
 public slots:
     virtual void update(int x, int y) = 0;
@@ -81,8 +80,8 @@ class ImageCaptionImpl
 {
 public:
     ImageCaptionImpl(Image const &img, const QPoint &offset = QPoint(0, 0),
-                     QObject *parent= 0, const char *name = "imageCaption")
-    : ImageCaption(offset, parent, name),
+                     QObject *parent = NULL)
+    : ImageCaption(offset, parent),
       image(img),
       xFieldWidth(image.width() ?
                   (int)(log((double)image.width())/log(10.0) + 1.0) : 3),
@@ -111,17 +110,16 @@ private:
 template <class Image>
 inline
 ImageCaption *createImageCaption(Image const &img, const QPoint &offset,
-                                 QObject *parent= 0, const char *name = "imageCaption")
+                                 QObject *parent = NULL)
 {
-    return new ImageCaptionImpl<Image>(img, offset, parent, name);
+    return new ImageCaptionImpl<Image>(img, offset, parent);
 }
 
 template <class Image>
 inline
-ImageCaption *createImageCaption(Image const &img,
-                                 QObject *parent= 0, const char *name = "imageCaption")
+ImageCaption *createImageCaption(Image const &img, QObject *parent = NULL)
 {
-    return new ImageCaptionImpl<Image>(img, QPoint(0, 0), parent, name);
+    return new ImageCaptionImpl<Image>(img, QPoint(0, 0), parent);
 }
 
 #endif /* IMAGECAPTION_HXX */
