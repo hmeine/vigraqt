@@ -3,11 +3,11 @@
 
 #include "qimageviewer.hxx"
 
-#include <Q3PointArray>
-#include <Q3PtrVector>
 #include <QObject>
 #include <QPaintEvent>
 #include <QPen>
+#include <QPolygon>
+#include <QVector>
 
 #include <vector>
 #include <math.h>
@@ -54,15 +54,13 @@ class Overlay : public QObject
 class EdgeOverlayBase : public Overlay
 {
   public:
-    EdgeOverlayBase();
-
     void setPen(const QPen &pen);
 
     virtual void draw(QPainter &p, const QRect &r);
 
   protected:
     QPen pen_;
-    Q3PtrVector<Q3PointArray> cachedEdges_;
+    QVector<QPolygon *> cachedEdges_;
 };
 
 template<class POINT>
@@ -80,11 +78,19 @@ class EdgeOverlay : public EdgeOverlayBase
     {
         for(unsigned int i = 0; i < edges_.size(); ++i)
             delete edges_[i];
+        for(unsigned int i = 0; i < cachedEdges_.size(); ++i)
+            delete cachedEdges_[i];
     }
 
     virtual void setZoomLevel(int newZoomlevel)
     {
         zoomFactor_ = exp2(newZoomlevel);
+        if(edges_.size() < cachedEdges_.size())
+        {
+            for(unsigned int i = edges_.size();
+                i < cachedEdges_.size(); ++i)
+                delete cachedEdges_[i];
+        }
         cachedEdges_.resize(edges_.size());
         for(unsigned int i = 0; i < edges_.size(); ++i)
             zoomEdge(i);
@@ -113,18 +119,21 @@ class EdgeOverlay : public EdgeOverlayBase
         {
             const Edge &edge(*edges_[index]);
 
-            Q3PointArray *cachedEdge = new Q3PointArray(edge.size());
+            QPolygon *cachedEdge = new QPolygon(edge.size());
             for(unsigned int i = 0; i < edge.size(); ++i)
-                cachedEdge->setPoint(
-                    i,  // TODO: fixedpoint calculation
-                    // FIXME: floor
-                    (int)(zoomFactor_ * (edge[i][0] + 0.5) + 0.5),
-                    (int)(zoomFactor_ * (edge[i][1] + 0.5) + 0.5));
+                // TODO: fixedpoint calculation
+                cachedEdge[i] = QPoint(
+                    (int)floor(zoomFactor_ * (edge[i][0] + 0.5) + 0.5),
+                    (int)floor(zoomFactor_ * (edge[i][1] + 0.5) + 0.5));
 
-            cachedEdges_.insert(index, cachedEdge);
+            delete cachedEdges_[index];
+            cachedEdges_[index] = cachedEdge;
         }
         else
-            cachedEdges_.remove(index);
+        {
+            delete cachedEdges_[index];
+            cachedEdges_[index] = NULL;
+        }
     }
 
     std::vector<Edge *> edges_;

@@ -471,7 +471,7 @@ void QImageViewerBase::mousePressEvent(QMouseEvent *e)
 {
     if(!isEnabled())
         return;
-    if(e->state() == Qt::ShiftModifier && e->button() == Qt::LeftButton)
+    if(e->modifiers() == Qt::ShiftModifier && e->button() == Qt::LeftButton)
     {
         inSlideState_ = true;
     }
@@ -628,9 +628,7 @@ void QImageViewer::updateROI(QImage const &roiImage, QPoint const &upperLeft)
 
     if(zoomLevel_ == 0)
     {
-        QPixmap replacement;
-
-        replacement.convertFromImage(roiImage);
+        QPixmap replacement = QPixmap::fromImage(roiImage);
         QPainter painter(&drawingPixmap_);
         painter.drawPixmap(upperLeft, replacement);
 
@@ -656,8 +654,7 @@ void QImageViewer::updateROI(QImage const &roiImage, QPoint const &upperLeft)
         int yn = zoom(updateRect.top(), zoomLevel_);
 
         // allocate zoomed image
-        QImage zoomed(newWidth, newHeight, originalImage_.depth(),
-                      originalImage_.numColors(), originalImage_.bitOrder());
+        QImage zoomed(newWidth, newHeight, originalImage_.format());
         for(int i=0; i<originalImage_.numColors(); ++i)
             zoomed.setColor(i, originalImage_.color(i));
 
@@ -698,12 +695,12 @@ void QImageViewer::createDrawingPixmap()
 {
     if(zoomLevel_ == 0)
     {
-        drawingPixmap_.convertFromImage(originalImage_);
+        drawingPixmap_ = QPixmap::fromImage(originalImage_);
         update();
         return;
     }
 
-    drawingPixmap_.resize(size());
+    drawingPixmap_ = QPixmap(size());
 
     // offset between upper left of visible rectangle and entire image
     int dx = std::max(-upperLeft_.x(), 0);
@@ -717,15 +714,13 @@ void QImageViewer::createDrawingPixmap()
     int wp = (upperLeft_.x() + zoomedWidth() > width()) ? width() - x0 : zoomedWidth() - dx;
     int hp = (upperLeft_.y() + zoomedHeight() > height()) ? height() - y0 : zoomedHeight() - dy;
 
-    QImage zoomed(wp, hp, originalImage_.depth(),
-                  originalImage_.numColors(), originalImage_.bitOrder());
+    QImage zoomed(wp, hp, originalImage_.format());
     for(int i=0; i<originalImage_.numColors(); ++i)
         zoomed.setColor(i, originalImage_.color(i));
 
     zoomImage(dx, dy, zoomed, wp, hp);
 
-    drawingPixmap_.fill(backgroundColor());
-    QPainter p;
+    QPainter p; // FIXME: does this properly clear the drawing area?
     p.begin(&drawingPixmap_);
     p.drawImage(x0, y0, zoomed);
     p.end();
@@ -769,8 +764,7 @@ void QImageViewer::updateZoomedPixmap(int xoffset, int yoffset)
     int dx1 = width() - x0 - wp;
     int dy1 = height() - y0 - hp;
 
-    QImage zoomed(wp, hp, originalImage_.depth(),
-                  originalImage_.numColors(), originalImage_.bitOrder());
+    QImage zoomed(wp, hp, originalImage_.format());
     for(int i=0; i<originalImage_.numColors(); ++i)
         zoomed.setColor(i, originalImage_.color(i));
 
@@ -922,13 +916,13 @@ void QImageViewer::drawPixmap(QPainter &p, const QRect &r)
     int y1 = y0 + drawingPixmap_.height();
 
     if(x < x0)
-        p.fillRect(x, y, x0-x, h, backgroundColor());
+        p.fillRect(x, y, x0-x, h, palette().brush(backgroundRole()));
     if(y < y0)
-        p.fillRect(x, y, w, y0-y, backgroundColor());
+        p.fillRect(x, y, w, y0-y, palette().brush(backgroundRole()));
     if(x+w > x1)
-        p.fillRect(x1, y, x + w - x1, h, backgroundColor());
+        p.fillRect(x1, y, x + w - x1, h, palette().brush(backgroundRole()));
     if(y+h > y1)
-        p.fillRect(x, y1, w, y + h - y1, backgroundColor());
+        p.fillRect(x, y1, w, y + h - y1, palette().brush(backgroundRole()));
 
     p.drawPixmap(x, y, drawingPixmap_, x-x0, y-y0, w, h);
 }

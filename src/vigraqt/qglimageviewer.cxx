@@ -1,6 +1,5 @@
 #include "qglimageviewer.hxx"
 
-#include <Q3HBoxLayout>
 #include <QImage>
 #include <QLayout>
 
@@ -54,7 +53,7 @@ void QGLImageWidget::roiChanged(QPoint upperLeft, QSize size)
 
 void QGLImageWidget::initializeGL()
 {
-    qglClearColor(backgroundColor());
+    qglClearColor(palette().brush(backgroundRole()).color());
     glGenTextures(1, &textureID_);
 
     glShadeModel(GL_FLAT);
@@ -151,21 +150,17 @@ void QGLImageWidget::initTexture()
         textureHeight_ *= 2;
 
 	GLint targetFormat = compression_ ? GL_COMPRESSED_RGB_ARB : GL_RGB;
-    if(image_.hasAlphaBuffer())
+    if(image_.hasAlphaChannel())
         targetFormat = compression_ ? GL_COMPRESSED_RGBA_ARB : GL_RGBA;
 
     if((textureWidth_ != (unsigned)image_.width()) ||
        (textureHeight_ != (unsigned)image_.height()))
     {
-        QImage uploadImage(textureWidth_, textureHeight_,
-                           image_.depth(), image_.numColors());
+        QImage uploadImage(textureWidth_, textureHeight_, image_.format());
 
         // improve compression by clearing unused pixel data:
         if(compression_)
             memset(uploadImage.bits(), 0, uploadImage.numBytes());
-
-        // clean, but not really needed ;-)
-        uploadImage.setAlphaBuffer(image_.hasAlphaBuffer());
 
         // copy pixel data
         for(unsigned int y = 0; y < (unsigned)image_.height(); ++y)
@@ -217,8 +212,7 @@ QGLImageViewer::QGLImageViewer(QWidget *parent)
 : QImageViewerBase(parent),
   glWidget_(NULL)
 {
-    Q3BoxLayout *l = new Q3HBoxLayout(this);
-    l->setAutoAdd(true);
+    new QHBoxLayout(this);
 }
 
 void QGLImageViewer::setImage(QImage const &image, bool retainView)
@@ -248,6 +242,7 @@ bool QGLImageViewer::ensureGLWidget()
         return true;
 
     glWidget_ = createGLWidget();
+    layout()->addWidget(glWidget_);
     if(glWidget_)
         connect(this, SIGNAL(zoomLevelChanged(int)),
                 glWidget_, SLOT(updateGL()));
