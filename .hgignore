@@ -21,8 +21,9 @@ Makefile
 \.deps
 \.libs
 moc_[^/]*.cpp
-.moc$
-.l?[ao]$
+\.moc$
+\.l?[ao]$
+\.so$
 .closure$
 ^src/sip/sipqtQ*.h
 ^src/sip/sipvigraqt*
@@ -30,5 +31,5 @@ moc_[^/]*.cpp
 ^src/sip/VigraQt.(sbf|exp)
 ^src/sip/vigraqtcmodule.cpp
 ^src/vigraqt/libVigraQt
-^src/vigraqt/VigraQt.pc
+^VigraQt.pc
 ^src/sip/sip(Qt|VigraQt|APIVigraQt).*\.(cpp|h)$
