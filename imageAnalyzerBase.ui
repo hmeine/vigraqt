@@ -14,17 +14,12 @@
    <string>ImageAnalyzer</string>
   </property>
   <widget class="QWidget" name="widget" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>305</width>
-     <height>269</height>
-    </rect>
-   </property>
    <layout class="QVBoxLayout" >
     <item>
      <widget class="QImageViewer" name="imageViewer" />
+    </item>
+    <item>
+     <widget class="ColorMapEditor" name="cme" />
     </item>
     <item>
      <layout class="QHBoxLayout" >
@@ -72,6 +67,11 @@
    <class>QImageViewer</class>
    <extends>QWidget</extends>
    <header>VigraQt/qimageviewer.hxx</header>
+  </customwidget>
+  <customwidget>
+   <class>ColorMapEditor</class>
+   <extends>QWidget</extends>
+   <header>VigraQt/cmeditor.hxx</header>
   </customwidget>
  </customwidgets>
  <includes>

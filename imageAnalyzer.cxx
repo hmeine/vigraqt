@@ -27,7 +27,6 @@ struct ImageAnalyzerPrivate
     OriginalImage                originalImage;
     vigra::FindMinMax<PixelType> minmax;
     ColorMap                    *cm;
-    ColorMapEditor              *cme;
     ImageCaption                *imageCaption;
     double                       gamma;
     QTimer                      *displayTimer;
@@ -39,10 +38,8 @@ ImageAnalyzer::ImageAnalyzer(QWidget *parent)
 {
 	setupUi(this);
     p->cm = createCM();
-    p->cme = new ColorMapEditor(centralWidget());
-    p->cme->setColorMap(p->cm);
-    connect(p->cme, SIGNAL(colorMapChanged()), SLOT(updateDisplay()));
-    centralWidget()->layout()->addWidget(p->cme);
+    cme->setColorMap(p->cm);
+    connect(cme, SIGNAL(colorMapChanged()), SLOT(updateDisplay()));
     p->imageCaption = NULL;
     p->gamma = 1.0;
     p->displayTimer = new QTimer(this);
