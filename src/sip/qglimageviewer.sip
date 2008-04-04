@@ -1,10 +1,10 @@
 class QGLImageViewer : QImageViewerBase
 {
 %TypeHeaderCode
-#include <qglimageviewer.hxx>
+#include <VigraQt/qglimageviewer.hxx>
 %End
 public:
-    QGLImageViewer(QWidget */TransferThis/ = 0, const char * = 0);
+    QGLImageViewer(QWidget */TransferThis/ = 0);
 
     virtual void setImage(const QImage &, bool = false);
     virtual void updateROI(const QImage &, const QPoint &);
@@ -19,10 +19,10 @@ protected:
 class QGLImageWidget : QGLWidget
 {
 %TypeHeaderCode
-#include <qglimageviewer.hxx>
+#include <VigraQt/qglimageviewer.hxx>
 %End
 public:
-    QGLImageWidget(QWidget */TransferThis/ = 0, const char * = 0);
+    QGLImageWidget(QWidget */TransferThis/ = 0);
 
     void setImage(const QImage &);
     void roiChanged(QPoint, QSize);
