@@ -9,10 +9,9 @@ int main(int argc, char **argv)
 	try
 	{
 		QApplication a(argc, argv);
- 		if(argc < 2)
+		if(argc < 2)
 		{
 			ImageAnalyzer *t = new ImageAnalyzer();
-			a.setMainWidget(t);
 			t->show();
 		}
 		else
