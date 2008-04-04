@@ -1,26 +1,24 @@
 #!/bin/sh
-hg clone vigraqt vigraqt.release
+VERSION=`grep ^VERSION VigraQt.pri | sed 's,.*= *,,'`
+echo "*** packaging vigraqt4-$VERSION ***"
+
+hg clone vigraqt.qt4 vigraqt4.release
 cd $_
 
-# fetches $VERSION from AM_INIT_AUTOMAKE line in configure.in:
-source autogen.sh
-
-rm -rv README.CVS autom4te.cache .hg* && \
+rm -rv .hg* && \
 (
-  cd .. && cp -va vigraqt.release vigraqt.testing && (
-    cd $_ && mkdir build && cd $_ && \
-    ../configure --prefix=/tmp/testing-vigraqt && make && make install && \
+  cd .. && cp -va vigraqt4.release vigraqt4.testing && (
+    cd $_ && \
+    qmake INSTALLBASE=/tmp/testing-vigraqt4 && make && make install && \
     echo 'SUCCESSFULLY FINISHED INSTALL!'
   ) && \
-  rm -r vigraqt.testing
+  rm -r vigraqt4.testing
 )
 
-#cvs ci -m "checking in working set of auto-generated files for release $VERSION"
-
-cd .. && mv vigraqt.release vigraqt-$VERSION && \
-tar cvzf vigraqt-$VERSION.tar.gz vigraqt-$VERSION
+cd .. && mv vigraqt4.release vigraqt4-$VERSION && \
+tar cvzf vigraqt4-$VERSION.tar.gz vigraqt4-$VERSION
 
 echo "############ TODO: ############"
 echo hg tag `echo release_$VERSION | tr . _`
-echo mv vigraqt-$VERSION.tar.gz ~/public_html/software/vigraqt
-echo rm -r vigraqt-$VERSION
+echo mv vigraqt4-$VERSION.tar.gz public_html/software/vigraqt
+echo rm -r vigraqt4-$VERSION
