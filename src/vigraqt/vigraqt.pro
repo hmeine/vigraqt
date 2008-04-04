@@ -3,9 +3,10 @@ INCLUDEPATH += $$system( vigra-config --cppflags | sed "s,-I,,g" )
 TARGET       = VigraQt
 VERSION      = 0.4
 
-target.path   = $$INSTALLBASE/lib
-headers.path  = $$INSTALLBASE/include/$${TARGET}
-INSTALLS      = target headers
+target.path    = $$INSTALLBASE/lib
+headers.path   = $$INSTALLBASE/include/$${TARGET}
+pkgconfig.path = $$target.path/pkgconfig
+INSTALLS       = target headers pkgconfig
 
 HEADERS += \
 	qimageviewer.hxx \
@@ -29,5 +30,8 @@ SOURCES += \
 	imagecaption.cxx \
 	colormap.cxx \
 	cmeditor.cxx
+
+pkgconfig.extra = sed \'s,@prefix@,$$INSTALLBASE,;s,@version@,$$VERSION,\' ../../VigraQt.pc.in > VigraQt.pc
+pkgconfig.files = VigraQt.pc
 
 QT += opengl
