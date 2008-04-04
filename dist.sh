@@ -23,4 +23,4 @@ tar cvzf vigraqt-$VERSION.tar.gz vigraqt-$VERSION
 echo "############ TODO: ############"
 echo hg tag `echo release_$VERSION | tr . _`
 echo mv vigraqt-$VERSION.tar.gz ~/public_html/software/vigraqt
-echo rm -r vigraqt-$VERSION vigraqt.testing/
+echo rm -r vigraqt-$VERSION
