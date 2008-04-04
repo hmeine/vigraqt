@@ -181,12 +181,12 @@ public slots:
 
 signals:
     void mouseMoved(int x, int y);
-    void mousePressed(int x, int y, Qt::ButtonState button);
+    void mousePressed(int x, int y, Qt::MouseButton button);
     void mousePressedLeft(int x, int y);
     void mousePressedMiddle(int x, int y);
     void mousePressedRight(int x, int y);
-    void mouseReleased(int x, int y, Qt::ButtonState button);
-    void mouseDoubleClicked(int x, int y, Qt::ButtonState button);
+    void mouseReleased(int x, int y, Qt::MouseButton button);
+    void mouseDoubleClicked(int x, int y, Qt::MouseButton button);
 
     void imageChanged(); // FIXME: add ROI param
     void zoomLevelChanged(int zoomLevel);

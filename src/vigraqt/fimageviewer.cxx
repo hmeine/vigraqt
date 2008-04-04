@@ -34,7 +34,7 @@
 
 #include <QImage>
 #include <QLayout>
-#include <Q3VBoxLayout>
+#include <QVBoxLayout>
 
 #include <math.h>
 
@@ -47,8 +47,8 @@ FImageViewer::FImageViewer(QWidget* parent)
   logarithmicMode_(false),
   markingMode_(false)
 {
-	QLayout *imageLayout= new Q3VBoxLayout( this );
-	imageLayout->add(qimageviewer_);
+	QLayout *imageLayout= new QVBoxLayout(this);
+	imageLayout->addWidget(qimageviewer_);
 }
 
 FImageViewer::~FImageViewer()

@@ -1,7 +1,6 @@
 #include "overlayviewer.hxx"
-#include <algorithm>
-#include <Q3PointArray>
 #include <QPaintEvent>
+#include <algorithm>
 
 OverlayViewer::OverlayViewer(QWidget* parent)
 : QImageViewer(parent)
@@ -36,7 +35,7 @@ void OverlayViewer::paintOverlays(QPainter &p, const QRect &r)
     p.save();
     p.translate(upperLeft_.x(), upperLeft_.y());
     QRect overlayRect(r);
-    overlayRect.moveBy(-upperLeft_.x(), -upperLeft_.y());
+    overlayRect.translate(-upperLeft_.x(), -upperLeft_.y());
     for(unsigned int i = 0; i < overlays_.size(); ++i)
     {
         p.save();
@@ -75,11 +74,6 @@ Overlay::~Overlay()
 
 /********************************************************************/
 
-EdgeOverlayBase::EdgeOverlayBase()
-{
-    cachedEdges_.setAutoDelete(true);
-}
-
 void EdgeOverlayBase::setPen(const QPen &pen)
 {
     pen_ = pen;
@@ -88,9 +82,9 @@ void EdgeOverlayBase::setPen(const QPen &pen)
 void EdgeOverlayBase::draw(QPainter &p, const QRect &r)
 {
     p.setPen(pen_);
-    for(unsigned int i = 0; i < cachedEdges_.size(); ++i)
+    for(int i = 0; i < cachedEdges_.size(); ++i)
     {
-        Q3PointArray *a = cachedEdges_[i];
+        QPolygon *a = cachedEdges_[i];
         if(a && r.intersects(a->boundingRect()))
             p.drawPolyline(*a);
     }
