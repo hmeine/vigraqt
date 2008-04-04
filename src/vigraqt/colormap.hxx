@@ -39,8 +39,10 @@ class ColorMap
     typedef float ArgumentType;
 
     void setDomain(ArgumentType min, ArgumentType max);
+
     inline ArgumentType domainMin() const
     { return transitionPoints_.front().projected; }
+
     inline ArgumentType domainMax() const
     { return transitionPoints_.back().projected; }
 
@@ -241,10 +243,9 @@ class ColorMap
     {
         double position, projected;
         InternalColor color, scale;
-        bool joinedWithNext;
 
         TransitionPoint(double position, Color color)
-        : position(position), color(color), joinedWithNext(false)
+        : position(position), projected(0.0), color(color)
         {}
     };
 
