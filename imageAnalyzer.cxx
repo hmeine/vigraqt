@@ -34,7 +34,7 @@ struct ImageAnalyzerPrivate
 };
 
 ImageAnalyzer::ImageAnalyzer(QWidget *parent)
-: Q3MainWindow(parent),
+: QMainWindow(parent),
   p(new ImageAnalyzerPrivate)
 {
 	setupUi(this);
@@ -46,6 +46,7 @@ ImageAnalyzer::ImageAnalyzer(QWidget *parent)
     p->imageCaption = NULL;
     p->gamma = 1.0;
     p->displayTimer = new QTimer(this);
+    p->displayTimer->setSingleShot(true);
     connect(p->displayTimer, SIGNAL(timeout()), SLOT(computeDisplay()));
 
     connect(gammaSlider, SIGNAL(valueChanged(int)),
@@ -88,7 +89,7 @@ void ImageAnalyzer::load(const char *filename)
 
 void ImageAnalyzer::updateDisplay()
 {
-    p->displayTimer->start(100, true);
+    p->displayTimer->start(100);
 }
 
 void ImageAnalyzer::computeDisplay()

@@ -1,13 +1,13 @@
 <ui version="4.0" >
  <author>Hans Meine &lt;hans_meine@gmx.net></author>
  <class>ImageAnalyzer</class>
- <widget class="Q3MainWindow" name="ImageAnalyzer" >
+ <widget class="QMainWindow" name="ImageAnalyzer" >
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>131</width>
-    <height>49</height>
+    <width>305</width>
+    <height>269</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -18,13 +18,13 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>131</width>
-     <height>49</height>
+     <width>305</width>
+     <height>269</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" >
     <item>
-     <widget class="QImageViewer" native="1" name="imageViewer" />
+     <widget class="QImageViewer" name="imageViewer" />
     </item>
     <item>
      <layout class="QHBoxLayout" >
@@ -68,12 +68,6 @@
  <layoutdefault spacing="6" margin="11" />
  <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
  <customwidgets>
-  <customwidget>
-   <class>Q3MainWindow</class>
-   <extends>QWidget</extends>
-   <header>q3mainwindow.h</header>
-   <container>1</container>
-  </customwidget>
   <customwidget>
    <class>QImageViewer</class>
    <extends>QWidget</extends>

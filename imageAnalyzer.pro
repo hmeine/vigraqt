@@ -14,5 +14,3 @@ INCLUDEPATH += \
 
 LIBS += \
 	$$system( vigra-config --impex-lib ) \
-
-QT +=  qt3support
