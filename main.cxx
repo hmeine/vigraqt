@@ -1,8 +1,8 @@
 #include "imageAnalyzer.hxx"
-#include <qapplication.h>
-#include <stdlib.h>
-#include <iostream>
+#include <QApplication>
 #include <vigra/error.hxx>
+#include <iostream>
+#include <stdlib.h>
 
 int main(int argc, char **argv)
 {
