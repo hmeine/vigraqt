@@ -1,11 +1,11 @@
 class QImageViewerBase : QWidget
 {
 %TypeHeaderCode
-#include <qimageviewer.hxx>
+#include <VigraQt/qimageviewer.hxx>
 %End
 
 public:
-    QImageViewerBase(QWidget */TransferThis/ = 0, const char * = 0);
+    QImageViewerBase(QWidget */TransferThis/ = 0);
 
 public slots:
     virtual void setImage(const QImage &, bool = false);
@@ -70,7 +70,7 @@ class QImageViewer : QImageViewerBase
 %End
 
 public:
-    QImageViewer(QWidget */TransferThis/ = 0, const char * = 0);
+    QImageViewer(QWidget */TransferThis/ = 0);
 
     virtual void setImage(const QImage &, bool = false);
     virtual void updateROI(const QImage &, const QPoint &);
