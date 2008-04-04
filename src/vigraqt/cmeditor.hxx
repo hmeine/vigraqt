@@ -40,6 +40,8 @@
 
 #include <vector>
 
+// FIXME: one line missing to the right/bottom of gradientRect_
+
 class ColorMapEditor : public QWidget
 {
 	Q_OBJECT
