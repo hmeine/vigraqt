@@ -1,70 +1,88 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-<class>ImageAnalyzerBase</class>
-<widget class="QMainWindow">
-    <property name="name">
-        <cstring>ImageAnalyzer</cstring>
-    </property>
-    <property name="caption">
-        <string>ImageAnalyzer</string>
-    </property>
-    <vbox>
-        <property name="name">
-            <cstring>unnamed</cstring>
+<ui version="4.0" >
+ <author>Hans Meine &lt;hans_meine@gmx.net></author>
+ <class>ImageAnalyzer</class>
+ <widget class="Q3MainWindow" name="ImageAnalyzer" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>131</width>
+    <height>49</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>ImageAnalyzer</string>
+  </property>
+  <widget class="QWidget" name="widget" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>131</width>
+     <height>49</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" >
+    <item>
+     <widget class="QImageViewer" native="1" name="imageViewer" />
+    </item>
+    <item>
+     <layout class="QHBoxLayout" >
+      <item>
+       <widget class="QLabel" name="textLabel1" >
+        <property name="text" >
+         <string>&amp;Gamma:</string>
         </property>
-        <widget class="QImageViewer">
-            <property name="name">
-                <cstring>imageViewer</cstring>
-            </property>
-        </widget>
-        <widget class="QLayoutWidget">
-            <property name="name">
-                <cstring>layout2</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <widget class="QLabel">
-                    <property name="name">
-                        <cstring>textLabel1</cstring>
-                    </property>
-                    <property name="text">
-                        <string>&amp;Gamma:</string>
-                    </property>
-                    <property name="buddy" stdset="0">
-                        <cstring>gammaSlider</cstring>
-                    </property>
-                </widget>
-                <widget class="QSlider">
-                    <property name="name">
-                        <cstring>gammaSlider</cstring>
-                    </property>
-                    <property name="minValue">
-                        <number>-15</number>
-                    </property>
-                    <property name="maxValue">
-                        <number>15</number>
-                    </property>
-                    <property name="pageStep">
-                        <number>5</number>
-                    </property>
-                    <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
-                    </property>
-                </widget>
-                <widget class="QSpinBox">
-                    <property name="name">
-                        <cstring>gammaSpinBox</cstring>
-                    </property>
-                </widget>
-            </hbox>
-        </widget>
-    </vbox>
-</widget>
-<toolbars>
-</toolbars>
-<layoutdefaults spacing="6" margin="11"/>
-<includehints>
-    <includehint>VigraQt/qimageviewer.hxx</includehint>
-</includehints>
-</UI>
+        <property name="wordWrap" >
+         <bool>false</bool>
+        </property>
+        <property name="buddy" >
+         <cstring>gammaSlider</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSlider" name="gammaSlider" >
+        <property name="minimum" >
+         <number>-15</number>
+        </property>
+        <property name="maximum" >
+         <number>15</number>
+        </property>
+        <property name="pageStep" >
+         <number>5</number>
+        </property>
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="gammaSpinBox" />
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
+ <customwidgets>
+  <customwidget>
+   <class>Q3MainWindow</class>
+   <extends>QWidget</extends>
+   <header>q3mainwindow.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QImageViewer</class>
+   <extends>QWidget</extends>
+   <header>VigraQt/qimageviewer.hxx</header>
+  </customwidget>
+ </customwidgets>
+ <includes>
+  <include location="local" >VigraQt/qimageviewer.hxx</include>
+ </includes>
+ <resources/>
+ <connections/>
+</ui>

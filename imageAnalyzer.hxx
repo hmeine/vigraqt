@@ -1,11 +1,12 @@
 #ifndef IMAGEANALYZER_HXX
 #define IMAGEANALYZER_HXX
 
-#include "imageAnalyzerBase.h"
+#include "ui_imageAnalyzerBase.h"
+#include <Q3MainWindow>
 
 struct ImageAnalyzerPrivate;
 
-class ImageAnalyzer : public ImageAnalyzerBase
+class ImageAnalyzer : public Q3MainWindow, Ui::ImageAnalyzer
 {
     Q_OBJECT
 
