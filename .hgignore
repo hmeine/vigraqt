@@ -24,9 +24,11 @@ moc_[^/]*.cpp
 .moc$
 .l?[ao]$
 .closure$
-src/sip/sipqtQ*.h
-src/sip/sipvigraqt*
-src/sip/.*_la_closure.cpp
-src/sip/vigraqt.py
-src/sip/vigraqtcmodule.cpp
-src/vigraqt/libVigraQt
+^src/sip/sipqtQ*.h
+^src/sip/sipvigraqt*
+^src/sip/.*_la_closure.cpp
+^src/sip/VigraQt.(sbf|exp)
+^src/sip/vigraqtcmodule.cpp
+^src/vigraqt/libVigraQt
+^src/vigraqt/VigraQt.pc
+^src/sip/sip(Qt|VigraQt|APIVigraQt).*\.(cpp|h)$
