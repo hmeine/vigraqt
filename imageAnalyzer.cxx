@@ -33,12 +33,12 @@ struct ImageAnalyzerPrivate
     QTimer                      *displayTimer;
 };
 
-ImageAnalyzer::ImageAnalyzer(QWidget *parent, const char *name)
-: ImageAnalyzerBase(parent, name),
+ImageAnalyzer::ImageAnalyzer(QWidget *parent)
+: ImageAnalyzerBase(parent),
   p(new ImageAnalyzerPrivate)
 {
     p->cm = createCM();
-    p->cme = new ColorMapEditor(centralWidget(), "colorMapEditor");
+    p->cme = new ColorMapEditor(centralWidget());
     p->cme->setColorMap(p->cm);
     connect(p->cme, SIGNAL(colorMapChanged()), SLOT(updateDisplay()));
     centralWidget()->layout()->addWidget(p->cme);

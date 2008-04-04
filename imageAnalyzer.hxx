@@ -12,7 +12,7 @@ class ImageAnalyzer : public ImageAnalyzerBase
     ImageAnalyzerPrivate *p;
 
 public:
-    ImageAnalyzer(QWidget *parent = NULL, const char *name = NULL);
+    ImageAnalyzer(QWidget *parent = NULL);
     void load(const char *filename);
 
 public slots:
