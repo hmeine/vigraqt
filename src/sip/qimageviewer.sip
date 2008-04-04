@@ -1,7 +1,7 @@
 class QImageViewerBase : QWidget
 {
 %TypeHeaderCode
-#include <VigraQt/qimageviewer.hxx>
+#include <qimageviewer.hxx>
 %End
 
 public:
@@ -66,7 +66,7 @@ protected:
 class QImageViewer : QImageViewerBase
 {
 %TypeHeaderCode
-#include <VigraQt/qimageviewer.hxx>
+#include <qimageviewer.hxx>
 %End
 
 public:

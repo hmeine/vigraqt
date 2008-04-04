@@ -29,9 +29,9 @@ makefile = pyqt4.QtOpenGLModuleMakefile(
 	install_dir = options.moddir)
 # for i in dir(makefile):
 # 	print i
-makefile.extra_libs = ["VigraQt"]
-makefile.extra_include_dirs = ["."]
-makefile.extra_lib_dirs = [os.path.join("..", "vigraqt")]
+makefile.extra_include_dirs = [os.path.join("..", "vigraqt")]
+makefile.extra_libs         = ["VigraQt"]
+makefile.extra_lib_dirs     = [os.path.join("..", "vigraqt")]
 makefile.generate()
 
 print "done (you can run 'make' now)."

@@ -1,6 +1,9 @@
 # -*-Makefile-*-
 
-INCLUDEPATH += $$system("python python-config.py includepath")
+# FIXME: make target library name compatible for python
+# (right now, using configure.py instead of qmake is preferred)
+
+INCLUDEPATH += $$system("python python-config.py includepath") ../vigraqt
 LIBS        += $$system("python python-config.py libs")
 
 system(python callsip.py)
