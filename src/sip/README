@@ -1,7 +1,0 @@
-I re-worked the build system, so that it should now be possible to
-just give --enable-python to configure and get SIP called and a python
-module built. (This has been tested with SIP 4.1 and SIP 4.3.1.)
-
-Unfortunately, automake cannot parse the "vigraqt_buildinfo" file
-(since it is created by sip at build time), so I had to manually copy
-the list of source files to Makefile.am.
