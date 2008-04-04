@@ -2,7 +2,7 @@
 
 TEMPLATE   = app
 CONFIG    += qt warn_on release link_pkgconfig
-FORMS3     = imageAnalyzerBase.ui
+FORMS      = imageAnalyzerBase.ui
 HEADERS    = imageAnalyzer.hxx
 SOURCES    = imageAnalyzer.cxx main.cxx
 TARGET     = imageAnalyzer
@@ -16,4 +16,3 @@ LIBS += \
 	$$system( vigra-config --impex-lib ) \
 
 QT +=  qt3support
-CONFIG += uic3

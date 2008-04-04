@@ -34,9 +34,10 @@ struct ImageAnalyzerPrivate
 };
 
 ImageAnalyzer::ImageAnalyzer(QWidget *parent)
-: ImageAnalyzerBase(parent),
+: Q3MainWindow(parent),
   p(new ImageAnalyzerPrivate)
 {
+	setupUi(this);
     p->cm = createCM();
     p->cme = new ColorMapEditor(centralWidget());
     p->cme->setColorMap(p->cm);
