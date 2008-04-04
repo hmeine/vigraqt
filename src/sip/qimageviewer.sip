@@ -39,12 +39,12 @@ public slots:
 
 signals:
     void mouseMoved(int, int);
-    void mousePressed(int, int, Qt::ButtonState);
+    void mousePressed(int, int, Qt::MouseButton);
     void mousePressedLeft(int, int);
     void mousePressedMiddle(int, int);
     void mousePressedRight(int, int);
-    void mouseReleased(int, int, Qt::ButtonState);
-    void mouseDoubleClicked(int, int, Qt::ButtonState);
+    void mouseReleased(int, int, Qt::MouseButton);
+    void mouseDoubleClicked(int, int, Qt::MouseButton);
 
     void imageChanged();
     void zoomLevelChanged(int);
@@ -66,7 +66,7 @@ protected:
 class QImageViewer : QImageViewerBase
 {
 %TypeHeaderCode
-#include <qimageviewer.hxx>
+#include <VigraQt/qimageviewer.hxx>
 %End
 
 public:
