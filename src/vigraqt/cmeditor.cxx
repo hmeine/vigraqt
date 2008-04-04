@@ -25,7 +25,7 @@ ColorMapEditor::ColorMapEditor(QWidget *parent)
 {
 	setMinimumSize(2*xMargin + 80, 2*yMargin + 8 + triangleHeight);
 	setFocusPolicy(Qt::StrongFocus);
-    setAttribute(Qt::WA_NoSystemBackground, true);
+	setAttribute(Qt::WA_NoSystemBackground, true);
 	setAcceptDrops(true);
 	gradientRect_.setTopLeft(QPoint(xMargin, yMargin));
 	setEnabled(false);
@@ -266,7 +266,7 @@ void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 		else if(action == editPosAction)
 		{
 			double newPos = QInputDialog::getDouble(
-                this, QString("Transition Point %1").arg(i+1),
+				this, QString("Transition Point %1").arg(i+1),
 				"Position:", cm_->domainPosition(i));
 			if(cm_->domainPosition(i) != newPos)
 			{
@@ -354,7 +354,7 @@ void ColorMapEditor::dropEvent(QDropEvent *e)
 	{
 		unsigned int newIndex = insert(x2Value(e->pos().x()), false);
 		cm_->setColor(
-            newIndex, q2v(qvariant_cast<QColor>(e->mimeData()->colorData())));
+			newIndex, q2v(qvariant_cast<QColor>(e->mimeData()->colorData())));
 		rereadColorMap();
 		emit colorMapChanged();
 	}
@@ -420,7 +420,7 @@ QRect ColorMapEditor::triangleBounds(unsigned int i) const
 	QRect result(-triangleWidth/2, height()-1 - yMargin,
 				 triangleWidth, triangleHeight);
 	result.translate(value2X(cm_->domainPosition(i)),
-                     -triangleHeight);
+					 -triangleHeight);
 	return result;
 }
 
@@ -471,7 +471,8 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 		p.drawLine(x, gradientRect_.top(), x, gradientRect_.bottom());
 	}
 	QRect gradOutline(gradientRect_);
-	gradOutline.adjust(-1, -1, 1, 1);
+	// line width 0 draws inside at top/left, outside at bottom/right:
+	gradOutline.adjust(-1, -1, 0, 0);
 	p.setPen(Qt::black);
 	p.drawRect(gradOutline);
 
