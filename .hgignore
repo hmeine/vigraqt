@@ -2,7 +2,6 @@
 Makefile
 ~$
 moc_[^/]*.cpp
-\.moc$
 \.l?[ao]$
 \.so$
 ^src/sip/sipqtQ*.h
@@ -14,3 +13,4 @@ moc_[^/]*.cpp
 ^VigraQt.pc
 ^src/sip/sip(Qt|VigraQt|APIVigraQt).*\.(cpp|h)$
 ^src/examples/imageAnalyzer
+^src/examples/ui_imageAnalyzerBase.h

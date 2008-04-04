@@ -2,11 +2,11 @@
 #define IMAGEANALYZER_HXX
 
 #include "ui_imageAnalyzerBase.h"
-#include <Q3MainWindow>
+#include <QMainWindow>
 
 struct ImageAnalyzerPrivate;
 
-class ImageAnalyzer : public Q3MainWindow, Ui::ImageAnalyzer
+class ImageAnalyzer : public QMainWindow, Ui::ImageAnalyzer
 {
     Q_OBJECT
 
