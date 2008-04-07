@@ -12,5 +12,5 @@ moc_[^/]*.cpp
 ^src/vigraqt/libVigraQt
 ^VigraQt.pc
 ^src/sip/sip(Qt|VigraQt|APIVigraQt).*\.(cpp|h)$
-^src/examples/imageAnalyzer
-^src/examples/ui_imageAnalyzerBase.h
+^src/examples/colorize/imageAnalyzer
+^src/examples/colorize/ui_imageAnalyzerBase.h
