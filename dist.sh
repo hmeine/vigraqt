@@ -16,9 +16,9 @@ rm -rv .hg* && \
 )
 
 cd .. && mv vigraqt4.release vigraqt4-$VERSION && \
-tar cvzf vigraqt4-$VERSION.tar.gz vigraqt4-$VERSION
+tar cvzf vigraqt4-$VERSION.tar.gz vigraqt4-$VERSION && \
+rm -r vigraqt4-$VERSION
 
 echo "############ TODO: ############"
 echo hg tag `echo release_$VERSION | tr . _`
 echo mv vigraqt4-$VERSION.tar.gz public_html/software/vigraqt
-echo rm -r vigraqt4-$VERSION
