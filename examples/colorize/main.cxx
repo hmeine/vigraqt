@@ -1,4 +1,4 @@
-#include "imageAnalyzer.hxx"
+#include "colorize.hxx"
 #include <QApplication>
 #include <vigra/error.hxx>
 #include <iostream>
@@ -11,14 +11,14 @@ int main(int argc, char **argv)
 		QApplication a(argc, argv);
 		if(argc < 2)
 		{
-			ImageAnalyzer *t = new ImageAnalyzer();
+			Colorize *t = new Colorize();
 			t->show();
 		}
 		else
 		{
 			for(int i = 1; i < argc; ++i)
 			{
-				ImageAnalyzer *t = new ImageAnalyzer();
+				Colorize *t = new Colorize();
 				t->load(argv[i]);
 				t->show();
 			}

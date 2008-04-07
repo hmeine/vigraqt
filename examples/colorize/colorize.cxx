@@ -1,4 +1,4 @@
-#include "imageAnalyzer.hxx"
+#include "colorize.hxx"
 
 #include <VigraQt/colormap.hxx>
 #include <VigraQt/cmeditor.hxx>
@@ -22,7 +22,7 @@
 typedef float PixelType;
 typedef vigra::BasicImage<PixelType> OriginalImage;
 
-struct ImageAnalyzerPrivate
+struct ColorizePrivate
 {
     OriginalImage                originalImage;
     vigra::FindMinMax<PixelType> minmax;
@@ -32,9 +32,9 @@ struct ImageAnalyzerPrivate
     QTimer                      *displayTimer;
 };
 
-ImageAnalyzer::ImageAnalyzer(QWidget *parent)
+Colorize::Colorize(QWidget *parent)
 : QMainWindow(parent),
-  p(new ImageAnalyzerPrivate)
+  p(new ColorizePrivate)
 {
 	setupUi(this);
     p->cm = createCM();
@@ -51,7 +51,7 @@ ImageAnalyzer::ImageAnalyzer(QWidget *parent)
     gammaSpinBox->hide();
 }
 
-void ImageAnalyzer::load(const char *filename)
+void Colorize::load(const char *filename)
 {
     delete p->imageCaption;
 
@@ -84,12 +84,12 @@ void ImageAnalyzer::load(const char *filename)
             statusBar(), SLOT(message(const QString&)));
 }
 
-void ImageAnalyzer::updateDisplay()
+void Colorize::updateDisplay()
 {
     p->displayTimer->start(100);
 }
 
-void ImageAnalyzer::computeDisplay()
+void Colorize::computeDisplay()
 {
     vigra::QRGBImage displayImage(p->originalImage.size());
 
@@ -103,7 +103,7 @@ void ImageAnalyzer::computeDisplay()
     imageViewer->setImage(displayImage.qImage());
 }
 
-void ImageAnalyzer::gammaSliderChanged(int pos)
+void Colorize::gammaSliderChanged(int pos)
 {
     p->gamma = std::pow(1.1, pos);
     updateDisplay();

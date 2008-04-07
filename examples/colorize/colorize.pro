@@ -2,10 +2,9 @@
 
 TEMPLATE   = app
 CONFIG    += qt warn_on release link_pkgconfig
-FORMS      = imageAnalyzerBase.ui
-HEADERS    = imageAnalyzer.hxx
-SOURCES    = imageAnalyzer.cxx main.cxx
-TARGET     = imageAnalyzer
+FORMS      = colorizeBase.ui
+HEADERS    = colorize.hxx
+SOURCES    = colorize.cxx main.cxx
 
 PKGCONFIG += VigraQt
 
