@@ -65,7 +65,7 @@ Finally, the Python bindings require PyQt_ and use its python-based
 build system::
 
   cd src/sip
-  # optionally, add -m /your/python/site-packages/python2.4:
+  # optionally, add -m /your/python/site-packages:
   python configure.py
   make
   make install # installs VigraQt.so into the module target dir (see above)
