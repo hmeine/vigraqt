@@ -1,19 +1,19 @@
-#ifndef IMAGEANALYZER_HXX
-#define IMAGEANALYZER_HXX
+#ifndef COLORIZE_HXX
+#define COLORIZE_HXX
 
-#include "ui_imageAnalyzerBase.h"
+#include "ui_colorizeBase.h"
 #include <QMainWindow>
 
-struct ImageAnalyzerPrivate;
+struct ColorizePrivate;
 
-class ImageAnalyzer : public QMainWindow, Ui::ImageAnalyzer
+class Colorize : public QMainWindow, Ui::Colorize
 {
     Q_OBJECT
 
-    ImageAnalyzerPrivate *p;
+    ColorizePrivate *p;
 
 public:
-    ImageAnalyzer(QWidget *parent = NULL);
+    Colorize(QWidget *parent = NULL);
     void load(const char *filename);
 
 public slots:
@@ -22,4 +22,4 @@ public slots:
     void gammaSliderChanged(int pos);
 };
 
-#endif // IMAGEANALYZER_HXX
+#endif // COLORIZE_HXX

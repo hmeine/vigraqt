@@ -1,7 +1,7 @@
 <ui version="4.0" >
  <author>Hans Meine &lt;hans_meine@gmx.net></author>
- <class>ImageAnalyzer</class>
- <widget class="QMainWindow" name="ImageAnalyzer" >
+ <class>Colorize</class>
+ <widget class="QMainWindow" name="Colorize" >
   <property name="geometry" >
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>ImageAnalyzer</string>
+   <string>Colorize</string>
   </property>
   <widget class="QWidget" name="widget" >
    <layout class="QVBoxLayout" >
