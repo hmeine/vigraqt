@@ -8,8 +8,5 @@ SOURCES    = colorize.cxx main.cxx
 
 PKGCONFIG += VigraQt
 
-INCLUDEPATH += \
-	$$system( vigra-config --cppflags | sed "s,-I,,g" ) \
-
-LIBS += \
-	$$system( vigra-config --impex-lib ) \
+INCLUDEPATH += $$system( vigra-config --cppflags | sed "s,-I,,g" )
+LIBS        += $$system( vigra-config --impex-lib )
