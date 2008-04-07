@@ -1,0 +1,7 @@
+`colorize` is a small example showing the use of both the QImageViewer
+and the ColorMap[Editor] classes.
+
+Note that it is not compiled by default, but contains a .pro file that
+expects VigraQt to be already installed; this way, the .pro file
+serves as a template for the project file of a real, independent
+application.
