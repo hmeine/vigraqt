@@ -1,8 +1,12 @@
 #!/bin/sh
-VERSION=`grep ^VERSION VigraQt.pri | sed 's,.*= *,,'`
+VERSION=`grep ^VERSION vigraqt.qt4/VigraQt.pri | sed 's,.*= *,,'`
+test -z "$VERSION" && {
+	echo "ERROR: VERSION extraction failed."
+    exit 1
+}
 echo "*** packaging vigraqt4-$VERSION ***"
 
-hg clone vigraqt.qt4 vigraqt4.release
+hg clone vigraqt.qt4 vigraqt4.release || exit $?
 cd $_
 
 rm -rv .hg* && \
