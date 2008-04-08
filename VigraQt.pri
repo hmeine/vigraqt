@@ -7,4 +7,4 @@ count(INSTALLBASE, 0) {
 }
 
 # version (used for pkgconfig and library versioning)
-VERSION = 0.4
+VERSION = 0.4.1
