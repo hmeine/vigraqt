@@ -655,6 +655,7 @@ void QImageViewer::updateROI(QImage const &roiImage, QPoint const &upperLeft)
 
         // allocate zoomed image
         QImage zoomed(newWidth, newHeight, originalImage_.format());
+        zoomed.setNumColors(originalImage_.numColors());
         for(int i=0; i<originalImage_.numColors(); ++i)
             zoomed.setColor(i, originalImage_.color(i));
 
@@ -715,13 +716,16 @@ void QImageViewer::createDrawingPixmap()
     int hp = (upperLeft_.y() + zoomedHeight() > height()) ? height() - y0 : zoomedHeight() - dy;
 
     QImage zoomed(wp, hp, originalImage_.format());
+    zoomed.setNumColors(originalImage_.numColors());
     for(int i=0; i<originalImage_.numColors(); ++i)
         zoomed.setColor(i, originalImage_.color(i));
 
     zoomImage(dx, dy, zoomed, wp, hp);
 
-    QPainter p; // FIXME: does this properly clear the drawing area?
+    QPainter p;
     p.begin(&drawingPixmap_);
+    p.fillRect(0, 0, width(), height(),
+               palette().brush(backgroundRole()));
     p.drawImage(x0, y0, zoomed);
     p.end();
 
@@ -765,6 +769,7 @@ void QImageViewer::updateZoomedPixmap(int xoffset, int yoffset)
     int dy1 = height() - y0 - hp;
 
     QImage zoomed(wp, hp, originalImage_.format());
+    zoomed.setNumColors(originalImage_.numColors());
     for(int i=0; i<originalImage_.numColors(); ++i)
         zoomed.setColor(i, originalImage_.color(i));
 
