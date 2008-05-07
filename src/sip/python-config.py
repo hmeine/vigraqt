@@ -1,7 +1,6 @@
-import PyQt4.pyqtconfig, distutils.sysconfig, sys
+import PyQt4.pyqtconfig, distutils.sysconfig as s, sys
 
 c = PyQt4.pyqtconfig.Configuration()
-s = distutils.sysconfig
 
 if sys.argv[1] == "includepath":
 	pi1 = s.get_python_inc()
