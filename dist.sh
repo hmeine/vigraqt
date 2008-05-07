@@ -9,7 +9,7 @@ echo "*** packaging vigraqt4-$VERSION ***"
 hg clone vigraqt.qt4 vigraqt4.release || exit $?
 cd $_
 
-rm -rv .hg* && \
+rm -rv .hg* dist.sh && \
 (
   cd .. && cp -va vigraqt4.release vigraqt4.testing && (
     cd $_ && \
