@@ -54,6 +54,8 @@ class Overlay : public QObject
 class EdgeOverlayBase : public Overlay
 {
   public:
+    virtual ~EdgeOverlayBase();
+
     void setPen(const QPen &pen);
 
     virtual void draw(QPainter &p, const QRect &r);
@@ -78,8 +80,6 @@ class EdgeOverlay : public EdgeOverlayBase
     {
         for(unsigned int i = 0; i < edges_.size(); ++i)
             delete edges_[i];
-        for(unsigned int i = 0; i < cachedEdges_.size(); ++i)
-            delete cachedEdges_[i];
     }
 
     virtual void setZoomLevel(int newZoomlevel)

@@ -74,6 +74,12 @@ Overlay::~Overlay()
 
 /********************************************************************/
 
+EdgeOverlayBase::~EdgeOverlayBase()
+{
+    for(int i = 0; i < cachedEdges_.size(); ++i)
+        delete cachedEdges_[i];
+}
+
 void EdgeOverlayBase::setPen(const QPen &pen)
 {
     pen_ = pen;
