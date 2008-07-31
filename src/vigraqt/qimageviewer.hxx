@@ -103,7 +103,7 @@ public:
         /**
          * Returns the current zoom level.
          *
-         * A zoom level of N > 0 means that the widget displays each
+         * A zoom level of N >= 0 means that the widget displays each
          * image pixel as a (N+1)x(N+1) square.  Defaults to zero
          * (i.e. no zoom).  Zoom levels of N < 0 mean that only each
          * (-N-1)th pixel in each dimension is displayed.  You can
@@ -193,10 +193,9 @@ signals:
 
 protected:
     inline static int zoom(int value, int level)
-    { return (level > 0) ? (value << level) : (value >> -level); }
+    { return (level >= 0) ? (value * (level+1)) : (value / (-level+1)); }
 
     virtual void setCrosshairCursor();
-    virtual void minimizeClipping();
 
     virtual void mouseMoveEvent(QMouseEvent *e);
     virtual void mousePressEvent(QMouseEvent *e);

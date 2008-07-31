@@ -164,7 +164,7 @@ QSize QImageViewerBase::sizeHint() const
 
 void QImageViewerBase::setCursorPos(QPoint const &imagePoint) const
 {
-    int offset = (zoomLevel_ > 1) ? 1 << (zoomLevel_ - 1) : 0;
+    int offset = zoom(1, zoomLevel_) / 2;
     QCursor::setPos(mapToGlobal(windowCoordinate(imagePoint))
                     + QPoint(offset, offset));
 }
@@ -198,8 +198,8 @@ QPoint QImageViewerBase::windowCoordinate(double x, double y) const
 {
     if(zoomLevel_ > 0)
     {
-        return QPoint((int)(x * std::pow(2.0, zoomLevel_)),
-                      (int)(y * std::pow(2.0, zoomLevel_)))
+        return QPoint((int)(x * (zoomLevel_ + 1)),
+                      (int)(y * (zoomLevel_ + 1)))
             + upperLeft_;
     }
     else
@@ -265,53 +265,15 @@ void QImageViewerBase::setZoomLevel(int level)
     if(newWidth < 4 || newHeight < 4)
         return;
 
-    bool mouseOnImage = false;
-
-    // if mouse pointer is on an image pixel, keep the pixel there:
-    QPoint mouseWindowPos = mapFromGlobal(QCursor::pos());
-    if(QRect(0, 0, width(), height()).contains(mouseWindowPos))
-    {
-        QPoint zoomPixel(imageCoordinate(mouseWindowPos));
-        if(QRect(0, 0, originalWidth(), originalHeight()).contains(zoomPixel))
-        {
-            // the (2*pos+1)/2 stuff is to zoom on the middle of the pixel..
-            upperLeft_ +=
-                (windowCoordinate(2 * zoomPixel + QPoint(1,1)) -
-                 windowCoordinate(
-                     QPoint(zoom(2 * zoomPixel.x(), level - zoomLevel_),
-                            zoom(2 * zoomPixel.y(), level - zoomLevel_))
-                     + QPoint(1,1))) / 2;
-
-            mouseOnImage = true;
-        }
-    }
-
-    if(!mouseOnImage)
-    {
-        // zoom on center pixel of window/image instead:
-
-        QPoint windowCenter(width() / 2, height() / 2);
-        if(QRect(0, 0, originalWidth(), originalHeight()).contains(
-               imageCoordinate(windowCenter)))
-        {
-            // zoom on center of window
-            upperLeft_ = windowCenter +
-                         QPoint(zoom(upperLeft_.x() - windowCenter.x(),
-                                     level - zoomLevel_),
-                                zoom(upperLeft_.y() - windowCenter.y(),
-                                     level - zoomLevel_));
-        }
-        else
-        {
-            // zoom on center of image
-            upperLeft_ -= QPoint(zoom(originalWidth(), level) - zoomedWidth(),
-                                 zoom(originalHeight(), level) - zoomedHeight());
-        }
-    }
+    // zoom on center of window
+    QPoint windowCenter(width() / 2, height() / 2);
+    upperLeft_ = windowCenter +
+                 QPoint(zoom(zoom(upperLeft_.x() - windowCenter.x(),
+                                  - zoomLevel_), level),
+                        zoom(zoom(upperLeft_.y() - windowCenter.y(),
+                                  - zoomLevel_), level));
 
     zoomLevel_ = level;
-
-    minimizeClipping();
 
     updateGeometry();
 
@@ -400,43 +362,6 @@ void QImageViewerBase::setCrosshairCursor()
                    QBitmap::fromData(QSize(16, 16), mm, QImage::Format_Mono),
                    7, 7);
     setCursor(cursor);
-}
-
-/********************************************************************/
-/*                                                                  */
-/*                         minimizeClipping                         */
-/*                                                                  */
-/********************************************************************/
-
-void QImageViewerBase::minimizeClipping()
-{
-    int x0 = upperLeft_.x();
-    int x1 = x0 + zoomedWidth();
-
-    if(x1 > width() && upperLeft_.x() > 0)
-    {
-        // unnecessarily clipped to the right
-        upperLeft_.setX(std::max(width() - zoomedWidth(), 0));
-    }
-    else if(x0 < 0 && x1 < width())
-    {
-        // unnecessarily clipped to the left
-        upperLeft_.setX(std::min(width() - zoomedWidth(), 0));
-    }
-
-    int y0 = upperLeft_.y();
-    int y1 = y0 + zoomedHeight();
-
-    if(y1 > height() && upperLeft_.y() > 0)
-    {
-        // unnecessarily clipped to the bottom
-        upperLeft_.setY(std::max(height() - zoomedHeight(), 0));
-    }
-    else if(y0 < 0 && y1 < height())
-    {
-        // unnecessarily clipped to the top
-        upperLeft_.setY(std::min(height() - zoomedHeight(), 0));
-    }
 }
 
 /****************************************************************/
@@ -544,7 +469,7 @@ void QImageViewerBase::mouseDoubleClickEvent(QMouseEvent *e)
 void QImageViewerBase::keyPressEvent(QKeyEvent *e)
 {
     // let the cursor keys jump a full pixel distance:
-    int moveOffsetSize = (zoomLevel_ > 0) ? 1 << zoomLevel_ : 1;
+    int moveOffsetSize = (zoomLevel_ > 0) ? zoomLevel_ + 1 : 1;
 
     QPoint moveOffset(0, 0);
     switch (e->key())
@@ -597,8 +522,6 @@ void QImageViewerBase::resizeEvent(QResizeEvent *e)
 {
     upperLeft_.rx() += (width() - e->oldSize().width()) / 2;
     upperLeft_.ry() += (height() - e->oldSize().height()) / 2;
-
-    minimizeClipping(); // FIXME: correct above offsets intelligently instead
 }
 
 /********************************************************************/
