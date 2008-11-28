@@ -23,7 +23,6 @@ int main(int argc, char **argv)
 				t->show();
 			}
 		}
-		QObject::connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));
 		return a.exec();
 	}
 	catch (vigra::StdException & e)
