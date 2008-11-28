@@ -6,5 +6,9 @@ count(INSTALLBASE, 0) {
 	INSTALLBASE=/usr/local
 }
 
+count(libdir_name, 0) {
+	libdir_name = lib # FIXME: libdir_name can be lib64, autodetect that!
+}
+
 # version (used for pkgconfig and library versioning)
 VERSION = 0.4.1
