@@ -53,7 +53,6 @@ protected:
     static int zoom(int, int);
 
     virtual void setCrosshairCursor();
-    virtual void minimizeClipping();
 
     virtual void mouseMoveEvent(QMouseEvent *);
     virtual void mousePressEvent(QMouseEvent *);
