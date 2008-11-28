@@ -462,6 +462,22 @@ void QImageViewerBase::mouseDoubleClickEvent(QMouseEvent *e)
 
 /****************************************************************/
 /*                                                              */
+/*                          wheelEvent                          */
+/*                                                              */
+/****************************************************************/
+
+void QImageViewerBase::wheelEvent(QWheelEvent *e)
+{
+    if(!isEnabled())
+        return;
+    if(e->delta() > 0)
+        zoomUp();
+    else if(e->delta() < 0)
+        zoomDown();
+}
+
+/****************************************************************/
+/*                                                              */
 /*                         keyPressEvent                        */
 /*                                                              */
 /****************************************************************/
