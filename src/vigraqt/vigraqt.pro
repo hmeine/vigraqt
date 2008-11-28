@@ -5,7 +5,7 @@ INCLUDEPATH += $$system( vigra-config --cppflags | sed "s,-I,,g" )
 TARGET       = VigraQt
 QT          += opengl
 
-target.path    = $$INSTALLBASE/$${libdir}
+target.path    = $$INSTALLBASE/$${libdir_name}
 headers.path   = $$INSTALLBASE/include/$${TARGET}
 INSTALLS       = target headers
 

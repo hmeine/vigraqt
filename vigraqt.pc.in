@@ -1,6 +1,6 @@
 prefix=@prefix@
 exec_prefix=${prefix}
-libdir=${exec_prefix}/@libdir@
+libdir=${exec_prefix}/@libdir_name@
 includedir=${prefix}/include
 
 Name: VigraQt
