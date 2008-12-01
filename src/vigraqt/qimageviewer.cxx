@@ -44,6 +44,7 @@
 QImageViewerBase::QImageViewerBase(QWidget *parent)
 : QWidget(parent),
   inSlideState_(false),
+  pendingCentering_(true),
   upperLeft_(0, 0),
   zoomLevel_(0)
 {
@@ -78,9 +79,12 @@ void QImageViewerBase::setImage(QImage const &image, bool retainView)
     }
     else
     {
-        // reset zoom level and visible region
+        // reset zoom level and center visible region
         zoomLevel_ = 0;
-        upperLeft_ = QPoint(0,0);
+        upperLeft_ = QPoint(width() - zoomedWidth(),
+                            height() - zoomedHeight()) / 2;
+        if(isVisible())
+            pendingCentering_ = false;
 
         updateGeometry();
     }
@@ -538,6 +542,23 @@ void QImageViewerBase::resizeEvent(QResizeEvent *e)
 {
     upperLeft_.rx() += (width() - e->oldSize().width()) / 2;
     upperLeft_.ry() += (height() - e->oldSize().height()) / 2;
+}
+
+/****************************************************************/
+/*                                                              */
+/*                           showEvent                          */
+/*                                                              */
+/****************************************************************/
+
+void QImageViewerBase::showEvent(QShowEvent *e)
+{
+    if(pendingCentering_ && !originalImage_.isNull())
+    {
+        upperLeft_ = QPoint(width() - zoomedWidth(),
+                            height() - zoomedHeight()) / 2;
+        pendingCentering_ = false;
+    }
+    return QWidget::showEvent(e);
 }
 
 /********************************************************************/

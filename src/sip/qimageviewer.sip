@@ -61,6 +61,7 @@ protected:
     virtual void wheelEvent(QWheelEvent *);
     virtual void keyPressEvent(QKeyEvent *);
     virtual void resizeEvent(QResizeEvent *);
+    virtual void showEvent(QShowEvent *);
 };
 
 class QImageViewer : QImageViewerBase
