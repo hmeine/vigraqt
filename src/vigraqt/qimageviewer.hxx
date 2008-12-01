@@ -204,9 +204,11 @@ protected:
     virtual void wheelEvent(QWheelEvent *e);
     virtual void keyPressEvent(QKeyEvent *e);
     virtual void resizeEvent(QResizeEvent *e);
+    virtual void showEvent(QShowEvent *e);
 
     QImage  originalImage_;
     bool    inSlideState_;
+    bool    pendingCentering_;
     QPoint  lastMousePosition_;
     QPoint  upperLeft_; // position of image origin in widget coordinates
     int     zoomLevel_;
