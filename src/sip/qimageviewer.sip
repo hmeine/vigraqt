@@ -38,13 +38,7 @@ public slots:
     virtual void slideBy(const QPoint &);
 
 signals:
-    void mouseMoved(int, int);
-    void mousePressed(int, int, Qt::MouseButton);
-    void mousePressedLeft(int, int);
-    void mousePressedMiddle(int, int);
-    void mousePressedRight(int, int);
-    void mouseReleased(int, int, Qt::MouseButton);
-    void mouseDoubleClicked(int, int, Qt::MouseButton);
+    void mouseOver(int, int);
 
     void imageChanged();
     void zoomLevelChanged(int);

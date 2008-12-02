@@ -180,13 +180,7 @@ public slots:
     virtual void slideBy(QPoint const &diff);
 
 signals:
-    void mouseMoved(int x, int y);
-    void mousePressed(int x, int y, Qt::MouseButton button);
-    void mousePressedLeft(int x, int y);
-    void mousePressedMiddle(int x, int y);
-    void mousePressedRight(int x, int y);
-    void mouseReleased(int x, int y, Qt::MouseButton button);
-    void mouseDoubleClicked(int x, int y, Qt::MouseButton button);
+    void mouseOver(int x, int y);
 
     void imageChanged(); // FIXME: add ROI param
     void zoomLevelChanged(int zoomLevel);
@@ -200,7 +194,7 @@ protected:
     virtual void mouseMoveEvent(QMouseEvent *e);
     virtual void mousePressEvent(QMouseEvent *e);
     virtual void mouseReleaseEvent(QMouseEvent *e);
-    virtual void mouseDoubleClickEvent(QMouseEvent *e);
+//     virtual void mouseDoubleClickEvent(QMouseEvent *e);
     virtual void wheelEvent(QWheelEvent *e);
     virtual void keyPressEvent(QKeyEvent *e);
     virtual void resizeEvent(QResizeEvent *e);

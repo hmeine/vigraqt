@@ -78,7 +78,7 @@ void Colorize::load(const char *filename)
     updateDisplay();
 
     p->imageCaption = createImageCaption(p->originalImage, this);
-    connect(imageViewer, SIGNAL(mouseMoved(int,int)),
+    connect(imageViewer, SIGNAL(mouseOver(int,int)),
             p->imageCaption, SLOT(update(int,int)));
     connect(p->imageCaption, SIGNAL(captionChanged(const QString&)),
             statusBar(), SLOT(message(const QString&)));

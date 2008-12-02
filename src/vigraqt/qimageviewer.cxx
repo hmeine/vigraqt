@@ -71,11 +71,6 @@ void QImageViewerBase::setImage(QImage const &image, bool retainView)
     {
         upperLeft_ -= QPoint(zoom(sizeDiff.width()/2, zoomLevel_),
                              zoom(sizeDiff.height()/2, zoomLevel_));
-        if(isEnabled())
-        {
-            QPoint p(imageCoordinate(lastMousePosition_));
-            emit mouseMoved(p.x(), p.y());
-        }
     }
     else
     {
@@ -378,16 +373,17 @@ void QImageViewerBase::mouseMoveEvent(QMouseEvent *e)
 {
     if(!isEnabled())
         return;
+
     if(inSlideState_)
     {
         slideBy(e->pos() - lastMousePosition_);
+        lastMousePosition_ = e->pos();
     }
     else
     {
         QPoint p(imageCoordinate(e->pos()));
-        emit mouseMoved(p.x(), p.y());
+        emit mouseOver(p.x(), p.y());
     }
-    lastMousePosition_ = e->pos();
 }
 
 /****************************************************************/
@@ -400,31 +396,13 @@ void QImageViewerBase::mousePressEvent(QMouseEvent *e)
 {
     if(!isEnabled())
         return;
-    if(e->modifiers() == Qt::ShiftModifier && e->button() == Qt::LeftButton)
+
+    if(e->button() == Qt::LeftButton)
     {
         inSlideState_ = true;
+        lastMousePosition_ = e->pos();
+        e->accept();
     }
-    else
-    {
-        QPoint p(imageCoordinate(e->pos()));
-        switch(e->button())
-        {
-        case Qt::LeftButton:
-            emit mousePressedLeft(p.x(), p.y());
-            break;
-        case Qt::RightButton:
-            emit mousePressedRight(p.x(), p.y());
-            break;
-        case Qt::MidButton:
-            emit mousePressedMiddle(p.x(), p.y());
-            break;
-        default:
-            break;
-        }
-        emit mousePressed(p.x(), p.y(), e->button());
-    }
-    e->accept();
-    lastMousePosition_ = e->pos();
 }
 
 /****************************************************************/
@@ -433,20 +411,13 @@ void QImageViewerBase::mousePressEvent(QMouseEvent *e)
 /*                                                              */
 /****************************************************************/
 
-void QImageViewerBase::mouseReleaseEvent(QMouseEvent *e)
+void QImageViewerBase::mouseReleaseEvent(QMouseEvent * /* e */)
 {
     if(!isEnabled())
         return;
+
     if(inSlideState_)
-    {
         inSlideState_ = false;
-    }
-    else
-    {
-        QPoint p(imageCoordinate(e->pos()));
-        emit mouseReleased(p.x(), p.y(), e->button());
-    }
-    lastMousePosition_ = e->pos();
 }
 
 /****************************************************************/
@@ -455,14 +426,11 @@ void QImageViewerBase::mouseReleaseEvent(QMouseEvent *e)
 /*                                                              */
 /****************************************************************/
 
-void QImageViewerBase::mouseDoubleClickEvent(QMouseEvent *e)
-{
-    if(!isEnabled())
-        return;
-    QPoint p(imageCoordinate(e->pos()));
-    emit mouseDoubleClicked(p.x(), p.y(), e->button());
-    lastMousePosition_ = e->pos();
-}
+// void QImageViewerBase::mouseDoubleClickEvent(QMouseEvent *e)
+// {
+//     if(!isEnabled())
+//         return;
+// }
 
 /****************************************************************/
 /*                                                              */
