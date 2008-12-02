@@ -4,6 +4,7 @@ Makefile
 moc_[^/]*.cpp
 \.l?[ao]$
 \.so$
+^src/sip/.cache/
 ^src/sip/sipqtQ*.h
 ^src/sip/sipvigraqt*
 ^src/sip/.*_la_closure.cpp
