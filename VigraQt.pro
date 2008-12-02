@@ -2,6 +2,8 @@
 TEMPLATE = subdirs
 SUBDIRS  = src/vigraqt
 
+include(VigraQt.pri)
+
 # pass on variables (is there a better way?):
 QMAKE_QMAKE += INSTALLBASE=$${INSTALLBASE} libdir_name=$${libdir_name}
 
