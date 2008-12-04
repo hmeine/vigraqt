@@ -26,6 +26,7 @@
 #ifndef IMAGECAPTION_HXX
 #define IMAGECAPTION_HXX
 
+#include "vigraqt_export.hxx"
 #include <vigra/rgbvalue.hxx>
 #include <vigra/numerictraits.hxx>
 
@@ -56,7 +57,7 @@ QString argPixelValue(QString s, vigra::RGBValue<T> const & data)
 
 /********************************************************************/
 
-class ImageCaption
+class VIGRAQT_EXPORT ImageCaption
 : public QObject
 {
     Q_OBJECT
