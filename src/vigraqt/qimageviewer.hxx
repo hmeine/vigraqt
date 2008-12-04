@@ -1,6 +1,6 @@
 /************************************************************************/
 /*                                                                      */
-/*                  Copyright 2003-2005 by Hans Meine                   */
+/*                  Copyright 2003-2008 by Hans Meine                   */
 /*                 meine@kogs.informatik.uni-hamburg.de                 */
 /*       Cognitive Systems Group, University of Hamburg, Germany        */
 /*                                                                      */
