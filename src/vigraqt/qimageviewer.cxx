@@ -606,20 +606,23 @@ void QImageViewer::updateROI(QImage const &roiImage, QPoint const &upperLeft)
         int xn = zoom(updateRect.left(), zoomLevel_);
         int yn = zoom(updateRect.top(), zoomLevel_);
 
+        if(newWidth <= 0 || newHeight <= 0)
+            return;
+
         // allocate zoomed image
         QImage zoomed(newWidth, newHeight, originalImage_.format());
         zoomed.setNumColors(originalImage_.numColors());
         for(int i=0; i<originalImage_.numColors(); ++i)
             zoomed.setColor(i, originalImage_.color(i));
-
+        
         // fill zoomed image
         zoomImage(xn, yn, zoomed, newWidth, newHeight);
-
+        
         // put image into drawingPixmap_
         QPainter p(&drawingPixmap_);
         p.drawImage(windowCoordinate(updateRect.topLeft()), zoomed);
         p.end();
-
+        
         update(windowCoordinates(updateRect));
     }
 }
@@ -668,19 +671,22 @@ void QImageViewer::createDrawingPixmap()
     int wp = (upperLeft_.x() + zoomedWidth() > width()) ? width() - x0 : zoomedWidth() - dx;
     int hp = (upperLeft_.y() + zoomedHeight() > height()) ? height() - y0 : zoomedHeight() - dy;
 
-    QImage zoomed(wp, hp, originalImage_.format());
-    zoomed.setNumColors(originalImage_.numColors());
-    for(int i=0; i<originalImage_.numColors(); ++i)
-        zoomed.setColor(i, originalImage_.color(i));
+    if(wp > 0 && hp > 0)
+    {
+        QImage zoomed(wp, hp, originalImage_.format());
+        zoomed.setNumColors(originalImage_.numColors());
+        for(int i=0; i<originalImage_.numColors(); ++i)
+            zoomed.setColor(i, originalImage_.color(i));
 
-    zoomImage(dx, dy, zoomed, wp, hp);
-
-    QPainter p;
-    p.begin(&drawingPixmap_);
-    p.fillRect(0, 0, width(), height(),
-               palette().brush(backgroundRole()));
-    p.drawImage(x0, y0, zoomed);
-    p.end();
+        zoomImage(dx, dy, zoomed, wp, hp);
+        
+        QPainter p;
+        p.begin(&drawingPixmap_);
+        p.fillRect(0, 0, width(), height(),
+                   palette().brush(backgroundRole()));
+        p.drawImage(x0, y0, zoomed);
+        p.end();
+    }
 
     update();
 }
@@ -721,11 +727,6 @@ void QImageViewer::updateZoomedPixmap(int xoffset, int yoffset)
     int dx1 = width() - x0 - wp;
     int dy1 = height() - y0 - hp;
 
-    QImage zoomed(wp, hp, originalImage_.format());
-    zoomed.setNumColors(originalImage_.numColors());
-    for(int i=0; i<originalImage_.numColors(); ++i)
-        zoomed.setColor(i, originalImage_.color(i));
-
     if(xoffset > 0)
     {
         p.fillRect(0, 0, xoffset, height(),
@@ -746,36 +747,44 @@ void QImageViewer::updateZoomedPixmap(int xoffset, int yoffset)
         p.fillRect(0, height()+yoffset, width(), -yoffset,
                    palette().brush(backgroundRole()));
     }
-
-    if(xoffset > 0 && x0 < xoffset)
+        
+    if(wp > 0 && hp > 0)
     {
-        int wa = xoffset - x0;
+        QImage zoomed(wp, hp, originalImage_.format());
+        zoomed.setNumColors(originalImage_.numColors());
+        for(int i=0; i<originalImage_.numColors(); ++i)
+            zoomed.setColor(i, originalImage_.color(i));
 
-        zoomImage(dx, dy, zoomed, wa, hp);
-        p.drawImage(x0, y0, zoomed, 0, 0, wa, hp);
-    }
-    else if(xoffset < 0 && dx1 < -xoffset)
-    {
-        int wa = -xoffset - dx1;
-        int dxa = dx + wp - wa;
-
-        zoomImage(dxa, dy, zoomed, wa, hp);
-        p.drawImage(x0 + wp - wa, y0, zoomed, 0, 0, wa, hp);
-    }
-    if(yoffset > 0 && y0 < yoffset)
-    {
-        int ha = yoffset - y0;
-
-        zoomImage(dx, dy, zoomed, wp, ha);
-        p.drawImage(x0, y0, zoomed, 0, 0, wp, ha);
-    }
-    else if(yoffset < 0 && dy1 < -yoffset)
-    {
-        int ha = -yoffset - dy1;
-        int dya = dy + hp - ha;
-
-        zoomImage(dx, dya, zoomed, wp, ha);
-        p.drawImage(x0, y0 + hp - ha, zoomed, 0, 0, wp, ha);
+        if(xoffset > 0 && x0 < xoffset)
+        {
+            int wa = xoffset - x0;
+            
+            zoomImage(dx, dy, zoomed, wa, hp);
+            p.drawImage(x0, y0, zoomed, 0, 0, wa, hp);
+        }
+        else if(xoffset < 0 && dx1 < -xoffset)
+        {
+            int wa = -xoffset - dx1;
+            int dxa = dx + wp - wa;
+            
+            zoomImage(dxa, dy, zoomed, wa, hp);
+            p.drawImage(x0 + wp - wa, y0, zoomed, 0, 0, wa, hp);
+        }
+        if(yoffset > 0 && y0 < yoffset)
+        {
+            int ha = yoffset - y0;
+            
+            zoomImage(dx, dy, zoomed, wp, ha);
+            p.drawImage(x0, y0, zoomed, 0, 0, wp, ha);
+        }
+        else if(yoffset < 0 && dy1 < -yoffset)
+        {
+            int ha = -yoffset - dy1;
+            int dya = dy + hp - ha;
+            
+            zoomImage(dx, dya, zoomed, wp, ha);
+            p.drawImage(x0, y0 + hp - ha, zoomed, 0, 0, wp, ha);
+        }
     }
 
     p.end();
