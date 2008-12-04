@@ -255,7 +255,7 @@ class VIGRAQT_EXPORT ColorMap
     TransitionPoints transitionPoints_;
 };
 
-ColorMap *createCM();
+VIGRAQT_EXPORT ColorMap *createCM();
 
 //template<class COLOR = vigra::RGBValue<unsigned char> >
 inline ColorMap::Color ColorMap::operator()(ArgumentType v) const
