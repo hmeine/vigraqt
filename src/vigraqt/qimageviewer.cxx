@@ -45,6 +45,7 @@ QImageViewerBase::QImageViewerBase(QWidget *parent)
 : QWidget(parent),
   inSlideState_(false),
   pendingCentering_(true),
+  pendingAutoZoom_(false),
   upperLeft_(0, 0),
   zoomLevel_(0)
 {
@@ -140,6 +141,25 @@ int QImageViewerBase::zoomedWidth() const
 int QImageViewerBase::zoomedHeight() const
 {
     return zoom(originalImage_.height(), zoomLevel_);
+}
+
+void QImageViewerBase::autoZoom(int minLevel, int maxLevel)
+{
+    if(!isVisible())
+    {
+        pendingAutoZoom_ = true;
+        minAutoZoom_ = minLevel;
+        maxAutoZoom_ = maxLevel;
+        return;
+    }
+
+    int level = maxLevel;
+    while(level > minLevel && (
+              zoom(originalWidth(), level) > width() ||
+              zoom(originalHeight(), level) > height()))
+        --level;
+
+    setZoomLevel(level);
 }
 
 /****************************************************************/
@@ -525,6 +545,11 @@ void QImageViewerBase::showEvent(QShowEvent *e)
         upperLeft_ = QPoint(width() - zoomedWidth(),
                             height() - zoomedHeight()) / 2;
         pendingCentering_ = false;
+    }
+    if(pendingAutoZoom_)
+    {
+        autoZoom(minAutoZoom_, maxAutoZoom_);
+        pendingAutoZoom_ = false;
     }
     return QWidget::showEvent(e);
 }

@@ -18,6 +18,7 @@ public:
     int zoomedWidth() const;
     int zoomedHeight() const;
 
+    void autoZoom(int = -100, int = 64);
     virtual QSize sizeHint() const;
     QPoint upperLeft() const;
     int zoomLevel() const;

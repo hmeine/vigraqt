@@ -93,6 +93,21 @@ public:
     int zoomedHeight() const;
 
         /**
+         * Zoom the pixmap such that it fits into the widget.  (Useful
+         * after the user loaded an image, especially with small
+         * ones.)
+         *
+         * You can provide a minimum or maximum zoom factor as
+         * optional arguments, e.g. minScale = 1 to make sure that
+         * the image will be displayed with at least its original
+         * size.
+         *
+         * By default, the image will be scaled to a maximum factor of
+         * 64.
+         */
+    void autoZoom(int minLevel = -100, int maxLevel = 64);
+
+        /**
          * Overloaded from QWidget to return a sensible default size.
          */
     virtual QSize sizeHint() const;
@@ -203,6 +218,8 @@ protected:
     QImage  originalImage_;
     bool    inSlideState_;
     bool    pendingCentering_;
+    bool    pendingAutoZoom_;
+    int     minAutoZoom_, maxAutoZoom_;
     QPoint  lastMousePosition_;
     QPoint  upperLeft_; // position of image origin in widget coordinates
     int     zoomLevel_;
