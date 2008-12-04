@@ -1,9 +1,13 @@
 include(../../VigraQt.pri)
 
+!win32 { # hack: disable OpenGL on Windows
+	CONFIG += opengl
+	QT     += opengl
+}
+
 TEMPLATE     = lib
 INCLUDEPATH += $$system( vigra-config --cppflags | sed "s,-I,,g" )
 TARGET       = VigraQt
-QT          += opengl
 
 target.path    = $$INSTALLBASE/$${libdir_name}
 headers.path   = $$INSTALLBASE/include/$${TARGET}
@@ -11,7 +15,6 @@ INSTALLS       = target headers
 
 HEADERS += \
 	qimageviewer.hxx \
-	qglimageviewer.hxx \
 	overlayviewer.hxx \
 	fimageviewer.hxx \
 	imagecaption.hxx \
@@ -25,9 +28,15 @@ headers.files = $$HEADERS
 
 SOURCES += \
 	qimageviewer.cxx \
-	qglimageviewer.cxx \
 	overlayviewer.cxx \
 	fimageviewer.cxx \
 	imagecaption.cxx \
 	colormap.cxx \
 	cmeditor.cxx
+
+CONFIG(opengl) {
+	HEADERS += qglimageviewer.hxx
+	SOURCES += qglimageviewer.cxx
+} else {
+	message(OpenGL support disabled; QGLImageViewer will not be included.)
+}
