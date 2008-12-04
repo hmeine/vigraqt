@@ -27,6 +27,7 @@
 #define CMEDITOR_HXX
 
 #include "colormap.hxx"
+#include "vigraqt_export.hxx"
 
 #include <QContextMenuEvent>
 #include <QDragMoveEvent>
@@ -40,7 +41,7 @@
 
 #include <vector>
 
-class ColorMapEditor : public QWidget
+class VIGRAQT_EXPORT ColorMapEditor : public QWidget
 {
 	Q_OBJECT
 

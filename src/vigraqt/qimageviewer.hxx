@@ -26,6 +26,7 @@
 #ifndef IMAGEVIEWER_HXX
 #define IMAGEVIEWER_HXX
 
+#include "vigraqt_export.hxx"
 #include <QImage>
 #include <QKeyEvent>
 #include <QMouseEvent>
@@ -35,7 +36,7 @@
 #include <QResizeEvent>
 #include <QWidget>
 
-class QImageViewerBase : public QWidget
+class VIGRAQT_EXPORT QImageViewerBase : public QWidget
 {
     Q_OBJECT
 
@@ -225,7 +226,7 @@ protected:
     int     zoomLevel_;
 };
 
-class QImageViewer : public QImageViewerBase
+class VIGRAQT_EXPORT QImageViewer : public QImageViewerBase
 {
     Q_OBJECT
 

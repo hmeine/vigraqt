@@ -8,6 +8,7 @@ include(../../VigraQt.pri)
 TEMPLATE     = lib
 INCLUDEPATH += $$system( vigra-config --cppflags | sed "s,-I,,g" )
 TARGET       = VigraQt
+DEFINES     += MAKE_VIGRAQT_LIB
 
 target.path    = $$INSTALLBASE/$${libdir_name}
 headers.path   = $$INSTALLBASE/include/$${TARGET}

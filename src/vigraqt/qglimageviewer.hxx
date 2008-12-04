@@ -2,11 +2,12 @@
 #define QGLIMAGEVIEWER_HXX
 
 #include "qimageviewer.hxx"
+#include "vigraqt_export.hxx"
 #include <QGLWidget>
 
 class QGLImageWidget;
 
-class QGLImageViewer : public QImageViewerBase
+class VIGRAQT_EXPORT QGLImageViewer : public QImageViewerBase
 {
 public:
     QGLImageViewer(QWidget *parent = 0);
@@ -26,7 +27,7 @@ protected:
 /********************************************************************/
 
 // internal helper widget
-class QGLImageWidget : public QGLWidget
+class VIGRAQT_EXPORT QGLImageWidget : public QGLWidget
 {
 public:
     QGLImageWidget(QWidget *parent = 0);

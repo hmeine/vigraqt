@@ -2,6 +2,7 @@
 #define OVERLAYVIEWER_HXX
 
 #include "qimageviewer.hxx"
+#include "vigraqt_export.hxx"
 
 #include <QObject>
 #include <QPaintEvent>
@@ -14,7 +15,7 @@
 
 class Overlay;
 
-class OverlayViewer : public QImageViewer
+class VIGRAQT_EXPORT OverlayViewer : public QImageViewer
 {
   public:
     OverlayViewer(QWidget* parent= 0);
@@ -33,7 +34,7 @@ class OverlayViewer : public QImageViewer
     Overlays overlays_;
 };
 
-class Overlay : public QObject
+class VIGRAQT_EXPORT Overlay : public QObject
 {
     Q_OBJECT
 
@@ -51,7 +52,7 @@ class Overlay : public QObject
     OverlayViewer *viewer_;
 };
 
-class EdgeOverlayBase : public Overlay
+class VIGRAQT_EXPORT EdgeOverlayBase : public Overlay
 {
   public:
     virtual ~EdgeOverlayBase();

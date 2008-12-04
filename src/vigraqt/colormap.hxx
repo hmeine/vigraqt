@@ -26,13 +26,14 @@
 #ifndef COLORMAP_HXX
 #define COLORMAP_HXX
 
+#include "vigraqt_export.hxx"
 #include <vigra/numerictraits.hxx>
 #include <vigra/rgbvalue.hxx>
 #include <vector>
 
 // TODO: template??
 //template<class COLOR = vigra::RGBValue<unsigned char> >
-class ColorMap
+class VIGRAQT_EXPORT ColorMap
 {
   public:
     typedef vigra::RGBValue<unsigned char> Color;

@@ -26,6 +26,7 @@
 #ifndef FIMAGEVIEWER_HXX
 #define FIMAGEVIEWER_HXX
 
+#include "vigraqt_export.hxx"
 #include <qwidget.h>
 #include <qimage.h>
 #include <vigra/stdimage.hxx>
@@ -34,7 +35,7 @@ class QImage;
 class QImageViewer;
 namespace vigra { class QByteImage; }
 
-class FImageViewer: public QWidget
+class VIGRAQT_EXPORT FImageViewer: public QWidget
 {
 	Q_OBJECT
 	Q_PROPERTY(bool autoScaleMode READ autoScaleMode WRITE setAutoScaleMode)
