@@ -36,6 +36,18 @@
 #include <QResizeEvent>
 #include <QWidget>
 
+/**
+ * Image viewer base class managing coordinate transforms and user
+ * interaction.  In particular, it has two properties:
+ *
+ * 'zoomLevel' is an integer N where N=0 means 1:1 display, N>0 means
+ * that each pixel is an (N+1)x(N+1) square and N<0 means that only
+ * every (-N-1)th pixel in each dimension is displayed.
+ *
+ * 'upperLeft' is the widget coordinate of the upper left image corner.
+ *
+ * TODO: describe user interaction
+ */
 class VIGRAQT_EXPORT QImageViewerBase : public QWidget
 {
     Q_OBJECT
@@ -59,8 +71,8 @@ public slots:
         /**
          * Change a ROI of the displayed image.
          *
-         * The given new roiImage will be placed into originalImage_ at
-         * the position given with upperLeft.
+         * The given new roiImage will be placed into the
+         * originalImage() at the position given by upperLeft.
          */
     virtual void updateROI(QImage const &roiImage, QPoint const &upperLeft);
 
@@ -113,6 +125,16 @@ public:
          */
     virtual QSize sizeHint() const;
 
+        /**
+         * Returns widget coordinate of the upper left image corner.
+         *
+         * If you sub-class QImageViewerBase on your own, you might
+         * want to know that this is changed in the following places:
+         * slideBy() explicitly adds an offset, resizeEvent() and
+         * setZoomLevel() modify it in order to effectively
+         * zoom/resize around the widget center, and showEvent()
+         * cares about initially centering the image.
+         */
     QPoint upperLeft() const
         { return upperLeft_; }
 
@@ -191,7 +213,7 @@ public slots:
     virtual void zoomDown();
 
         /**
-         * Changes upperLeft by diff. FIXME: document upperLeft
+         * Changes upperLeft() by diff.
          */
     virtual void slideBy(QPoint const &diff);
 
