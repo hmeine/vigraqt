@@ -15,3 +15,6 @@ moc_[^/]*.cpp
 ^src/sip/sip(Qt|VigraQt|APIVigraQt).*\.(cpp|h)$
 ^examples/colorize/colorize
 ^examples/colorize/ui_colorizeBase.h
+^src/vigraqt/VigraQt_resource.rc$
+^src/vigraqt/(object_script\.VigraQt\.)?([Dd]ebug|[Rr]elease)$
+^src/designer-plugin/vigraqtplugins.moc$
