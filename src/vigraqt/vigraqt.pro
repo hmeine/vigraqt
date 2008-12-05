@@ -15,6 +15,7 @@ headers.path   = $$INSTALLBASE/include/$${TARGET}
 INSTALLS       = target headers
 
 HEADERS += \
+	vigraqt_export.hxx \
 	qimageviewer.hxx \
 	overlayviewer.hxx \
 	fimageviewer.hxx \
