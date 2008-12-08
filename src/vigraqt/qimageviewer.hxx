@@ -171,6 +171,7 @@ public:
          * Map sub-pixel position in displayed image to position
          * relative to window.
          */
+    inline QPoint windowCoordinate(QPointF const &imagePoint) const;
     virtual QPoint windowCoordinate(double x, double y) const;
 
         /**
@@ -247,6 +248,11 @@ protected:
     QPoint  upperLeft_; // position of image origin in widget coordinates
     int     zoomLevel_;
 };
+
+QPoint QImageViewerBase::windowCoordinate(QPointF const & imagePoint) const
+{
+    return windowCoordinate(imagePoint.x(), imagePoint.y());
+}
 
 class VIGRAQT_EXPORT QImageViewer : public QImageViewerBase
 {
