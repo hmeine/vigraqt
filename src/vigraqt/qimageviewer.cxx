@@ -281,13 +281,14 @@ QRect QImageViewerBase::windowCoordinates(QRect const &imageRect) const
 
 void QImageViewerBase::setZoomLevel(int level)
 {
-    if(zoomLevel_ == level) return;
+    if(zoomLevel_ == level || level > 128)
+        return;
 
     // new width/height of entire zoomed image
     int newWidth = zoom(originalWidth(), level);
     int newHeight = zoom(originalHeight(), level);
 
-    if(newWidth < 4 || newHeight < 4)
+    if(newWidth < 16 || newHeight < 16)
         return;
 
     // zoom on center of window
