@@ -1,13 +1,13 @@
 include(../../VigraQt.pri)
 
-!win32 { # hack: disable OpenGL on Windows
+!win* { # hack: disable OpenGL on Windows
 	CONFIG += opengl
 	QT     += opengl
 }
 
 TEMPLATE     = lib
-INCLUDEPATH += $$system( vigra-config --cppflags | sed "s,-I,,g" )
 TARGET       = VigraQt
+!win*:INCLUDEPATH += $$system( vigra-config --cppflags | sed "s,-I,,g" )
 DEFINES     += MAKE_VIGRAQT_LIB
 
 target.path    = $$INSTALLBASE/$${libdir_name}

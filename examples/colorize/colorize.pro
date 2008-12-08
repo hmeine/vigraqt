@@ -15,8 +15,11 @@ SOURCES    = colorize.cxx main.cxx
 } else {
 # FIXME: on Windows, we cannot use scripts or pkg-config in order
 # to find library paths - what would be a good solution?
-	INCLUDEPATH += c:\vigra\include
-	LIBS        += -Lc:\vigra\lib -lvigraimpex
+	VIGRA_ROOT = c:\vigra
+	INCLUDEPATH += $${VIGRA_ROOT}\include
+#	LIBS        += -L$${VIGRA_ROOT}\lib -lvigraimpex
+	LIBS        += $${VIGRA_ROOT}\lib\libvigraimpex.dll.a # CMake
+#	LIBS        += $${VIGRA_ROOT}\lib\vigraimpex.dll.lib  # MSVC
 
 	INCLUDEPATH += ../../src
 	LIBS        += -L../../src/vigraqt/release -lVigraQt0
