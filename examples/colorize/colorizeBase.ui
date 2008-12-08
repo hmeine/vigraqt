@@ -2,21 +2,20 @@
  <author>Hans Meine &lt;hans_meine@gmx.net></author>
  <class>Colorize</class>
  <widget class="QMainWindow" name="Colorize" >
-  <property name="geometry" >
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>305</width>
-    <height>269</height>
-   </rect>
-  </property>
   <property name="windowTitle" >
    <string>Colorize</string>
   </property>
   <widget class="QWidget" name="widget" >
    <layout class="QVBoxLayout" >
     <item>
-     <widget class="QImageViewer" name="imageViewer" />
+     <widget class="QImageViewer" name="imageViewer" >
+      <property name="frameShape" >
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow" >
+       <enum>QFrame::Sunken</enum>
+      </property>
+     </widget>
     </item>
     <item>
      <widget class="ColorMapEditor" name="cme" />
@@ -65,7 +64,7 @@
  <customwidgets>
   <customwidget>
    <class>QImageViewer</class>
-   <extends>QWidget</extends>
+   <extends>QFrame</extends>
    <header>VigraQt/qimageviewer.hxx</header>
   </customwidget>
   <customwidget>

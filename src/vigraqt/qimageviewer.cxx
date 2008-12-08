@@ -42,7 +42,7 @@
 /****************************************************************/
 
 QImageViewerBase::QImageViewerBase(QWidget *parent)
-: QWidget(parent),
+: QFrame(parent),
   inSlideState_(false),
   pendingCentering_(true),
   pendingAutoZoom_(false),
@@ -51,7 +51,6 @@ QImageViewerBase::QImageViewerBase(QWidget *parent)
 {
     setMouseTracking(true);
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-    setAttribute(Qt::WA_NoSystemBackground, true);
     setFocusPolicy(Qt::StrongFocus);
     setCrosshairCursor();
 }
@@ -556,7 +555,7 @@ void QImageViewerBase::showEvent(QShowEvent *e)
         autoZoom(minAutoZoom_, maxAutoZoom_);
         pendingAutoZoom_ = false;
     }
-    return QWidget::showEvent(e);
+    return QFrame::showEvent(e);
 }
 
 /********************************************************************/
@@ -572,6 +571,7 @@ QImageViewer::QImageViewer(QWidget *parent)
 : QImageViewerBase(parent)
 {
     connect(this, SIGNAL(zoomLevelChanged(int)), SLOT(createDrawingPixmap()));
+    setBackgroundRole(QPalette::Dark);
 }
 
 void QImageViewer::setImage(QImage const &image, bool retainView)
@@ -751,11 +751,14 @@ void QImageViewer::paintEvent(QPaintEvent *e)
     if(!isVisible())
         return;
 
-    QRect r= e->rect();
+    QFrame::paintEvent(e);
+
+    QRect r = e->rect();
 
     QPainter p;
     p.begin(this);
-    paintImage(p,r);
+    p.fillRect(r & contentsRect(), palette().brush(backgroundRole()));
+    paintImage(p, r);
     p.end();
 }
 
@@ -779,7 +782,10 @@ void QImageViewer::paintImage(QPainter &p, const QRect &r)
         QSize(zoom(drawROI.width(), zoomLevel_),
               zoom(drawROI.height(), zoomLevel_)));
 
+    p.save();
+    p.setClipRect(r & contentsRect());
     p.drawPixmap(windowCoordinate(drawROI.topLeft()), drawingPixmap_, sourceRect);
+    p.restore();
 }
 
 

@@ -27,6 +27,7 @@
 #define IMAGEVIEWER_HXX
 
 #include "vigraqt_export.hxx"
+#include <QFrame>
 #include <QImage>
 #include <QKeyEvent>
 #include <QMouseEvent>
@@ -34,7 +35,6 @@
 #include <QPainter>
 #include <QPixmap>
 #include <QResizeEvent>
-#include <QWidget>
 
 /**
  * Image viewer base class managing coordinate transforms and user
@@ -48,7 +48,7 @@
  *
  * TODO: describe user interaction
  */
-class VIGRAQT_EXPORT QImageViewerBase : public QWidget
+class VIGRAQT_EXPORT QImageViewerBase : public QFrame
 {
     Q_OBJECT
 
@@ -275,7 +275,7 @@ protected:
         // return ROI of originalImage_ which should be buffered in
         // drawingPixmap_
     QRect cachedImageROI();
-    
+
         // zoom originalImage_ from pixel pos (left, top) into dest
         // to a *target* size of (w, h)
     virtual void zoomImage(int left, int top,
