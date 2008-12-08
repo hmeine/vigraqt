@@ -47,6 +47,7 @@ signals:
 protected:
     static int zoom(int, int);
 
+    virtual void checkImagePosition();
     virtual void setCrosshairCursor();
 
     virtual void mouseMoveEvent(QMouseEvent *);

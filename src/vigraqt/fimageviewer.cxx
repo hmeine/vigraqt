@@ -1,7 +1,6 @@
 #include "fimageviewer.hxx"
 #include "qimageviewer.hxx"
-
-#include <vigraqimage.hxx>
+#include "vigraqimage.hxx"
 
 #include <vigra/inspectimage.hxx>
 #include <vigra/copyimage.hxx>
