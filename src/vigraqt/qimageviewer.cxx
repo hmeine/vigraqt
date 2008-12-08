@@ -71,6 +71,7 @@ void QImageViewerBase::setImage(QImage const &image, bool retainView)
     {
         upperLeft_ -= QPoint(zoom(sizeDiff.width()/2, zoomLevel_),
                              zoom(sizeDiff.height()/2, zoomLevel_));
+        checkImagePosition();
     }
     else
     {
@@ -297,6 +298,8 @@ void QImageViewerBase::setZoomLevel(int level)
 
     zoomLevel_ = level;
 
+    checkImagePosition();
+
     updateGeometry();
 
     emit zoomLevelChanged(zoomLevel_);
@@ -332,7 +335,31 @@ void QImageViewerBase::zoomDown()
 
 void QImageViewerBase::slideBy(QPoint const & diff)
 {
-    upperLeft_ += diff; // FIXME: confined range
+    upperLeft_ += diff;
+    checkImagePosition();
+}
+
+/********************************************************************/
+/*                                                                  */
+/*                        checkImagePosition                        */
+/*                                                                  */
+/********************************************************************/
+
+void QImageViewerBase::checkImagePosition()
+{
+    QPoint maxUpperLeft(contentsRect().center());
+    QPoint minUpperLeft(contentsRect().center()
+                        - QPoint(zoomedWidth() - 1, zoomedHeight() - 1));
+
+    if(upperLeft_.x() < minUpperLeft.x())
+        upperLeft_.setX(minUpperLeft.x());
+    else if(upperLeft_.x() >= maxUpperLeft.x())
+        upperLeft_.setX(maxUpperLeft.x());
+
+    if(upperLeft_.y() < minUpperLeft.y())
+        upperLeft_.setY(minUpperLeft.y());
+    else if(upperLeft_.y() >= maxUpperLeft.y())
+        upperLeft_.setY(maxUpperLeft.y());
 }
 
 /****************************************************************/
@@ -534,6 +561,7 @@ void QImageViewerBase::resizeEvent(QResizeEvent *e)
 {
     upperLeft_.rx() += (width() - e->oldSize().width()) / 2;
     upperLeft_.ry() += (height() - e->oldSize().height()) / 2;
+    checkImagePosition();
 }
 
 /****************************************************************/

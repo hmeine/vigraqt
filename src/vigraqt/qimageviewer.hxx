@@ -230,6 +230,7 @@ protected:
     inline static double zoomF(double value, int level)
         { return (level >= 0) ? (value * (level+1)) : (value / (-level+1)); }
 
+    virtual void checkImagePosition();
     virtual void setCrosshairCursor();
 
     virtual void mouseMoveEvent(QMouseEvent *e);
