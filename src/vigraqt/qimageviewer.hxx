@@ -272,20 +272,22 @@ protected slots:
     virtual void createDrawingPixmap();
 
 protected:
-    virtual void updateZoomedPixmap(int xoffset, int yoffset);
+        // return ROI of originalImage_ which should be buffered in
+        // drawingPixmap_
+    QRect cachedImageROI();
+    
+        // zoom originalImage_ from pixel pos (left, top) into dest
+        // to a *target* size of (w, h)
     virtual void zoomImage(int left, int top,
                            QImage & dest, int w, int h);
 
     virtual void paintEvent(QPaintEvent *);
     virtual void paintImage(QPainter &p, const QRect &r);
 
-    /// draw helper functions
-    virtual void drawPixmap(QPainter &p, const QRect &r);
-    virtual void drawZoomedPixmap(QPainter &p, const QRect &r);
-
     virtual void resizeEvent(QResizeEvent *e);
 
     QPixmap drawingPixmap_;
+    QRect drawingPixmapDomain_;
 };
 
 #endif /* IMAGEVIEWER_HXX */

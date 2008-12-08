@@ -584,52 +584,38 @@ void QImageViewer::updateROI(QImage const &roiImage, QPoint const &upperLeft)
 {
     QImageViewerBase::updateROI(roiImage, upperLeft);
 
-    if(zoomLevel_ == 0)
-    {
-        QPixmap replacement = QPixmap::fromImage(roiImage);
-        QPainter painter(&drawingPixmap_);
-        painter.drawPixmap(upperLeft, replacement);
+    QRect updateRect(
+        drawingPixmapDomain_                  // cached image region
+        & QRect(upperLeft, roiImage.size())); // intersected with given ROI;
 
-        update(windowCoordinates(QRect(upperLeft, roiImage.size())));
-    }
-    else
-    {
-        // handle case of zoomLevel >> 0, when ROI will be MUCH larger
-        // than visible portion of image and thus drawingPixmap_:
-        QRect updateRect(
-            imageCoordinates(QRect(0, 0, width(), height())) // visible region
-            & QRect(upperLeft, roiImage.size())); // intersected with given ROI;
+    if(updateRect.isEmpty())
+        return;
 
-        if(updateRect.isEmpty())
-            return;
+    // width/height of zoomed ROI
+    int newWidth = zoom(updateRect.width(), zoomLevel_);
+    int newHeight = zoom(updateRect.height(), zoomLevel_);
 
-        // width/height of zoomed ROI
-        int newWidth = zoom(updateRect.width(), zoomLevel_);
-        int newHeight = zoom(updateRect.height(), zoomLevel_);
+    if(newWidth <= 0 || newHeight <= 0)
+        return;
 
-        // upper left of zoomed ROI
-        int xn = zoom(updateRect.left(), zoomLevel_);
-        int yn = zoom(updateRect.top(), zoomLevel_);
+    // allocate zoomed image
+    QImage zoomed(newWidth, newHeight, originalImage_.format());
+    zoomed.setNumColors(originalImage_.numColors());
+    for(int i=0; i<originalImage_.numColors(); ++i)
+        zoomed.setColor(i, originalImage_.color(i));
 
-        if(newWidth <= 0 || newHeight <= 0)
-            return;
+    // fill zoomed image
+    zoomImage(updateRect.left(), updateRect.top(), zoomed, newWidth, newHeight);
 
-        // allocate zoomed image
-        QImage zoomed(newWidth, newHeight, originalImage_.format());
-        zoomed.setNumColors(originalImage_.numColors());
-        for(int i=0; i<originalImage_.numColors(); ++i)
-            zoomed.setColor(i, originalImage_.color(i));
+    // put image into drawingPixmap_
+    QPainter p(&drawingPixmap_);
+    p.drawImage(
+        QPoint(zoom(updateRect.left() - drawingPixmapDomain_.left(), zoomLevel_),
+               zoom(updateRect.top()  - drawingPixmapDomain_.top(),  zoomLevel_)),
+        zoomed);
+    p.end();
 
-        // fill zoomed image
-        zoomImage(xn, yn, zoomed, newWidth, newHeight);
-
-        // put image into drawingPixmap_
-        QPainter p(&drawingPixmap_);
-        p.drawImage(windowCoordinate(updateRect.topLeft()), zoomed);
-        p.end();
-
-        update(windowCoordinates(updateRect));
-    }
+    update(windowCoordinates(updateRect));
 }
 
 /****************************************************************/
@@ -641,8 +627,12 @@ void QImageViewer::updateROI(QImage const &roiImage, QPoint const &upperLeft)
 void QImageViewer::slideBy(QPoint const & diff)
 {
     QImageViewerBase::slideBy(diff);
-    if(zoomLevel_ != 0)
-        updateZoomedPixmap(diff.x(), diff.y());
+
+    QRect needed(imageCoordinates(contentsRect()) &
+                 QRect(QPoint(0, 0), originalImage_.size()));
+    if(!drawingPixmapDomain_.contains(needed))
+        // TODO: re-use existing zoomed part!?
+        createDrawingPixmap();
     update();
 }
 
@@ -655,146 +645,57 @@ void QImageViewer::slideBy(QPoint const & diff)
 
 void QImageViewer::createDrawingPixmap()
 {
-    if(zoomLevel_ == 0)
-    {
-        drawingPixmap_ = QPixmap::fromImage(originalImage_);
-        update();
+    if(originalImage_.isNull())
         return;
-    }
 
-    drawingPixmap_ = QPixmap(size());
+    QRect r = cachedImageROI();
 
-    // offset between upper left of visible rectangle and entire image
-    int dx = std::max(-upperLeft_.x(), 0);
-    int dy = std::max(-upperLeft_.y(), 0);
+    if(r.isEmpty())
+        return;
 
-    // offset between upper left of visible rectangle and window
-    int x0 = std::max(upperLeft_.x(), 0);
-    int y0 = std::max(upperLeft_.y(), 0);
+    QImage zoomed(zoom(r.width(), zoomLevel_),
+                  zoom(r.height(), zoomLevel_),
+                  originalImage_.format());
 
-    // width/height of visible rectangle
-    int wp = (upperLeft_.x() + zoomedWidth() > width()) ? width() - x0 : zoomedWidth() - dx;
-    int hp = (upperLeft_.y() + zoomedHeight() > height()) ? height() - y0 : zoomedHeight() - dy;
+    zoomed.setNumColors(originalImage_.numColors());
+    for(int i=0; i<originalImage_.numColors(); ++i)
+        zoomed.setColor(i, originalImage_.color(i));
 
-    if(wp > 0 && hp > 0)
-    {
-        QImage zoomed(wp, hp, originalImage_.format());
-        zoomed.setNumColors(originalImage_.numColors());
-        for(int i=0; i<originalImage_.numColors(); ++i)
-            zoomed.setColor(i, originalImage_.color(i));
+    zoomImage(r.left(), r.top(), zoomed, zoomed.width(), zoomed.height());
 
-        zoomImage(dx, dy, zoomed, wp, hp);
-
-        QPainter p;
-        p.begin(&drawingPixmap_);
-        p.fillRect(0, 0, width(), height(),
-                   palette().brush(backgroundRole()));
-        p.drawImage(x0, y0, zoomed);
-        p.end();
-    }
+    drawingPixmap_ = QPixmap::fromImage(zoomed);
+    drawingPixmapDomain_ = r;
 
     update();
 }
 
-/****************************************************************/
-/*                                                              */
-/*                        updateZoomedPixmap                    */
-/*                                                              */
-/****************************************************************/
 
-void QImageViewer::updateZoomedPixmap(int xoffset, int yoffset)
+/********************************************************************/
+/*                                                                  */
+/*                          cachedImageROI                          */
+/*                                                                  */
+/********************************************************************/
+
+QRect QImageViewer::cachedImageROI()
 {
-    if(zoomLevel_ == 0)
-        return;
-
-    QPainter p;
-    p.begin(&drawingPixmap_);
-
-    // move pixmap contents to new location
-    // FIXME: source and target pixmap must not be the same (at least
-    // not on Windows)
-    p.drawPixmap(QPoint(xoffset, yoffset),
-                 drawingPixmap_, QRect(0, 0, width(), height()));
-
-    // fill out newly visible parts
-
-    // offset between upper left of visible rectangle and entire image
-    int dx = (upperLeft_.x() < 0) ? -upperLeft_.x() : 0;
-    int dy = (upperLeft_.y() < 0) ? -upperLeft_.y() : 0;
-
-    // offset between upper left of visible rectangle and window
-    int x0 = (upperLeft_.x() < 0) ? 0 : upperLeft_.x();
-    int y0 = (upperLeft_.y() < 0) ? 0 : upperLeft_.y();
-
-    // width/height of visible rectangle
-    int wp = (upperLeft_.x() + zoomedWidth() > width()) ? width() - x0 : zoomedWidth() - dx;
-    int hp = (upperLeft_.y() + zoomedHeight() > height()) ? height() - y0 : zoomedHeight() - dy;
-
-    // offset between lower right of visible rectangle and window
-    int dx1 = width() - x0 - wp;
-    int dy1 = height() - y0 - hp;
-
-    if(xoffset > 0)
+    if(originalImage_.isNull())
     {
-        p.fillRect(0, 0, xoffset, height(),
-                   palette().brush(backgroundRole()));
-    }
-    else if(xoffset < 0)
-    {
-        p.fillRect(width()+xoffset, 0, -xoffset, height(),
-                   palette().brush(backgroundRole()));
-    }
-    if(yoffset > 0)
-    {
-        p.fillRect(0, 0, width(), yoffset,
-                   palette().brush(backgroundRole()));
-    }
-    else if(yoffset < 0)
-    {
-        p.fillRect(0, height()+yoffset, width(), -yoffset,
-                   palette().brush(backgroundRole()));
+        qWarning("cachedImageROI called with no image set!");
+        return QRect();
     }
 
-    if(wp > 0 && hp > 0)
-    {
-        QImage zoomed(wp, hp, originalImage_.format());
-        zoomed.setNumColors(originalImage_.numColors());
-        for(int i=0; i<originalImage_.numColors(); ++i)
-            zoomed.setColor(i, originalImage_.color(i));
+    QRect
+        cr(contentsRect()),
+        result(imageCoordinates(cr));
 
-        if(xoffset > 0 && x0 < xoffset)
-        {
-            int wa = xoffset - x0;
+    result.adjust(-zoom(cr.width()  / 2, -zoomLevel_),
+                  -zoom(cr.height() / 2, -zoomLevel_),
+                  +zoom(cr.width()  / 2, -zoomLevel_),
+                  +zoom(cr.height() / 2, -zoomLevel_));
 
-            zoomImage(dx, dy, zoomed, wa, hp);
-            p.drawImage(x0, y0, zoomed, 0, 0, wa, hp);
-        }
-        else if(xoffset < 0 && dx1 < -xoffset)
-        {
-            int wa = -xoffset - dx1;
-            int dxa = dx + wp - wa;
+    result &= QRect(QPoint(0, 0), originalImage_.size());
 
-            zoomImage(dxa, dy, zoomed, wa, hp);
-            p.drawImage(x0 + wp - wa, y0, zoomed, 0, 0, wa, hp);
-        }
-        if(yoffset > 0 && y0 < yoffset)
-        {
-            int ha = yoffset - y0;
-
-            zoomImage(dx, dy, zoomed, wp, ha);
-            p.drawImage(x0, y0, zoomed, 0, 0, wp, ha);
-        }
-        else if(yoffset < 0 && dy1 < -yoffset)
-        {
-            int ha = -yoffset - dy1;
-            int dya = dy + hp - ha;
-
-            zoomImage(dx, dya, zoomed, wp, ha);
-            p.drawImage(x0, y0 + hp - ha, zoomed, 0, 0, wp, ha);
-        }
-    }
-
-    p.end();
+    return result;
 }
 
 
@@ -810,14 +711,14 @@ void QImageViewer::zoomImage(int left, int top, QImage & dest, int w, int h)
     {
         for(int y=0; y<h; ++y)
         {
-            int yy = zoom(y + top, -zoomLevel_);
+            int yy = top + zoom(y, -zoomLevel_);
 
             uchar * d = dest.scanLine(y);
             uchar * s = originalImage_.scanLine(yy);
 
             for(int x=0; x<w; ++x)
             {
-                d[x] = s[zoom(left + x, -zoomLevel_)];
+                d[x] = s[left + zoom(x, -zoomLevel_)];
             }
         }
     }
@@ -825,18 +726,19 @@ void QImageViewer::zoomImage(int left, int top, QImage & dest, int w, int h)
     {
         for(int y=0; y<h; ++y)
         {
-            int yy = zoom(y + top, -zoomLevel_);
+            int yy = top + zoom(y, -zoomLevel_);
 
             QRgb * d = (QRgb *)dest.scanLine(y);
             QRgb * s = (QRgb *)originalImage_.scanLine(yy);
 
             for(int x=0; x<w; ++x)
             {
-                d[x] = s[zoom(left + x, -zoomLevel_)];
+                d[x] = s[left + zoom(x, -zoomLevel_)];
             }
         }
     }
 }
+
 
 /****************************************************************/
 /*                                                              */
@@ -857,6 +759,7 @@ void QImageViewer::paintEvent(QPaintEvent *e)
     p.end();
 }
 
+
 /****************************************************************/
 /*                                                              */
 /*                           paintImage                         */
@@ -865,56 +768,20 @@ void QImageViewer::paintEvent(QPaintEvent *e)
 
 void QImageViewer::paintImage(QPainter &p, const QRect &r)
 {
-    if(zoomLevel_ == 0)
-        drawPixmap(p, r);
-    else
-        drawZoomedPixmap(p, r);
+    if(originalImage_.isNull())
+        return;
+
+    QRect drawROI(imageCoordinates(r));
+
+    QRect sourceRect(
+        QPoint(zoom(drawROI.left() - drawingPixmapDomain_.left(), zoomLevel_),
+               zoom(drawROI.top()  - drawingPixmapDomain_.top(),  zoomLevel_)),
+        QSize(zoom(drawROI.width(), zoomLevel_),
+              zoom(drawROI.height(), zoomLevel_)));
+
+    p.drawPixmap(windowCoordinate(drawROI.topLeft()), drawingPixmap_, sourceRect);
 }
 
-/****************************************************************/
-/*                                                              */
-/*                          drawPixmap                          */
-/*                                                              */
-/****************************************************************/
-
-void QImageViewer::drawPixmap(QPainter &p, const QRect &r)
-{
-    int x = r.left();
-    int y = r.top();
-    int w = r.width();
-    int h = r.height();
-
-    int x0 = upperLeft_.x();
-    int y0 = upperLeft_.y();
-    int x1 = x0 + drawingPixmap_.width();
-    int y1 = y0 + drawingPixmap_.height();
-
-    if(x < x0)
-        p.fillRect(x, y, x0-x, h, palette().brush(backgroundRole()));
-    if(y < y0)
-        p.fillRect(x, y, w, y0-y, palette().brush(backgroundRole()));
-    if(x+w > x1)
-        p.fillRect(x1, y, x + w - x1, h, palette().brush(backgroundRole()));
-    if(y+h > y1)
-        p.fillRect(x, y1, w, y + h - y1, palette().brush(backgroundRole()));
-
-    p.drawPixmap(x, y, drawingPixmap_, x-x0, y-y0, w, h);
-}
-
-/****************************************************************/
-/*                                                              */
-/*                       drawZoomedPixmap                       */
-/*                                                              */
-/****************************************************************/
-
-void QImageViewer::drawZoomedPixmap(QPainter &p, const QRect &r)
-{
-    int x = r.left();
-    int y = r.top();
-    int w = r.width();
-    int h = r.height();
-    p.drawPixmap(x, y, drawingPixmap_, x, y, w, h);
-}
 
 /****************************************************************/
 /*                                                              */
@@ -926,6 +793,9 @@ void QImageViewer::resizeEvent(QResizeEvent *e)
 {
     QImageViewerBase::resizeEvent(e);
 
-    if(zoomLevel_ != 0)
+    QRect needed(imageCoordinates(contentsRect()) &
+                 QRect(QPoint(0, 0), originalImage_.size()));
+    if(!drawingPixmapDomain_.contains(needed))
+        // TODO: re-use existing part!?
         createDrawingPixmap();
 }
