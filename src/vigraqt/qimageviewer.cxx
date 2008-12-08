@@ -711,6 +711,8 @@ void QImageViewer::updateZoomedPixmap(int xoffset, int yoffset)
     p.begin(&drawingPixmap_);
 
     // move pixmap contents to new location
+    // FIXME: source and target pixmap must not be the same (at least
+    // not on Windows)
     p.drawPixmap(QPoint(xoffset, yoffset),
                  drawingPixmap_, QRect(0, 0, width(), height()));
 
