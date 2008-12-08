@@ -80,8 +80,8 @@ void QImageViewerBase::setImage(QImage const &image, bool retainView)
         if(isVisible())
         {
             pendingCentering_ = false;
-            upperLeft_ = QPoint(width() - zoomedWidth(),
-                                height() - zoomedHeight()) / 2;
+            upperLeft_ = contentsRect().center() -
+                         QPoint(zoomedWidth(), zoomedHeight()) / 2;
         }
 
         updateGeometry();
@@ -159,8 +159,8 @@ void QImageViewerBase::autoZoom(int minLevel, int maxLevel)
 
     int level = maxLevel;
     while(level > minLevel && (
-              zoom(originalWidth(), level) > width() ||
-              zoom(originalHeight(), level) > height()))
+              zoom(originalWidth(), level) > contentsRect().width() ||
+              zoom(originalHeight(), level) > contentsRect().height()))
         --level;
 
     setZoomLevel(level);
@@ -174,9 +174,11 @@ void QImageViewerBase::autoZoom(int minLevel, int maxLevel)
 
 QSize QImageViewerBase::sizeHint() const
 {
+    int ml = 0, mt = 0, mr = 0, mb = 0;
+    getContentsMargins(&ml, &mt, &mr, &mb);
     if(!zoomedWidth())
-        return QSize(256, 256);
-    return QSize(zoomedWidth(), zoomedHeight());
+        return QSize(ml+512+mr, mt+512+mb);
+    return QSize(ml+zoomedWidth()+mr, mt+zoomedHeight()+mb);
 }
 
 /********************************************************************/
@@ -289,12 +291,10 @@ void QImageViewerBase::setZoomLevel(int level)
         return;
 
     // zoom on center of window
-    QPoint windowCenter(width() / 2, height() / 2);
-    upperLeft_ = windowCenter +
-                 QPoint(zoom(zoom(upperLeft_.x() - windowCenter.x(),
-                                  - zoomLevel_), level),
-                        zoom(zoom(upperLeft_.y() - windowCenter.y(),
-                                  - zoomLevel_), level));
+    upperLeft_ -= contentsRect().center();
+    upperLeft_ = QPoint((int)zoomF(zoomF(upperLeft_.x(), -zoomLevel_), level),
+                        (int)zoomF(zoomF(upperLeft_.y(), -zoomLevel_), level));
+    upperLeft_ += contentsRect().center();
 
     zoomLevel_ = level;
 
@@ -333,7 +333,7 @@ void QImageViewerBase::zoomDown()
 
 void QImageViewerBase::slideBy(QPoint const & diff)
 {
-    upperLeft_ += diff;
+    upperLeft_ += diff; // FIXME: confined range
 }
 
 /****************************************************************/
@@ -547,8 +547,8 @@ void QImageViewerBase::showEvent(QShowEvent *e)
 {
     if(pendingCentering_ && !originalImage_.isNull())
     {
-        upperLeft_ = QPoint(width() - zoomedWidth(),
-                            height() - zoomedHeight()) / 2;
+        upperLeft_ = contentsRect().center() -
+                     QPoint(zoomedWidth(), zoomedHeight()) / 2;
         pendingCentering_ = false;
     }
     if(pendingAutoZoom_)
