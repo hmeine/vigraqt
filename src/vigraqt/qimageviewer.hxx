@@ -226,7 +226,9 @@ signals:
 
 protected:
     inline static int zoom(int value, int level)
-    { return (level >= 0) ? (value * (level+1)) : (value / (-level+1)); }
+        { return (level >= 0) ? (value * (level+1)) : (value / (-level+1)); }
+    inline static double zoomF(double value, int level)
+        { return (level >= 0) ? (value * (level+1)) : (value / (-level+1)); }
 
     virtual void setCrosshairCursor();
 
