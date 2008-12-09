@@ -89,7 +89,10 @@ makefile = pyqt4.QtOpenGLModuleMakefile(
 # for i in dir(makefile):
 # 	print i
 makefile.extra_include_dirs = [os.path.join("..", "vigraqt")]
-makefile.extra_libs         = ["VigraQt"]
+if sys.platform.startswith("win"):
+	makefile.extra_libs         = ["VigraQt0"]
+else:
+	makefile.extra_libs         = ["VigraQt"]
 makefile.extra_lib_dirs     = [os.path.join("..", "vigraqt")]
 makefile.generate()
 
