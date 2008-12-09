@@ -57,11 +57,15 @@ print "checking SIP/PyQt4 configuration..."
 import PyQt4.pyqtconfig as pyqt4
 config = pyqt4.Configuration()
 
+moddir = config.pyqt_mod_dir
+if moddir.endswith("PyQt4"):
+	moddir = moddir[:-6]
+
 op = OptionParser(usage = "python %prog [options]")
 op.add_option("-m", "--moddir", action = "store",
-			  dest = "moddir", default = config.pyqt_mod_dir,
+			  dest = "moddir", default = moddir,
 			  help = "install directory for the python module (default %r)"
-			  % config.pyqt_mod_dir)
+			  % moddir)
 options, args = op.parse_args()
 
 buildfile = "VigraQt.sbf"
@@ -75,6 +79,8 @@ if ec:
 	sys.exit(ec)
 
 manage_cache()
+
+print "\nthe target directory for module installation will be:\n  %s\n" % options.moddir
 
 print "generating Makefile..."
 makefile = pyqt4.QtOpenGLModuleMakefile(
