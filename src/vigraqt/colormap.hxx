@@ -37,14 +37,14 @@ class VIGRAQT_EXPORT ColorMap
 
     virtual ~ColorMap();
 
-    void setDomain(ArgumentType min, ArgumentType max);
+    virtual void setDomain(ArgumentType min, ArgumentType max) = 0;
 
     virtual ArgumentType domainMin() const = 0;
 
     virtual ArgumentType domainMax() const = 0;
 
     virtual Color operator()(ArgumentType v) const = 0;
-    
+
         /**
          * Accessor API - makes it possible to write scalar data into
          * target color image using the color map as accessor.
@@ -59,6 +59,14 @@ inline void ColorMap::set(ArgumentType v, ITERATOR it) const
     *it = operator()(v);
 }
 
-VIGRAQT_EXPORT ColorMap *createCM();
+enum BuiltinColorMap
+{
+    CMGray,
+    CMLinearGray = CMGray,
+    CMFire,
+    CMFireNegativeBlue,
+};
+
+VIGRAQT_EXPORT ColorMap *createColorMap(BuiltinColorMap cm);
 
 #endif // COLORMAP_HXX
