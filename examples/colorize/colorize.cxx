@@ -26,7 +26,7 @@ struct ColorizePrivate
 {
     OriginalImage                originalImage;
     vigra::FindMinMax<PixelType> minmax;
-    ColorMap                    *cm;
+    LinearColorMap              *cm;
     ImageCaption                *imageCaption;
     double                       gamma;
     QTimer                      *displayTimer;
@@ -37,7 +37,7 @@ Colorize::Colorize(QWidget *parent)
   p(new ColorizePrivate)
 {
 	setupUi(this);
-    p->cm = createCM();
+    p->cm = static_cast<LinearColorMap *>(createCM());
     cme->setColorMap(p->cm);
     connect(cme, SIGNAL(colorMapChanged()), SLOT(updateDisplay()));
     p->imageCaption = NULL;

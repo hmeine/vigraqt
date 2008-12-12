@@ -32,7 +32,7 @@ ColorMapEditor::ColorMapEditor(QWidget *parent)
 	setMouseTracking(true);
 }
 
-void ColorMapEditor::setColorMap(ColorMap *cm)
+void ColorMapEditor::setColorMap(LinearColorMap *cm)
 {
 	cm_ = cm;
 	setEnabled(cm_ != NULL);
@@ -111,7 +111,7 @@ void ColorMapEditor::mousePressEvent(QMouseEvent *e)
 	cmBackup_ = *cm_;
 	dragStartX_ = dragPrevX_ = e->pos().x();
 	selectIndex_ = -1; // this will be [un]selected if no dragging occured
-	ColorMap::TransitionIterator it = findTriangle(e->pos());
+	LinearColorMap::TransitionIterator it = findTriangle(e->pos());
 	if(it.inRange())
 	{
 		if(e->modifiers() & Qt::ControlModifier)
@@ -229,7 +229,7 @@ void ColorMapEditor::mouseDoubleClickEvent(QMouseEvent *e)
 		return;
 	}
 
-	ColorMap::TransitionIterator it = findTriangle(e->pos());
+	LinearColorMap::TransitionIterator it = findTriangle(e->pos());
 	if(it.inRange())
 	{
 		editColor(editIndex(it, e->pos().x()));
@@ -248,7 +248,7 @@ void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 	if(!isEnabled() || !cm_)
 		return;
 
-	ColorMap::TransitionIterator it = findTriangle(e->pos());
+	LinearColorMap::TransitionIterator it = findTriangle(e->pos());
 	if(it.inRange())
 	{
 		unsigned int i = editIndex(it, e->pos().x());
@@ -383,16 +383,16 @@ void ColorMapEditor::updateDomain()
 		selected_.resize(0);
 }
 
-ColorMap::TransitionIterator ColorMapEditor::findTriangle(const QPoint &pos) const
+LinearColorMap::TransitionIterator ColorMapEditor::findTriangle(const QPoint &pos) const
 {
-	ColorMap::TransitionIterator result(cm_->transitionsEnd());
+	LinearColorMap::TransitionIterator result(cm_->transitionsEnd());
 
 	if(pos.y() > height()-1 - yMargin ||
 	   pos.y() < height()-1 - yMargin - triangleHeight)
 		return result;
 
 	int bestDist = 0;
-	for(ColorMap::TransitionIterator it = cm_->transitionsBegin();
+	for(LinearColorMap::TransitionIterator it = cm_->transitionsBegin();
 		it.inRange(); ++it)
 	{
 		int dist = abs(value2X(it.domainPosition()) - pos.x());
@@ -407,7 +407,7 @@ ColorMap::TransitionIterator ColorMapEditor::findTriangle(const QPoint &pos) con
 }
 
 unsigned int ColorMapEditor::editIndex(
-	const ColorMap::TransitionIterator &it, int x) const
+	const LinearColorMap::TransitionIterator &it, int x) const
 {
 	if(it.isStepTransition() &&
 	   x > value2X(it.domainPosition()))
@@ -429,7 +429,7 @@ bool ColorMapEditor::tip(const QPoint &p, QRect *r, QString *s)
 	if(!cm_)
 		return false;
 
-	ColorMap::TransitionIterator it = findTriangle(p);
+	LinearColorMap::TransitionIterator it = findTriangle(p);
 	if(it.inRange())
 	{
 		unsigned int i = editIndex(it, p.x());
@@ -486,7 +486,7 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 	pen.setJoinStyle(Qt::RoundJoin);
 	p.setPen(pen);
 	int prevPos = -triangleWidth;
-	for(ColorMap::TransitionIterator it = cm_->transitionsBegin();
+	for(LinearColorMap::TransitionIterator it = cm_->transitionsBegin();
 		it.inRange(); ++it)
 	{
 		int trianglePos = value2X(it.domainPosition());

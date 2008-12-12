@@ -24,6 +24,7 @@ HEADERS += \
 	qrgbvalue.hxx \
 	createqimage.hxx \
 	colormap.hxx \
+	linear_colormap.hxx \
 	cmeditor.hxx
 
 headers.files = $$HEADERS
@@ -34,6 +35,7 @@ SOURCES += \
 	fimageviewer.cxx \
 	imagecaption.cxx \
 	colormap.cxx \
+	linear_colormap.cxx \
 	cmeditor.cxx
 
 CONFIG(opengl) {
