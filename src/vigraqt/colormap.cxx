@@ -4,6 +4,66 @@ ColorMap::~ColorMap()
 {
 }
 
+/********************************************************************/
+
+class EnhancedGrayMap : public ColorMap
+{
+  public:
+    void setDomain(ArgumentType min, ArgumentType max);
+
+    ArgumentType domainMin() const;
+
+    ArgumentType domainMax() const;
+
+    Color operator()(ArgumentType v) const;
+
+  private:
+    ArgumentType min_, range_;
+};
+
+void EnhancedGrayMap::setDomain(
+    ColorMap::ArgumentType min, ColorMap::ArgumentType max)
+{
+    min_ = min;
+    range_ = max - min;
+}
+
+ColorMap::ArgumentType EnhancedGrayMap::domainMin() const
+{
+    return min_;
+}
+
+ColorMap::ArgumentType EnhancedGrayMap::domainMax() const
+{
+    return min_ + range_;
+}
+
+ColorMap::Color EnhancedGrayMap::operator()(ArgumentType v) const
+{
+    v = 255 * (v - min_) / range_;
+    unsigned char base = (unsigned char)v;
+    v -= base;
+    ColorMap::Color result(base);
+    if(v > 0.59)
+    {
+        v -= 0.59;
+        ++result[1];
+    }
+    if(v > 0.3)
+    {
+        v -= 0.3;
+        ++result[0];
+    }
+    if(v > 0.11)
+    {
+        v -= 0.11;
+        ++result[2];
+    }
+    return result;
+}
+
+/********************************************************************/
+
 class FireMap : public LinearColorMap
 {
 public:
@@ -44,6 +104,9 @@ ColorMap *createColorMap(BuiltinColorMap cm)
     ColorMap *result = NULL;
     switch(cm)
     {
+      case CMGray:
+          result = new EnhancedGrayMap();
+          break;
       case CMLinearGray:
           result = new GrayMap();
           break;
