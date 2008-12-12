@@ -39,9 +39,21 @@ public:
 	}
 };
 
-ColorMap *createCM()
+ColorMap *createColorMap(BuiltinColorMap cm)
 {
-	LinearColorMap *result = new FireMap(); // GrayMap
+    ColorMap *result = NULL;
+    switch(cm)
+    {
+      case CMLinearGray:
+          result = new GrayMap();
+          break;
+      case CMFire:
+          result = new FireMap();
+          break;
+      case CMFireNegativeBlue:
+          result = new NegMap();
+          break;
+    }
 	result->setDomain(0.0, 1.0);
 	return result;
 }
