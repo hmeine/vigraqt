@@ -35,6 +35,9 @@ class VIGRAQT_EXPORT ColorMap
     typedef vigra::RGBValue<unsigned char> Color;
     typedef float ArgumentType;
 
+    typedef ArgumentType argument_type;
+    typedef Color result_type;
+
     virtual ~ColorMap();
 
     virtual void setDomain(ArgumentType min, ArgumentType max) = 0;
@@ -62,7 +65,7 @@ inline void ColorMap::set(ArgumentType v, ITERATOR it) const
 enum BuiltinColorMap
 {
     CMGray,
-    CMLinearGray = CMGray,
+    CMLinearGray,
     CMFire,
     CMFireNegativeBlue,
 };

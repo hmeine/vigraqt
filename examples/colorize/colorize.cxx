@@ -26,7 +26,7 @@ struct ColorizePrivate
 {
     OriginalImage                originalImage;
     vigra::FindMinMax<PixelType> minmax;
-    LinearColorMap              *cm;
+    ColorMap                    *cm;
     ImageCaption                *imageCaption;
     double                       gamma;
     QTimer                      *displayTimer;
@@ -37,8 +37,8 @@ Colorize::Colorize(QWidget *parent)
   p(new ColorizePrivate)
 {
 	setupUi(this);
-    p->cm = static_cast<LinearColorMap *>(createColorMap(CMFire));
-    cme->setColorMap(p->cm);
+    p->cm = createColorMap(CMFire);
+    cme->setColorMap(dynamic_cast<LinearColorMap *>(p->cm));
     connect(cme, SIGNAL(colorMapChanged()), SLOT(updateDisplay()));
     p->imageCaption = NULL;
     p->gamma = 1.0;
@@ -89,6 +89,28 @@ void Colorize::updateDisplay()
     p->displayTimer->start(100);
 }
 
+class GammaAndColorMap
+ : public std::unary_function<PixelType, ColorMap::result_type>
+{
+  private:
+    vigra::GammaFunctor<PixelType> gamma_;
+    const ColorMap &cm_;
+
+  public:
+    GammaAndColorMap(double gamma, PixelType min, PixelType max,
+                     const ColorMap *cm)
+    : gamma_(gamma, min, max),
+      cm_(*cm)
+    {
+    }
+
+    ColorMap::result_type
+    operator()(const PixelType& v) const
+    {
+        return cm_(gamma_(v));
+    }
+};
+
 void Colorize::computeDisplay()
 {
     vigra::QRGBImage displayImage(p->originalImage.size());
@@ -96,9 +118,9 @@ void Colorize::computeDisplay()
 //     copyImage(srcImageRange(p->originalImage),
 //               destImage(displayImage, *p->cm));
     transformImage(srcImageRange(p->originalImage),
-                   destImage(displayImage, *p->cm),
-                   vigra::GammaFunctor<PixelType>(
-                       p->gamma, p->minmax.min, p->minmax.max));
+                   destImage(displayImage),
+                   GammaAndColorMap(
+                       p->gamma, p->minmax.min, p->minmax.max, p->cm));
 
     imageViewer->setImage(displayImage.qImage());
 }
