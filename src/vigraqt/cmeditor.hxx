@@ -26,7 +26,7 @@
 #ifndef CMEDITOR_HXX
 #define CMEDITOR_HXX
 
-#include "colormap.hxx"
+#include "linear_colormap.hxx"
 #include "vigraqt_export.hxx"
 
 #include <QContextMenuEvent>
@@ -47,7 +47,7 @@ class VIGRAQT_EXPORT ColorMapEditor : public QWidget
 
 public:
 	ColorMapEditor(QWidget *parent);
-	void setColorMap(ColorMap *cm);
+	void setColorMap(LinearColorMap *cm);
 
 	virtual QSize sizeHint() const;
 
@@ -77,8 +77,8 @@ protected:
 	int value2X(double value) const;
 
 	void updateDomain();
-	ColorMap::TransitionIterator findTriangle(const QPoint &pos) const;
-	unsigned int editIndex(const ColorMap::TransitionIterator &it, int x) const;
+	LinearColorMap::TransitionIterator findTriangle(const QPoint &pos) const;
+	unsigned int editIndex(const LinearColorMap::TransitionIterator &it, int x) const;
 	QRect triangleBounds(unsigned int i) const;
 	bool tip(const QPoint &p, QRect *r, QString *s);
 
@@ -88,7 +88,7 @@ protected:
 	virtual void paintEvent(QPaintEvent *e);
 	virtual void resizeEvent(QResizeEvent *e);
 
-	ColorMap *cm_, cmBackup_;
+	LinearColorMap *cm_, cmBackup_;
 
 	// dynamic layout values:
 	QRect gradientRect_;
