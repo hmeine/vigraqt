@@ -59,7 +59,7 @@ protected:
 	virtual bool tip(const QPoint &p, QRect *r, QString *s);
 
 	// layout constants:
-	enum { xMargin = 10, yMargin = 2, triangleWidth = 12, triangleHeight = 12 };
+	enum { xMargin = 10, yMargin = 2 };
 
 	virtual void paintEvent(QPaintEvent *e);
 	virtual void resizeEvent(QResizeEvent *e);

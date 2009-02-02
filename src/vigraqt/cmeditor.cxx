@@ -26,6 +26,13 @@ ColorMapEditor::ColorMapEditor(QWidget *parent)
 	setAcceptDrops(true);
 	setEnabled(false);
 	setMouseTracking(true);
+
+	setMinimumHeight(minimumHeight() + triangleHeight - 1);
+	{
+		int l, t, r, b;
+		getContentsMargins(&l, &t, &r, &b);
+		setContentsMargins(l, t, r, b + triangleHeight - 1);
+	}
 }
 
 void ColorMapEditor::editColor(unsigned int i)
