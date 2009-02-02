@@ -12,13 +12,12 @@ ColorMapGradient::ColorMapGradient(QWidget *parent)
 : QFrame(parent),
   cm_(NULL)
 {
-	setMinimumSize(2*xMargin + 80, 2*yMargin + 8 + triangleHeight);
+	setMinimumSize(2*xMargin + 80, 2*yMargin + 16);
 	setAttribute(Qt::WA_NoSystemBackground, true);
 	setFrameStyle(QFrame::StyledPanel);
 	setFrameShadow(QFrame::Sunken);
 
-	setContentsMargins(xMargin, yMargin,
-					   xMargin, yMargin + triangleHeight - 1);
+	setContentsMargins(xMargin, yMargin, xMargin, yMargin);
 }
 
 void ColorMapGradient::setColorMap(ColorMap *cm)

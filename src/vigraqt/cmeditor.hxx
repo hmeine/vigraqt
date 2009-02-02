@@ -73,6 +73,9 @@ protected:
 
 	virtual void paintEvent(QPaintEvent *e);
 
+	// layout constants:
+	enum { triangleWidth = 12, triangleHeight = 12 };
+
 	LinearColorMap *lcm_, cmBackup_;
 
 	bool dragging_, changed_;
