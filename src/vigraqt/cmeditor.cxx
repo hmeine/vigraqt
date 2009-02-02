@@ -210,7 +210,7 @@ void ColorMapEditor::mouseDoubleClickEvent(QMouseEvent *e)
 		return;
 	}
 
-	if(gradientRect_.contains(e->pos()))
+	if(contentsRect().contains(e->pos()))
 	{
 		unsigned int newIndex = insert(x2Value(e->pos().x()));
 		editColor(newIndex);
@@ -258,7 +258,7 @@ void ColorMapEditor::contextMenuEvent(QContextMenuEvent *e)
 		return;
 	}
 
-	if(gradientRect_.contains(e->pos()))
+	if(contentsRect().contains(e->pos()))
 	{
 		double pos = x2Value(e->pos().x());
 		QMenu contextMenu(this);
@@ -312,9 +312,9 @@ void ColorMapEditor::dragMoveEvent(QDragMoveEvent *e)
 	if(!isEnabled() || !lcm_)
 		return;
 
-	if(gradientRect_.contains(e->pos()) && e->mimeData()->hasColor())
+	if(contentsRect().contains(e->pos()) && e->mimeData()->hasColor())
 	{
-		e->accept(gradientRect_);
+		e->accept(contentsRect());
 	}
 }
 
@@ -324,7 +324,7 @@ void ColorMapEditor::dropEvent(QDropEvent *e)
 		return;
 
 	QColor newColor;
-	if(gradientRect_.contains(e->pos()) && e->mimeData()->hasColor())
+	if(contentsRect().contains(e->pos()) && e->mimeData()->hasColor())
 	{
 		unsigned int newIndex = insert(x2Value(e->pos().x()), false);
 		lcm_->setColor(

@@ -67,7 +67,6 @@ protected:
 	ColorMap *cm_;
 
 	// dynamic layout values:
-	QRect gradientRect_;
 	double valueOffset_, valueScale_;
 };
 

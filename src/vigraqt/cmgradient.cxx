@@ -14,9 +14,11 @@ ColorMapGradient::ColorMapGradient(QWidget *parent)
 {
 	setMinimumSize(2*xMargin + 80, 2*yMargin + 8 + triangleHeight);
 	setAttribute(Qt::WA_NoSystemBackground, true);
-	gradientRect_.setTopLeft(QPoint(xMargin, yMargin));
 	setFrameStyle(QFrame::StyledPanel);
 	setFrameShadow(QFrame::Sunken);
+
+	setContentsMargins(xMargin, yMargin,
+					   xMargin, yMargin + triangleHeight - 1);
 }
 
 void ColorMapGradient::setColorMap(ColorMap *cm)
@@ -69,7 +71,7 @@ void ColorMapGradient::updateDomain()
 	{
 		valueOffset_ = cm_->domainMin();
 		valueScale_ = (cm_->domainMax() - cm_->domainMin()) /
-					  (gradientRect_.width() - 1);
+					  (contentsRect().width() - 1);
 	}
 }
 
@@ -78,10 +80,10 @@ bool ColorMapGradient::tip(const QPoint &p, QRect *r, QString *s)
 	if(!cm_)
 		return false;
 
-	if(gradientRect_.contains(p))
+	if(contentsRect().contains(p))
 	{
-		r->setCoords(p.x(), gradientRect_.top(),
-					 p.x(), gradientRect_.bottom());
+		r->setCoords(p.x(), contentsRect().top(),
+					 p.x(), contentsRect().bottom());
 		*s = QString::number(x2Value(p.x()));
 		return true;
 	}
@@ -99,28 +101,22 @@ void ColorMapGradient::paintEvent(QPaintEvent *e)
 
 	QPainter p(this);
 
-	// fill gradientRect_ with gradient and draw outline
-	for(int x = gradientRect_.left() - lineWidth();
-		x <= gradientRect_.right() + lineWidth(); ++x)
+	// fill contentsRect() with gradient
+	QRect cr(contentsRect());
+	cr.adjust(-lineWidth(), -lineWidth(), lineWidth(), lineWidth());
+	for(int x = cr.left(); x <= cr.right(); ++x)
 	{
 		p.setPen(v2qc((*cm_)(x2Value(x))));
-		p.drawLine(x, gradientRect_.top() - lineWidth(),
-				   x, gradientRect_.bottom() + lineWidth());
+		p.drawLine(x, cr.top(), x, cr.bottom());
 	}
 
+	// draw outline
 	drawFrame(&p);
 }
 
 void ColorMapGradient::resizeEvent(QResizeEvent *e)
 {
 	QFrame::resizeEvent(e);
-
-	gradientRect_.setBottomRight(
-		QPoint(width()-1 - xMargin, height()-1 - yMargin - triangleHeight + 2));
-
-	QRect frameRect(gradientRect_);
-	frameRect.adjust(-frameWidth(), -frameWidth(), frameWidth(), frameWidth());
-	setFrameRect(frameRect);
 
 	if(cm_)
 		updateDomain();
