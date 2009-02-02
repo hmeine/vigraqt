@@ -6,6 +6,8 @@
 #include <QPainter>
 #include <QToolTip>
 
+#include <math.h>
+
 using vigra::v2qc;
 
 ColorMapGradient::ColorMapGradient(QWidget *parent)
@@ -57,14 +59,19 @@ bool ColorMapGradient::event(QEvent *event)
 	return QFrame::event(event);
 }
 
-double ColorMapGradient::x2Value(int x) const
+double ColorMapGradient::x2Value(double x) const
 {
 	return valueOffset_ + valueScale_*(x - contentsRect().left());
 }
 
 int ColorMapGradient::value2X(double value) const
 {
-	return (int)(contentsRect().left() + (value - valueOffset_)/valueScale_ + 0.5);
+	return (int)round(contentsRect().left() + (value - valueOffset_)/valueScale_);
+}
+
+double ColorMapGradient::value2XF(double value) const
+{
+	return contentsRect().left() + (value - valueOffset_)/valueScale_;
 }
 
 void ColorMapGradient::updateDomain()

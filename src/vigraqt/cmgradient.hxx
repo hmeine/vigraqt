@@ -52,8 +52,9 @@ public slots:
 protected:
 	virtual bool event(QEvent *event);
 
-	double x2Value(int x) const;
+	double x2Value(double x) const;
 	int value2X(double value) const;
+	double value2XF(double value) const;
 
 	void updateDomain();
 	virtual bool tip(const QPoint &p, QRect *r, QString *s);

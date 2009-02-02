@@ -349,11 +349,11 @@ LinearColorMap::TransitionIterator ColorMapEditor::findTriangle(const QPoint &po
 	   pos.y() < contentsRect().bottom() + (triangleHeight - 1) - triangleHeight)
 		return result;
 
-	int bestDist = 0;
+	double bestDist = 0;
 	for(LinearColorMap::TransitionIterator it = lcm_->transitionsBegin();
 		it.inRange(); ++it)
 	{
-		int dist = abs(value2X(it.domainPosition()) - pos.x());
+		double dist = fabs(value2XF(it.domainPosition()) - pos.x());
 		if((result.atEnd() && dist < triangleWidth/2) || dist < bestDist)
 		{
 			bestDist = dist;
@@ -412,39 +412,41 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 
 	QPainter p(this);
 
-	QPolygon triangle(3);
-	triangle[0] = QPoint(-triangleWidth/2, triangleHeight);
-	triangle[1] = QPoint(0, 0);
-	triangle[2] = QPoint(triangle[0].x()+triangleWidth, triangleHeight);
-	triangle.translate(0, contentsRect().bottom() - 1);
+	QPolygonF triangle(3);
+	triangle[0] = QPointF(-triangleWidth/2, triangleHeight);
+	triangle[1] = QPointF(0, 0);
+	triangle[2] = QPointF(triangle[0].x()+triangleWidth, triangleHeight);
+	triangle.translate(0, contentsRect().bottom() - 1.5);
+
+    p.setRenderHint(QPainter::Antialiasing);
 
 	// draw filled triangles:
-	QPen pen(Qt::black, 1);
+	QPen pen(Qt::black, 0.8);
 	pen.setJoinStyle(Qt::RoundJoin);
 	p.setPen(pen);
-	int prevPos = -triangleWidth;
+	double prevPos = -triangleWidth;
 	for(LinearColorMap::TransitionIterator it = lcm_->transitionsBegin();
 		it.inRange(); ++it)
 	{
-		int trianglePos = value2X(it.domainPosition());
+		double trianglePos = value2XF(it.domainPosition());
 		triangle.translate(trianglePos - triangle[1].x(), 0);
 
-		int midPos = (prevPos + trianglePos)/2;
-		QRect cr(midPos, 0, width(), height());
+		double midPos = (prevPos + trianglePos)/2;
+		QRect cr((int)midPos, 0, width(), height()); // FIXME: sub-pixel clipping?
 		if(it.isStepTransition())
-			cr.setRight(trianglePos);
+			cr.setRight((int)trianglePos);
 		p.setClipRect(cr);
 
 		p.setBrush(v2qc(it.leftColor()));
 		if(selected_[it.firstIndex()])
 		{
-			pen.setWidth(2);
+			pen.setWidthF(1.8);
 			p.setPen(pen);
 		}
 		p.drawPolygon(triangle);
 		if(selected_[it.firstIndex()])
 		{
-			pen.setWidth(1);
+			pen.setWidthF(0.8);
 			p.setPen(pen);
 		}
 
@@ -452,18 +454,18 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 
 		if(it.isStepTransition())
 		{
-			p.setClipRect(QRect(trianglePos, 0, width(), height()));
+			p.setClipRect(QRect((int)trianglePos, 0, width(), height()));
 
 			p.setBrush(v2qc(it.rightColor()));
 			if(selected_[it.lastIndex()])
 			{
-				pen.setWidth(2);
+				pen.setWidthF(1.8);
 				p.setPen(pen);
 			}
 			p.drawPolygon(triangle);
 			if(selected_[it.lastIndex()])
 			{
-				pen.setWidth(1);
+				pen.setWidthF(0.8);
 				p.setPen(pen);
 			}
 		}
