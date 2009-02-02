@@ -113,6 +113,9 @@ class GammaAndColorMap
 
 void Colorize::computeDisplay()
 {
+    if(!p->imageCaption) // HACK: no image loaded yet?
+        return;
+
     vigra::QRGBImage displayImage(p->originalImage.size());
 
 //     copyImage(srcImageRange(p->originalImage),
