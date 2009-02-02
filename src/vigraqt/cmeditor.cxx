@@ -345,8 +345,8 @@ LinearColorMap::TransitionIterator ColorMapEditor::findTriangle(const QPoint &po
 {
 	LinearColorMap::TransitionIterator result(lcm_->transitionsEnd());
 
-	if(pos.y() > height()-1 - yMargin ||
-	   pos.y() < height()-1 - yMargin - triangleHeight)
+	if(pos.y() > contentsRect().bottom() + (triangleHeight - 1) ||
+	   pos.y() < contentsRect().bottom() + (triangleHeight - 1) - triangleHeight)
 		return result;
 
 	int bestDist = 0;
@@ -375,7 +375,7 @@ unsigned int ColorMapEditor::editIndex(
 
 QRect ColorMapEditor::triangleBounds(unsigned int i) const
 {
-	QRect result(-triangleWidth/2, height()-1 - yMargin,
+	QRect result(-triangleWidth/2, contentsRect().bottom() + (triangleHeight - 1),
 				 triangleWidth, triangleHeight);
 	result.translate(value2X(lcm_->domainPosition(i)),
 					 -triangleHeight);
@@ -390,7 +390,7 @@ bool ColorMapEditor::tip(const QPoint &p, QRect *r, QString *s)
 		if(it.inRange())
 		{
 			unsigned int i = editIndex(it, p.x());
-			
+
 			*r = triangleBounds(i);
 			*s = QString("Transition point %1 of %2\nPosition: %3\nColor: %4")
 				 .arg(i+1).arg(lcm_->size())
@@ -413,9 +413,10 @@ void ColorMapEditor::paintEvent(QPaintEvent *e)
 	QPainter p(this);
 
 	QPolygon triangle(3);
-	triangle[0] = QPoint(-triangleWidth/2, height()-1 - yMargin);
-	triangle[1] = QPoint(0, height()-1 - yMargin - triangleHeight);
-	triangle[2] = QPoint(triangle[0].x()+triangleWidth, height()-1 - yMargin);
+	triangle[0] = QPoint(-triangleWidth/2, triangleHeight);
+	triangle[1] = QPoint(0, 0);
+	triangle[2] = QPoint(triangle[0].x()+triangleWidth, triangleHeight);
+	triangle.translate(0, contentsRect().bottom() - 1);
 
 	// draw filled triangles:
 	QPen pen(Qt::black, 1);

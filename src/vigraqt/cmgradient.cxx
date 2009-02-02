@@ -12,6 +12,9 @@ ColorMapGradient::ColorMapGradient(QWidget *parent)
 : QFrame(parent),
   cm_(NULL)
 {
+	// layout constants:
+	enum { xMargin = 10, yMargin = 2 };
+
 	setMinimumSize(2*xMargin + 80, 2*yMargin + 16);
 	setAttribute(Qt::WA_NoSystemBackground, true);
 	setFrameStyle(QFrame::StyledPanel);
@@ -56,12 +59,12 @@ bool ColorMapGradient::event(QEvent *event)
 
 double ColorMapGradient::x2Value(int x) const
 {
-	return valueOffset_ + valueScale_*(x - xMargin);
+	return valueOffset_ + valueScale_*(x - contentsRect().left());
 }
 
 int ColorMapGradient::value2X(double value) const
 {
-	return (int)(xMargin + (value - valueOffset_)/valueScale_ + 0.5);
+	return (int)(contentsRect().left() + (value - valueOffset_)/valueScale_ + 0.5);
 }
 
 void ColorMapGradient::updateDomain()
