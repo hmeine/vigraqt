@@ -5,10 +5,11 @@ include(../../VigraQt.pri)
 	QT     += opengl
 }
 
-TEMPLATE     = lib
-TARGET       = VigraQt
+TEMPLATE           = lib
+CONFIG            += warn_on release
+TARGET             = VigraQt
 !win*:INCLUDEPATH += $$system( vigra-config --cppflags | sed "s,-I,,g" )
-DEFINES     += MAKE_VIGRAQT_LIB
+DEFINES           += MAKE_VIGRAQT_LIB
 
 target.path    = $$INSTALLBASE/$${libdir_name}
 headers.path   = $$INSTALLBASE/include/$${TARGET}
