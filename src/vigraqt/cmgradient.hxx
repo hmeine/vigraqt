@@ -29,14 +29,14 @@
 #include "colormap.hxx"
 #include "vigraqt_export.hxx"
 
-#include <QWidget>
+#include <QFrame>
 
 #include <vector>
 
 class QPaintEvent;
 class QResizeEvent;
 
-class VIGRAQT_EXPORT ColorMapGradient : public QWidget
+class VIGRAQT_EXPORT ColorMapGradient : public QFrame
 {
 	Q_OBJECT
 

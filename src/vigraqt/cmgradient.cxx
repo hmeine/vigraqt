@@ -9,12 +9,14 @@
 using vigra::v2qc;
 
 ColorMapGradient::ColorMapGradient(QWidget *parent)
-: QWidget(parent),
+: QFrame(parent),
   cm_(NULL)
 {
 	setMinimumSize(2*xMargin + 80, 2*yMargin + 8 + triangleHeight);
 	setAttribute(Qt::WA_NoSystemBackground, true);
 	gradientRect_.setTopLeft(QPoint(xMargin, yMargin));
+	setFrameStyle(QFrame::StyledPanel);
+	setFrameShadow(QFrame::Sunken);
 }
 
 void ColorMapGradient::setColorMap(ColorMap *cm)
@@ -48,7 +50,7 @@ bool ColorMapGradient::event(QEvent *event)
 		else
 			QToolTip::hideText();
 	}
-	return QWidget::event(event);
+	return QFrame::event(event);
 }
 
 double ColorMapGradient::x2Value(int x) const
@@ -98,24 +100,27 @@ void ColorMapGradient::paintEvent(QPaintEvent *e)
 	QPainter p(this);
 
 	// fill gradientRect_ with gradient and draw outline
-	for(int x = gradientRect_.left(); x <= gradientRect_.right(); ++x)
+	for(int x = gradientRect_.left() - lineWidth();
+		x <= gradientRect_.right() + lineWidth(); ++x)
 	{
 		p.setPen(v2qc((*cm_)(x2Value(x))));
-		p.drawLine(x, gradientRect_.top(), x, gradientRect_.bottom());
+		p.drawLine(x, gradientRect_.top() - lineWidth(),
+				   x, gradientRect_.bottom() + lineWidth());
 	}
-	QRect gradOutline(gradientRect_);
-	// line width 0 draws inside at top/left, outside at bottom/right:
-	gradOutline.adjust(-1, -1, 0, 0);
-	p.setPen(Qt::black);
-	p.drawRect(gradOutline);
+
+	drawFrame(&p);
 }
 
 void ColorMapGradient::resizeEvent(QResizeEvent *e)
 {
-	QWidget::resizeEvent(e);
+	QFrame::resizeEvent(e);
 
 	gradientRect_.setBottomRight(
 		QPoint(width()-1 - xMargin, height()-1 - yMargin - triangleHeight + 2));
+
+	QRect frameRect(gradientRect_);
+	frameRect.adjust(-frameWidth(), -frameWidth(), frameWidth(), frameWidth());
+	setFrameRect(frameRect);
 
 	if(cm_)
 		updateDomain();
