@@ -64,8 +64,8 @@ inline void ColorMap::set(ArgumentType v, ITERATOR it) const
 
 enum BuiltinColorMap
 {
-    CMGray,
-    CMLinearGray,
+    CMGray, // enhanced gray map (uses color variations of gray)
+    CMLinearGray, // LinearColorMap instance w/ black..white gradient
     CMFire,
     CMFireNegativeBlue,
 };

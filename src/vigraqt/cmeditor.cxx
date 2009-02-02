@@ -12,9 +12,6 @@
 #include <QMouseEvent>
 #include <QPaintEvent>
 #include <QPainter>
-#include <QPixmap>
-#include <QResizeEvent>
-#include <QToolTip>
 #include <QWidget>
 
 using vigra::q2v;
@@ -380,20 +377,20 @@ QRect ColorMapEditor::triangleBounds(unsigned int i) const
 
 bool ColorMapEditor::tip(const QPoint &p, QRect *r, QString *s)
 {
-	if(!lcm_)
-		return false;
-
-	LinearColorMap::TransitionIterator it = findTriangle(p);
-	if(it.inRange())
+	if(lcm_)
 	{
-		unsigned int i = editIndex(it, p.x());
-
-		*r = triangleBounds(i);
-		*s = QString("Transition point %1 of %2\nPosition: %3\nColor: %4")
-			.arg(i+1).arg(lcm_->size())
-			.arg(lcm_->domainPosition(i))
-			.arg(v2qc(lcm_->color(i)).name());
-		return true;
+		LinearColorMap::TransitionIterator it = findTriangle(p);
+		if(it.inRange())
+		{
+			unsigned int i = editIndex(it, p.x());
+			
+			*r = triangleBounds(i);
+			*s = QString("Transition point %1 of %2\nPosition: %3\nColor: %4")
+				 .arg(i+1).arg(lcm_->size())
+				 .arg(lcm_->domainPosition(i))
+				 .arg(v2qc(lcm_->color(i)).name());
+			return true;
+		}
 	}
 
 	return ColorMapGradient::tip(p, r, s);

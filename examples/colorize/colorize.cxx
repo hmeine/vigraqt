@@ -37,8 +37,8 @@ Colorize::Colorize(QWidget *parent)
   p(new ColorizePrivate)
 {
 	setupUi(this);
-    p->cm = createColorMap(CMFire);
-    cme->setColorMap(dynamic_cast<LinearColorMap *>(p->cm));
+    p->cm = createColorMap(CMFire); // CMGray
+    cme->setColorMap(p->cm);
     connect(cme, SIGNAL(colorMapChanged()), SLOT(updateDisplay()));
     p->imageCaption = NULL;
     p->gamma = 1.0;
