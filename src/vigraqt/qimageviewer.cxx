@@ -780,14 +780,14 @@ void QImageViewer::paintEvent(QPaintEvent *e)
     if(!isVisible())
         return;
 
-    QFrame::paintEvent(e);
-
-    QRect r = e->rect();
+    QRect r = e->rect(), clearRect(contentsRect());
+    clearRect.adjust(-lineWidth(), -lineWidth(), lineWidth(), lineWidth());
 
     QPainter p;
     p.begin(this);
-    p.fillRect(r & contentsRect(), palette().brush(backgroundRole()));
+    p.fillRect(r & clearRect, palette().brush(backgroundRole()));
     paintImage(p, r);
+    drawFrame(&p);
     p.end();
 }
 
