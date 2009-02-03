@@ -6,6 +6,9 @@
 
 struct ColorizePrivate;
 
+class QDragEnterEvent;
+class QDropEvent;
+
 class Colorize : public QMainWindow, Ui::Colorize
 {
     Q_OBJECT
@@ -15,6 +18,10 @@ class Colorize : public QMainWindow, Ui::Colorize
 public:
     Colorize(QWidget *parent = NULL);
     void load(const char *filename);
+
+protected:
+	void dragEnterEvent(QDragEnterEvent *event);
+	void dropEvent(QDropEvent *event);
 
 public slots:
     void updateDisplay();
