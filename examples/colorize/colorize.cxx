@@ -6,11 +6,14 @@
 #include <VigraQt/qimageviewer.hxx>
 #include <VigraQt/imagecaption.hxx>
 
+#include <QDragEnterEvent>
+#include <QDropEvent>
 #include <QLayout>
 #include <QSlider>
 #include <QSpinBox>
 #include <QStatusBar>
 #include <QTimer>
+#include <QUrl>
 
 #include <vigra/impex.hxx>
 #include <vigra/inspectimage.hxx>
@@ -49,6 +52,8 @@ Colorize::Colorize(QWidget *parent)
     connect(gammaSlider, SIGNAL(valueChanged(int)),
             SLOT(gammaSliderChanged(int)));
     gammaSpinBox->hide();
+
+	setAcceptDrops(true);
 }
 
 void Colorize::load(const char *filename)
@@ -82,6 +87,44 @@ void Colorize::load(const char *filename)
             p->imageCaption, SLOT(update(int,int)));
     connect(p->imageCaption, SIGNAL(captionChanged(const QString&)),
             statusBar(), SLOT(message(const QString&)));
+}
+
+void Colorize::dragEnterEvent(QDragEnterEvent *event)
+{
+	const QMimeData *mimeData = event->mimeData();
+
+	if (mimeData->hasUrls())
+	{
+		QList<QUrl> urlList = mimeData->urls();
+
+		if(urlList.size() != 1)
+			return;
+        
+        QUrl url(urlList.at(0));
+        if(!url.isValid() || url.toLocalFile().isEmpty())
+            return;
+
+        event->acceptProposedAction();
+	}
+}
+
+void Colorize::dropEvent(QDropEvent *event)
+{
+	const QMimeData *mimeData = event->mimeData();
+
+	if (mimeData->hasUrls())
+	{
+		QList<QUrl> urlList = mimeData->urls();
+
+		if(urlList.size() != 1)
+			return;
+        
+        QUrl url(urlList.at(0));
+        if(!url.isValid() || url.toLocalFile().isEmpty())
+            return;
+
+        load(url.toLocalFile().toLocal8Bit());
+	}
 }
 
 void Colorize::updateDisplay()
