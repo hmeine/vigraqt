@@ -11,4 +11,4 @@ count(libdir_name, 0) {
 }
 
 # version (used for pkgconfig and library versioning)
-VERSION = 0.4.1
+VERSION = 0.5
