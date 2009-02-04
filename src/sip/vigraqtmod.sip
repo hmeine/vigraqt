@@ -8,4 +8,5 @@
 %Include qglimageviewer.sip
 %Include colormap.sip
 %Include cmgradient.sip
+%Include cmeditor.sip
 %Include wrapper.sip
