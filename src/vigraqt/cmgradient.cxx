@@ -18,7 +18,7 @@ ColorMapGradient::ColorMapGradient(QWidget *parent)
 	enum { xMargin = 10, yMargin = 2 };
 
 	setMinimumSize(2*xMargin + 80, 2*yMargin + 16);
-	setAttribute(Qt::WA_NoSystemBackground, true);
+    // setAttribute(Qt::WA_NoSystemBackground, true);
 	setFrameStyle(QFrame::StyledPanel);
 	setFrameShadow(QFrame::Sunken);
 
