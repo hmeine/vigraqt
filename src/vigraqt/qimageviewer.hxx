@@ -163,6 +163,12 @@ public:
     virtual QPoint imageCoordinate(QPoint const &windowPoint) const;
 
         /**
+         * Map position relative to window to sub-pixel position in
+         * displayed image.
+         */
+    virtual QPointF imageCoordinateF(QPoint const &windowPoint) const;
+
+        /**
          * Map position in displayed image to position relative to window.
          */
     virtual QPoint windowCoordinate(QPoint const &imagePoint) const;
@@ -183,6 +189,11 @@ public:
          * given windowRect.)
          */
     virtual QRect imageCoordinates(QRect const &windowRect) const;
+
+        /**
+         * Map range relative to window to range in displayed image.
+         */
+    virtual QRectF imageCoordinatesF(QRect const &windowRect) const;
 
         /**
          * Map range in displayed image to range relative to window.

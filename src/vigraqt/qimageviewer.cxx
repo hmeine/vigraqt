@@ -206,6 +206,13 @@ QPoint QImageViewerBase::imageCoordinate(QPoint const & windowPoint) const
                   zoom(windowPoint.y() - upperLeft_.y(), -zoomLevel_));
 }
 
+QPointF QImageViewerBase::imageCoordinateF(QPoint const &windowPoint) const
+{
+    return QPointF(
+        zoomF(windowPoint.x() - upperLeft_.x(), -zoomLevel_) - 0.5,
+        zoomF(windowPoint.y() - upperLeft_.y(), -zoomLevel_) - 0.5);
+}
+
 /****************************************************************/
 /*                                                              */
 /*                      windowCoordinate                        */
@@ -250,6 +257,12 @@ QRect QImageViewerBase::imageCoordinates(QRect const &windowRect) const
                      imageCoordinate(windowRect.bottomRight()
                                      + QPoint(1, 1)) - QPoint(1, 1));
     }
+}
+
+QRectF QImageViewerBase::imageCoordinatesF(QRect const &windowRect) const
+{
+    return QRectF(imageCoordinateF(windowRect.topLeft()),
+                  imageCoordinateF(windowRect.bottomRight()));
 }
 
 /********************************************************************/
