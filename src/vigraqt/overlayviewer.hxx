@@ -63,6 +63,41 @@ class VIGRAQT_EXPORT Overlay : public QObject
     OverlayViewer *viewer_;
 };
 
+/********************************************************************/
+
+class VIGRAQT_EXPORT ImageCursor : public Overlay
+{
+    Q_OBJECT
+
+  public:
+    ImageCursor(QObject* parent = 0);
+
+    inline QPoint position() const
+    {
+        return pos_; 
+    }
+    void setPosition(const QPoint &pos);
+
+    bool cursorOnImage() const;
+
+    virtual void draw(QPainter &p, const QRect &r);
+
+    void activateTool(bool active = true);
+
+    bool eventFilter(QObject *watched, QEvent *event);
+
+  signals:
+    void cursorOnImageChanged(bool onImage);
+    void positionChanged(const QPoint &pos);
+
+  protected:
+    QPoint pos_;
+    QColor color_;
+    bool mousePressed_;
+};
+
+/********************************************************************/
+
 class VIGRAQT_EXPORT EdgeOverlayBase : public Overlay
 {
   public:
