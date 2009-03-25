@@ -35,6 +35,7 @@
 #include <QPainter>
 #include <QPixmap>
 #include <QResizeEvent>
+#include <math.h>
 
 /**
  * Image viewer base class managing coordinate transforms and user
@@ -261,13 +262,22 @@ protected:
     virtual void showEvent(QShowEvent *e);
 
     QImage  originalImage_;
+    QPoint  upperLeft_; // position of image origin in widget coordinates
+    QPointF centerPixel_;
+    int     zoomLevel_;
+
+  private:
+    inline void computeUpperLeft()
+    {
+        upperLeft_ = contentsRect().center() -
+                     QPoint((int)round(zoomF(centerPixel_.x(), zoomLevel_)),
+                            (int)round(zoomF(centerPixel_.y(), zoomLevel_)));
+    }
+
     bool    inSlideState_;
-    bool    pendingCentering_;
     bool    pendingAutoZoom_;
     int     minAutoZoom_, maxAutoZoom_;
     QPoint  lastMousePosition_;
-    QPoint  upperLeft_; // position of image origin in widget coordinates
-    int     zoomLevel_;
 };
 
 QPoint QImageViewerBase::windowCoordinate(QPointF const & imagePoint) const

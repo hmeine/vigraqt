@@ -43,11 +43,10 @@
 
 QImageViewerBase::QImageViewerBase(QWidget *parent)
 : QFrame(parent),
-  inSlideState_(false),
-  pendingCentering_(true),
-  pendingAutoZoom_(false),
   upperLeft_(0, 0),
-  zoomLevel_(0)
+  zoomLevel_(0),
+  inSlideState_(false),
+  pendingAutoZoom_(false)
 {
     setMouseTracking(true);
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
@@ -71,18 +70,18 @@ void QImageViewerBase::setImage(QImage const &image, bool retainView)
     {
         upperLeft_ -= QPoint(zoom(sizeDiff.width()/2, zoomLevel_),
                              zoom(sizeDiff.height()/2, zoomLevel_));
+        centerPixel_ -= QPointF(sizeDiff.width() / 2.0,
+                                sizeDiff.height() / 2.0);
         checkImagePosition();
     }
     else
     {
         // reset zoom level and center visible region
         zoomLevel_ = 0;
+        centerPixel_ = QPointF(image.width() / 2.0,
+                               image.height() / 2.0);
         if(isVisible())
-        {
-            pendingCentering_ = false;
-            upperLeft_ = contentsRect().center() -
-                         QPoint(zoomedWidth(), zoomedHeight()) / 2;
-        }
+            computeUpperLeft();
 
         updateGeometry();
     }
@@ -304,13 +303,9 @@ void QImageViewerBase::setZoomLevel(int level)
     if(newWidth < 16 || newHeight < 16)
         return;
 
-    // zoom on center of window
-    upperLeft_ -= contentsRect().center();
-    upperLeft_ = QPoint((int)zoomF(zoomF(upperLeft_.x(), -zoomLevel_), level),
-                        (int)zoomF(zoomF(upperLeft_.y(), -zoomLevel_), level));
-    upperLeft_ += contentsRect().center();
-
     zoomLevel_ = level;
+
+    computeUpperLeft();
 
     checkImagePosition();
 
@@ -350,6 +345,8 @@ void QImageViewerBase::zoomDown()
 void QImageViewerBase::slideBy(QPoint const & diff)
 {
     upperLeft_ += diff;
+    centerPixel_ += QPointF(zoomF(-diff.x(), -zoomLevel_),
+                            zoomF(-diff.y(), -zoomLevel_));
     checkImagePosition();
 }
 
@@ -366,14 +363,26 @@ void QImageViewerBase::checkImagePosition()
                         - QPoint(zoomedWidth() - 1, zoomedHeight() - 1));
 
     if(upperLeft_.x() < minUpperLeft.x())
+    {
         upperLeft_.setX(minUpperLeft.x());
+        centerPixel_.setX(originalWidth() - 0.5);
+    }
     else if(upperLeft_.x() >= maxUpperLeft.x())
+    {
         upperLeft_.setX(maxUpperLeft.x());
+        centerPixel_.setX(-0.5);
+    }
 
     if(upperLeft_.y() < minUpperLeft.y())
+    {
         upperLeft_.setY(minUpperLeft.y());
+        centerPixel_.setY(originalHeight() - 0.5);
+    }
     else if(upperLeft_.y() >= maxUpperLeft.y())
+    {
         upperLeft_.setY(maxUpperLeft.y());
+        centerPixel_.setY(-0.5);
+    }
 }
 
 /****************************************************************/
@@ -573,8 +582,7 @@ void QImageViewerBase::keyPressEvent(QKeyEvent *e)
 
 void QImageViewerBase::resizeEvent(QResizeEvent *e)
 {
-    upperLeft_.rx() += (width() - e->oldSize().width()) / 2;
-    upperLeft_.ry() += (height() - e->oldSize().height()) / 2;
+    computeUpperLeft();
     checkImagePosition();
 }
 
@@ -586,12 +594,7 @@ void QImageViewerBase::resizeEvent(QResizeEvent *e)
 
 void QImageViewerBase::showEvent(QShowEvent *e)
 {
-    if(pendingCentering_ && !originalImage_.isNull())
-    {
-        upperLeft_ = contentsRect().center() -
-                     QPoint(zoomedWidth(), zoomedHeight()) / 2;
-        pendingCentering_ = false;
-    }
+    computeUpperLeft();
     if(pendingAutoZoom_)
     {
         autoZoom(minAutoZoom_, maxAutoZoom_);
