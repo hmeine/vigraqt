@@ -36,7 +36,9 @@ class ImageCursor(VigraQt.Overlay):
 		return self._pos
 
 	def setPosition(self, pos):
-		if pos != self._pos:
+		if pos != self._pos and \
+			   pos.x() >= 0 and pos.x() < self._viewer.originalWidth() and \
+			   pos.y() >= 0 and pos.y() < self._viewer.originalHeight():
 			self._pos = pos
 			self.emit(QtCore.SIGNAL("positionChanged(const QPoint&)"),
 					  pos)
