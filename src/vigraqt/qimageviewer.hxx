@@ -153,6 +153,13 @@ public:
         { return zoomLevel_; }
 
         /**
+         * Return multiplicative zoom factor (e.g. for QPainter::scale()).
+         * For instance, zoomFactor() == 1.0 iff zoomLevel() == 0.
+         */
+    inline qreal zoomFactor() const
+        { return zoomLevel() >= 0 ? 1 + zoomLevel() : 1./(1-zoomLevel()); }
+
+        /**
          * Position the pointer over the specified image pixel.
          */
     virtual void setCursorPos(QPoint const &imagePoint) const;
