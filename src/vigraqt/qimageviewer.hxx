@@ -139,6 +139,8 @@ public:
     QPoint upperLeft() const
         { return upperLeft_; }
 
+    void centerOn(const QPoint &centerPixel);
+
         /**
          * Returns the current zoom level.
          *

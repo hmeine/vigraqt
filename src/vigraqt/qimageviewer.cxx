@@ -165,6 +165,13 @@ void QImageViewerBase::autoZoom(int minLevel, int maxLevel)
     setZoomLevel(level);
 }
 
+void QImageViewerBase::centerOn(const QPoint &centerPixel)
+{
+    centerPixel_ = centerPixel;
+    computeUpperLeft();
+    update();
+}
+
 /****************************************************************/
 /*                                                              */
 /*                            sizeHint                          */
@@ -580,7 +587,7 @@ void QImageViewerBase::keyPressEvent(QKeyEvent *e)
 /*                                                              */
 /****************************************************************/
 
-void QImageViewerBase::resizeEvent(QResizeEvent *e)
+void QImageViewerBase::resizeEvent(QResizeEvent *)
 {
     computeUpperLeft();
     checkImagePosition();
