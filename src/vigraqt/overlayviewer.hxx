@@ -18,7 +18,7 @@ class Overlay;
 class VIGRAQT_EXPORT OverlayViewer : public QImageViewer
 {
   public:
-    OverlayViewer(QWidget* parent= 0);
+    OverlayViewer(QWidget* parent = 0);
 
     typedef std::vector<Overlay *> Overlays;
 
@@ -39,13 +39,24 @@ class VIGRAQT_EXPORT Overlay : public QObject
     Q_OBJECT
 
   public:
-    Overlay();
+    enum CoordiateSystem {
+        Widget = 0,
+        Scaled = 1, Unscaled = 2,
+        Pixel = 4, Grid = 8,
+        ScaledPixel = Scaled | Pixel,
+        UnscaledPixel = Unscaled | Pixel,
+        ScaledGrid = Scaled | Grid,
+        UnscaledGrid = Unscaled | Grid,
+    };
+
+    Overlay(QObject* parent = 0);
     virtual ~Overlay();
 
     virtual void draw(QPainter &, const QRect &) = 0;
+    virtual CoordiateSystem coordinateSystem() const;
 
   public slots:
-    virtual void setZoomLevel(int) = 0;
+    virtual void setZoomLevel(int);
 
   protected:
     friend class OverlayViewer;
