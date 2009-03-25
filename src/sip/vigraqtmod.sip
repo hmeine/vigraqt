@@ -6,6 +6,7 @@
 
 %Include qimageviewer.sip
 %Include qglimageviewer.sip
+%Include overlayviewer.sip
 %Include colormap.sip
 %Include cmgradient.sip
 %Include cmeditor.sip
