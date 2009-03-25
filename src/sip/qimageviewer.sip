@@ -22,13 +22,17 @@ public:
     virtual QSize sizeHint() const;
     QPoint upperLeft() const;
     int zoomLevel() const;
+    qreal zoomFactor() const;
 
     virtual void setCursorPos(const QPoint &) const;
 
     virtual QPoint imageCoordinate(const QPoint &) const;
+    virtual QPointF imageCoordinateF(const QPoint &) const;
     virtual QPoint windowCoordinate(const QPoint &) const;
-    virtual QPoint windowCoordinate(float, float) const;
+    QPoint windowCoordinate(const QPointF &) const;
+    virtual QPoint windowCoordinate(double, double) const;
     virtual QRect imageCoordinates(const QRect &) const;
+    virtual QRectF imageCoordinatesF(const QRect &) const;
     virtual QRect windowCoordinates(const QRect &) const;
 
 public slots:
