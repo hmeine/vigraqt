@@ -234,14 +234,9 @@ QPoint QImageViewerBase::windowCoordinate(QPoint const & imagePoint) const
 
 QPoint QImageViewerBase::windowCoordinate(double x, double y) const
 {
-    if(zoomLevel_ > 0)
-    {
-        return QPoint((int)(x * (zoomLevel_ + 1)),
-                      (int)(y * (zoomLevel_ + 1)))
-            + upperLeft_;
-    }
-    else
-        return windowCoordinate(QPoint((int)x, (int)y));
+    return QPoint((int)round(zoomF(x + 0.5, zoomLevel_)),
+                  (int)round(zoomF(y + 0.5, zoomLevel_)))
+        + upperLeft_;
 }
 
 /********************************************************************/
@@ -537,23 +532,20 @@ void QImageViewerBase::wheelEvent(QWheelEvent *e)
 
 void QImageViewerBase::keyPressEvent(QKeyEvent *e)
 {
-    // let the cursor keys jump a full pixel distance:
-    int moveOffsetSize = (zoomLevel_ > 0) ? zoomLevel_ + 1 : 1;
-
-    QPoint moveOffset(0, 0);
+    QPoint moveOffset;
     switch (e->key())
     {
     case Qt::Key_Right:
-        moveOffset = QPoint(moveOffsetSize, 0);
+        moveOffset = QPoint(1, 0);
         break;
     case Qt::Key_Left:
-        moveOffset = QPoint(-moveOffsetSize, 0);
+        moveOffset = QPoint(-1, 0);
         break;
     case Qt::Key_Down:
-        moveOffset = QPoint(0, moveOffsetSize);
+        moveOffset = QPoint(0, 1);
         break;
     case Qt::Key_Up:
-        moveOffset = QPoint(0, -moveOffsetSize);
+        moveOffset = QPoint(0, -1);
         break;
     case Qt::Key_Plus:
         zoomUp();
@@ -565,17 +557,18 @@ void QImageViewerBase::keyPressEvent(QKeyEvent *e)
         e->ignore();
     };
 
-    if(moveOffset.manhattanLength() > 0)
+    if(!moveOffset.isNull())
     {
         if(zoomLevel_ > 1)
-            // position cursor in middle of square pixel:
+        {
             QCursor::setPos(
-                mapToGlobal(((mapFromGlobal(QCursor::pos() + moveOffset)
-                              - upperLeft_)
-                             / moveOffsetSize)
-                            * moveOffsetSize
-                            + upperLeft_
-                            + QPoint(moveOffsetSize/2, moveOffsetSize/2)));
+                mapToGlobal(
+                    windowCoordinate(
+                        // position cursor in middle of square pixel:
+                        QPointF(
+                            imageCoordinate(mapFromGlobal(QCursor::pos()))
+                            + moveOffset))));
+        }
         else
             QCursor::setPos(QCursor::pos() + moveOffset);
     }
