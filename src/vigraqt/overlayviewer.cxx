@@ -202,7 +202,8 @@ bool ImageCursor::eventFilter(QObject *, QEvent *event)
       case QEvent::MouseButtonDblClick:
       {
           if(e->modifiers() != Qt::NoModifier ||
-             e->button() != Qt::LeftButton)
+             e->button() != Qt::LeftButton ||
+             !cursorOnImage())
               return false;
 
           //QPoint pos = viewer_->imageCoordinate(e->pos());
