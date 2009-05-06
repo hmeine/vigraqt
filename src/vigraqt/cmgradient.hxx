@@ -46,6 +46,12 @@ public:
 
 	virtual QSize sizeHint() const;
 
+	virtual void setDomain(ColorMap::ArgumentType min,
+						   ColorMap::ArgumentType max);
+
+	ColorMap::ArgumentType domainMin() const;
+	ColorMap::ArgumentType domainMax() const;
+
 public slots:
 	virtual void rereadColorMap();
 
@@ -64,6 +70,7 @@ protected:
 
 	ColorMap *cm_;
 
+	ColorMap::ArgumentType domainMin_, domainMax_;
 	// dynamic layout values:
 	double valueOffset_, valueScale_;
 };

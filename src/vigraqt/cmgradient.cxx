@@ -12,7 +12,9 @@ using vigra::v2qc;
 
 ColorMapGradient::ColorMapGradient(QWidget *parent)
 : QFrame(parent),
-  cm_(NULL)
+  cm_(NULL),
+  domainMin_(0),
+  domainMax_(1)
 {
 	// layout constants:
 	enum { xMargin = 10, yMargin = 2 };
@@ -37,9 +39,26 @@ QSize ColorMapGradient::sizeHint() const
 	return QSize(240, 33);
 }
 
+void ColorMapGradient::setDomain(ColorMap::ArgumentType min,
+								 ColorMap::ArgumentType max)
+{
+	domainMin_ = min;
+	domainMax_ = max;
+	updateDomain();
+}
+
+ColorMap::ArgumentType ColorMapGradient::domainMin() const
+{
+	return domainMin_;
+}
+
+ColorMap::ArgumentType ColorMapGradient::domainMax() const
+{
+	return domainMax_;
+}
+
 void ColorMapGradient::rereadColorMap()
 {
-	updateDomain();
 	update();
 }
 
@@ -78,8 +97,8 @@ void ColorMapGradient::updateDomain()
 {
 	if(cm_)
 	{
-		valueOffset_ = cm_->domainMin();
-		valueScale_ = (cm_->domainMax() - cm_->domainMin()) /
+		valueOffset_ = domainMin();
+		valueScale_ = (domainMax() - domainMin()) /
 					  (contentsRect().width() - 1);
 	}
 }
@@ -104,7 +123,7 @@ void ColorMapGradient::paintEvent(QPaintEvent *e)
 {
 	if(!cm_)
 	{
-		QWidget::paintEvent(e); // clear the widget
+		QFrame::paintEvent(e); // clear the widget
 		return;
 	}
 

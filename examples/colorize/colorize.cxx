@@ -79,6 +79,7 @@ void Colorize::load(const char *filename)
     vigra::inspectImage(srcImageRange(p->originalImage), p->minmax);
 
     p->cm->setDomain(p->minmax.min, p->minmax.max);
+    cme->setDomain(p->minmax.min, p->minmax.max);
 
     updateDisplay();
 

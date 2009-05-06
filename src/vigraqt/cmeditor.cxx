@@ -139,7 +139,34 @@ void ColorMapEditor::mouseMoveEvent(QMouseEvent *e)
 	*cm_ = cmBackup_;
 
 	bool changed = false;
-	// FIXME: skip outermost as long as we do not have our own domain
+
+    // 1) if the first or last triangle is moved, adapt the colormap's
+    // domain:
+
+    double cmDMin = cmBackup_.domainMin();
+    if(selected_[0])
+    {
+        cmDMin += valueScale_ * (e->pos().x() - dragStartX_);
+        if(cmDMin < domainMin())
+            cmDMin = domainMin();
+    }
+
+    double cmDMax = cmBackup_.domainMax();
+    if(selected_[lcm_->size() - 1])
+    {
+        cmDMax += valueScale_ * (e->pos().x() - dragStartX_);
+        if(cmDMax > domainMax())
+            cmDMax = domainMax();
+    }
+
+    if(cmDMin != lcm_->domainMin() || cmDMax != lcm_->domainMax())
+    {
+        lcm_->setDomain(cmDMin, cmDMax);
+        changed = true;
+    }
+
+    // 2) move selected inner triangles:
+
 	for(unsigned int i = 1; i < lcm_->size() - 1; ++i)
 	{
 		if(selected_[i])
@@ -147,10 +174,10 @@ void ColorMapEditor::mouseMoveEvent(QMouseEvent *e)
 			double newPos =
 				cmBackup_.domainPosition(i)
 				+ valueScale_ * (e->pos().x() - dragStartX_);
-			if(newPos < cm_->domainMin())
-				newPos = cm_->domainMin();
-			if(newPos > cm_->domainMax())
-				newPos = cm_->domainMax();
+			if(newPos < domainMin())
+				newPos = domainMin();
+			if(newPos > domainMax())
+				newPos = domainMax();
 			if(lcm_->domainPosition(i) != newPos)
 			{
 				lcm_->setDomainPosition(i, newPos);
