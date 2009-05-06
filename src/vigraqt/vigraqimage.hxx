@@ -30,7 +30,11 @@
 #include <vigra/diff2d.hxx>
 #include "qrgbvalue.hxx"
 
+#include <QColor>
 #include <QImage>
+#include <QPoint>
+#include <QRect>
+#include <QSize>
 
 namespace vigra {
 
