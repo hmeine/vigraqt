@@ -85,7 +85,7 @@ double ColorMapGradient::x2Value(double x) const
 
 int ColorMapGradient::value2X(double value) const
 {
-	return (int)round(contentsRect().left() + (value - valueOffset_)/valueScale_);
+	return qRound(contentsRect().left() + (value - valueOffset_)/valueScale_);
 }
 
 double ColorMapGradient::value2XF(double value) const

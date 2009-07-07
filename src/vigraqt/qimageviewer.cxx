@@ -234,8 +234,8 @@ QPoint QImageViewerBase::windowCoordinate(QPoint const & imagePoint) const
 
 QPoint QImageViewerBase::windowCoordinate(double x, double y) const
 {
-    return QPoint((int)round(zoomF(x + 0.5, zoomLevel_)),
-                  (int)round(zoomF(y + 0.5, zoomLevel_)))
+    return QPoint(qRound(zoomF(x + 0.5, zoomLevel_)),
+                  qRound(zoomF(y + 0.5, zoomLevel_)))
         + upperLeft_;
 }
 

@@ -272,8 +272,8 @@ protected:
     inline void computeUpperLeft()
     {
         upperLeft_ = contentsRect().center() -
-                     QPoint((int)round(zoomF(centerPixel_.x(), zoomLevel_)),
-                            (int)round(zoomF(centerPixel_.y(), zoomLevel_)));
+                     QPoint(qRound(zoomF(centerPixel_.x(), zoomLevel_)),
+                            qRound(zoomF(centerPixel_.y(), zoomLevel_)));
     }
 
     bool    inSlideState_;
