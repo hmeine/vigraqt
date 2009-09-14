@@ -74,7 +74,8 @@ void OverlayViewer::paintEvent(QPaintEvent *e)
 
 Overlay::Overlay(QObject* parent)
 : QObject(parent),
-  viewer_(NULL)
+  viewer_(NULL),
+  coordinateSystem_(ScaledPixel)
 {
 }
 
@@ -82,13 +83,18 @@ Overlay::~Overlay()
 {
 }
 
-Overlay::CoordiateSystem Overlay::coordinateSystem() const
+Overlay::CoordinateSystem Overlay::coordinateSystem() const
 {
-    return ScaledPixel;
+    return coordinateSystem_;
 }
 
 void Overlay::setZoomLevel(int)
 {
+}
+
+void Overlay::setCoordinateSystem(CoordinateSystem cs)
+{
+    coordinateSystem_ = cs;
 }
 
 /********************************************************************/

@@ -25,7 +25,7 @@ class Overlay : QObject
 %End
 
   public:
-    enum CoordiateSystem {
+    enum CoordinateSystem {
         Widget,
         Scaled, Unscaled,
         Pixel, Grid,
@@ -39,10 +39,13 @@ class Overlay : QObject
     virtual ~Overlay();
 
     virtual void draw(QPainter &, const QRect &) = 0;
-    virtual CoordiateSystem coordinateSystem() const;
+    virtual CoordinateSystem coordinateSystem() const;
 
   public slots:
     virtual void setZoomLevel(int);
+
+  protected:
+    void setCoordinateSystem(CoordinateSystem cs);
 };
 
 class ImageCursor : Overlay

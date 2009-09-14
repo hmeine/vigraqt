@@ -39,7 +39,7 @@ class VIGRAQT_EXPORT Overlay : public QObject
     Q_OBJECT
 
   public:
-    enum CoordiateSystem {
+    enum CoordinateSystem {
         Widget = 0,
         Scaled = 1, Unscaled = 2,
         Pixel = 4, Grid = 8,
@@ -53,14 +53,17 @@ class VIGRAQT_EXPORT Overlay : public QObject
     virtual ~Overlay();
 
     virtual void draw(QPainter &, const QRect &) = 0;
-    virtual CoordiateSystem coordinateSystem() const;
+    virtual CoordinateSystem coordinateSystem() const;
 
   public slots:
     virtual void setZoomLevel(int);
 
   protected:
+    void setCoordinateSystem(CoordinateSystem cs);
+
     friend class OverlayViewer;
     OverlayViewer *viewer_;
+    CoordinateSystem coordinateSystem_;
 };
 
 /********************************************************************/
@@ -74,7 +77,7 @@ class VIGRAQT_EXPORT ImageCursor : public Overlay
 
     inline QPoint position() const
     {
-        return pos_; 
+        return pos_;
     }
     void setPosition(const QPoint &pos);
 
