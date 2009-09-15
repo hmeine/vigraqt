@@ -691,7 +691,14 @@ void QImageViewer::slideBy(QPoint const & diff)
 void QImageViewer::createDrawingPixmap()
 {
     if(originalImage_.isNull())
+    {
+        if(!drawingPixmap_.isNull())
+        {
+            drawingPixmap_ = QPixmap();
+            update();
+        }
         return;
+    }
 
     QRect r = cachedImageROI();
 
