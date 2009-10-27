@@ -41,6 +41,12 @@ ColorMap::ArgumentType EnhancedGrayMap::domainMax() const
 ColorMap::Color EnhancedGrayMap::operator()(ArgumentType v) const
 {
     v = 255 * (v - min_) / range_;
+
+    if(v < 0)
+        return ColorMap::Color(0);
+    if(v >= 255)
+        return ColorMap::Color(255);
+
     unsigned char base = (unsigned char)v;
     v -= base;
     ColorMap::Color result(base);
