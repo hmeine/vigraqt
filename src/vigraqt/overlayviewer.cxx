@@ -103,7 +103,8 @@ ImageCursor::ImageCursor(QObject* parent)
 : Overlay(parent),
   pos_(-1, -1),
   color_(Qt::blue),
-  mousePressed_(false)
+  mousePressed_(false),
+  active_(false)
 {
 }
 
@@ -119,7 +120,10 @@ void ImageCursor::activateTool(bool active)
 {
     if(!viewer_)
         qFatal("cannot activateTool() before addOverlay() happened");
+    if(active == active_)
+        return;
 
+    active_ = active;
     if(active)
         viewer_->installEventFilter(this);
     else

@@ -68,6 +68,15 @@ class VIGRAQT_EXPORT Overlay : public QObject
 
 /********************************************************************/
 
+/**
+ * ImageCursor: A simple cross-hair cursor overlay.
+ *
+ * If position() is outside the image, the cursor will not be visible
+ * anymore.  Use activateTool() to activate interactive cursor
+ * positioning with the left mouse button.
+ *
+ * TODO: Configurable pen().
+ */
 class VIGRAQT_EXPORT ImageCursor : public Overlay
 {
     Q_OBJECT
@@ -81,6 +90,10 @@ class VIGRAQT_EXPORT ImageCursor : public Overlay
     }
     void setPosition(const QPoint &pos);
 
+        /**
+         * Return whether the cursor position is within the image,
+         * i.e. whether draw() will paint the cursor.
+         */
     bool cursorOnImage() const;
 
     virtual void draw(QPainter &p, const QRect &r);
@@ -96,7 +109,7 @@ class VIGRAQT_EXPORT ImageCursor : public Overlay
   protected:
     QPoint pos_;
     QColor color_;
-    bool mousePressed_;
+    bool mousePressed_, active_;
 };
 
 /********************************************************************/
