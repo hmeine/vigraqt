@@ -138,7 +138,7 @@ bool ImageCursor::cursorOnImage() const
 void ImageCursor::activateTool(bool active)
 {
     if(!viewer_)
-        qFatal("cannot activateTool() before addOverlay() happened");
+        qCritical("cannot activateTool() before addOverlay() happened");
     if(active == active_)
         return;
 
