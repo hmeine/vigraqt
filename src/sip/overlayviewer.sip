@@ -41,6 +41,9 @@ class Overlay : QObject
     virtual void draw(QPainter &, const QRect &) = 0;
     virtual CoordinateSystem coordinateSystem() const;
 
+    bool isVisible() const;
+    void setVisible(bool v);
+
   public slots:
     virtual void setZoomLevel(int);
 

@@ -20,7 +20,7 @@ class VIGRAQT_EXPORT OverlayViewer : public QImageViewer
   public:
     OverlayViewer(QWidget* parent = 0);
 
-    typedef std::vector<Overlay *> Overlays;
+    typedef QVector<Overlay *> Overlays;
 
     void addOverlay(Overlay *o);
     void removeOverlay(Overlay *o);
@@ -37,6 +37,7 @@ class VIGRAQT_EXPORT OverlayViewer : public QImageViewer
 class VIGRAQT_EXPORT Overlay : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool visible READ isVisible WRITE setVisible)
 
   public:
     enum CoordinateSystem {
@@ -52,18 +53,38 @@ class VIGRAQT_EXPORT Overlay : public QObject
     Overlay(QObject* parent = 0);
     virtual ~Overlay();
 
+        /**
+         * Implement this in subclasses to draw your overlay.  You may
+         * choose the coordinate system using setCoordinateSystem().
+         * draw() will only be called if visible() is true.  The
+         * painter's state is restored after every overlay.draw()
+         * call, so you don't have to care about that.
+         */
     virtual void draw(QPainter &, const QRect &) = 0;
     virtual CoordinateSystem coordinateSystem() const;
+
+        /**
+         * An overlay can be hidden by settings the visible() property
+         * to false.  OverlayViewer will not call draw() on hidden
+         * overlays.
+         */
+    bool isVisible() const;
+    void setVisible(bool v);
 
   public slots:
     virtual void setZoomLevel(int);
 
   protected:
+        /**
+         * Subclasses may choose which coordinate system should be set
+         * up when their draw() method gets called.
+         */
     void setCoordinateSystem(CoordinateSystem cs);
 
     friend class OverlayViewer;
     OverlayViewer *viewer_;
     CoordinateSystem coordinateSystem_;
+    bool visible_;
 };
 
 /********************************************************************/
@@ -75,7 +96,7 @@ class VIGRAQT_EXPORT Overlay : public QObject
  * anymore.  Use activateTool() to activate interactive cursor
  * positioning with the left mouse button.
  *
- * TODO: Configurable pen().
+ * TODO: setColor().
  */
 class VIGRAQT_EXPORT ImageCursor : public Overlay
 {

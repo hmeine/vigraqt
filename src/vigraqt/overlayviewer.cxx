@@ -36,19 +36,22 @@ void OverlayViewer::paintOverlays(QPainter &p, const QRect &r)
     QRect overlayRect(r);
     qreal scale = zoomFactor();
     overlayRect.translate(-upperLeft_.x(), -upperLeft_.y());
-    for(unsigned int i = 0; i < overlays_.size(); ++i)
+    foreach(Overlay *overlay, overlays_)
     {
+        if(!overlay->isVisible())
+            continue;
+
         p.save();
-        if(overlays_[i]->coordinateSystem() != Overlay::Widget)
+        if(overlay->coordinateSystem() != Overlay::Widget)
         {
             p.translate(upperLeft_.x(), upperLeft_.y());
-            if(overlays_[i]->coordinateSystem() & Overlay::Scaled)
+            if(overlay->coordinateSystem() & Overlay::Scaled)
                 p.scale(scale, scale);
-            if(overlays_[i]->coordinateSystem() & Overlay::Pixel)
+            if(overlay->coordinateSystem() & Overlay::Pixel)
                 p.translate(0.5, 0.5);
         }
         // FIXME: overlayRect does not depend on coordinateSystem() yet!!
-        overlays_[i]->draw(p, overlayRect);
+        overlay->draw(p, overlayRect);
         p.restore();
     }
     p.restore();
@@ -75,7 +78,8 @@ void OverlayViewer::paintEvent(QPaintEvent *e)
 Overlay::Overlay(QObject* parent)
 : QObject(parent),
   viewer_(NULL),
-  coordinateSystem_(ScaledPixel)
+  coordinateSystem_(ScaledPixel),
+  visible_(true)
 {
 }
 
@@ -86,6 +90,21 @@ Overlay::~Overlay()
 Overlay::CoordinateSystem Overlay::coordinateSystem() const
 {
     return coordinateSystem_;
+}
+
+bool Overlay::isVisible() const
+{
+    return visible_;
+}
+
+void Overlay::setVisible(bool v)
+{
+    if(v != visible_)
+    {
+        visible_ = v;
+        if(viewer_)
+            viewer_->update();
+    }
 }
 
 void Overlay::setZoomLevel(int)
