@@ -271,9 +271,13 @@ protected:
   private:
     inline void computeUpperLeft()
     {
-        upperLeft_ = contentsRect().center() -
-                     QPoint(qRound(zoomF(centerPixel_.x(), zoomLevel_)),
-                            qRound(zoomF(centerPixel_.y(), zoomLevel_)));
+        // workaround for QRect.center(), which gives 319/199 for a 640/400 image..
+        QRect cr = contentsRect();
+        upperLeft_ = cr.topLeft() +
+                     QPoint(qRound(cr.width() / 2.0
+                                   - zoomF(centerPixel_.x(), zoomLevel_)),
+                            qRound(cr.height() / 2.0)
+                            - zoomF(centerPixel_.y(), zoomLevel_));
     }
 
     bool    inSlideState_;
