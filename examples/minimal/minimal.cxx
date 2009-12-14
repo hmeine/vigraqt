@@ -1,4 +1,4 @@
-#include "qglimageviewer.hxx"
+#include <VigraQt/qimageviewer.hxx>
 #include <qapplication.h>
 #include <iostream>
 
@@ -16,7 +16,7 @@ int main(int argc, char **argv)
         }
         else
         {
-            QImageViewerBase *v = new QGLImageViewer();
+            QImageViewerBase *v = new QImageViewer();
             v->setImage(img);
             v->show();
             ++count;
