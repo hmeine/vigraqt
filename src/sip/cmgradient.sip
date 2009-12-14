@@ -1,7 +1,7 @@
 class ColorMapGradient : QFrame
 {
 %TypeHeaderCode
-#include <cmgradient.hxx>
+#include <VigraQt/cmgradient.hxx>
 %End
 
 public:

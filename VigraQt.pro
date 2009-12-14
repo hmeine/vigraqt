@@ -1,6 +1,6 @@
 # -*-Makefile-*-
 TEMPLATE = subdirs
-SUBDIRS  = src/vigraqt
+SUBDIRS  = src/VigraQt
 
 include(VigraQt.pri)
 

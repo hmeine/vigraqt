@@ -1,7 +1,7 @@
 class QGLImageViewer : QImageViewerBase
 {
 %TypeHeaderCode
-#include <qglimageviewer.hxx>
+#include <VigraQt/qglimageviewer.hxx>
 %End
 public:
     QGLImageViewer(QWidget */TransferThis/ = 0);
@@ -19,7 +19,7 @@ protected:
 class QGLImageWidget : QGLWidget
 {
 %TypeHeaderCode
-#include <qglimageviewer.hxx>
+#include <VigraQt/qglimageviewer.hxx>
 %End
 public:
     QGLImageWidget(QWidget */TransferThis/ = 0);

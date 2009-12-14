@@ -1,7 +1,7 @@
 class ColorMap /Abstract/
 {
 %TypeHeaderCode
-#include <colormap.hxx>
+#include <VigraQt/colormap.hxx>
 %End
 
   public:

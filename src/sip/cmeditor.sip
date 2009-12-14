@@ -1,7 +1,7 @@
 class ColorMapEditor : ColorMapGradient
 {
 %TypeHeaderCode
-#include <cmeditor.hxx>
+#include <VigraQt/cmeditor.hxx>
 %End
 
 public:

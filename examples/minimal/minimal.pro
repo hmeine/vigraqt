@@ -8,5 +8,5 @@ SOURCES    = minimal.cxx
 	PKGCONFIG += VigraQt
 } else {
 	INCLUDEPATH += ../../src
-	LIBS        += -L../../src/vigraqt/release -lVigraQt0
+	LIBS        += -L../../src/VigraQt/release -lVigraQt0
 }

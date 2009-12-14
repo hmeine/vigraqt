@@ -92,14 +92,12 @@ if sys.platform.startswith("win"):
 	vigra_incdir = r"c:\vigra\include"
 else:
 	vigra_incdir = os.popen("vigra-config --include-path").read().strip()
-makefile.extra_include_dirs = [
-	os.path.join("..", "vigraqt"),
-	vigra_incdir]
+makefile.extra_include_dirs = ["..", vigra_incdir]
 if sys.platform.startswith("win"):
 	makefile.extra_libs         = ["VigraQt0"]
 else:
 	makefile.extra_libs         = ["VigraQt"]
-makefile.extra_lib_dirs     = [os.path.join("..", "vigraqt")]
+makefile.extra_lib_dirs     = [os.path.join("..", "VigraQt")]
 makefile.generate()
 
 print "done (you can run 'make' now)."

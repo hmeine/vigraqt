@@ -1,7 +1,7 @@
 class OverlayViewer : QImageViewer
 {
 %TypeHeaderCode
-#include <overlayviewer.hxx>
+#include <VigraQt/overlayviewer.hxx>
 %End
 
   public:
@@ -21,7 +21,7 @@ class OverlayViewer : QImageViewer
 class Overlay : QObject
 {
 %TypeHeaderCode
-#include <overlayviewer.hxx>
+#include <VigraQt/overlayviewer.hxx>
 %End
 
   public:
@@ -54,7 +54,7 @@ class Overlay : QObject
 class ImageCursor : Overlay
 {
 %TypeHeaderCode
-#include <overlayviewer.hxx>
+#include <VigraQt/overlayviewer.hxx>
 %End
 
   public:
