@@ -52,7 +52,7 @@ public:
 	ColorMap::ArgumentType domainMin() const;
 	ColorMap::ArgumentType domainMax() const;
 
-public slots:
+public Q_SLOTS:
 	virtual void rereadColorMap();
 
 protected:

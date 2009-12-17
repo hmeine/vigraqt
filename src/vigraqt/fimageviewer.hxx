@@ -63,7 +63,7 @@ public:
 	bool logarithmicMode() const { return logarithmicMode_; }
 	bool markingMode() const { return markingMode_; }
 
-public slots:
+public Q_SLOTS:
 	// display a copy of the given image
 	virtual void setImage( const vigra::FImage &newImage );
 
@@ -74,7 +74,7 @@ public slots:
 
 	void displayMinMax(float min, float max);
 
-signals:
+Q_SIGNALS:
 	void imageMinMaxChanged(float min, float max);
 	void displayedMinMaxChanged(float min, float max);
 

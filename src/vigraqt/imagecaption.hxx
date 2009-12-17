@@ -68,10 +68,10 @@ protected:
 public:
     ImageCaption(const QPoint &offset, QObject *parent = NULL);
 
-public slots:
+public Q_SLOTS:
     virtual void update(int x, int y) = 0;
 
-signals:
+Q_SIGNALS:
     virtual void captionChanged(const QString &);
 };
 

@@ -53,7 +53,7 @@ public:
 
 	virtual void rereadColorMap();
 
-signals:
+Q_SIGNALS:
 	void colorMapChanged();
 
 protected:

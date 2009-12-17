@@ -58,7 +58,7 @@ class VIGRAQT_EXPORT QImageViewerBase : public QFrame
 public:
     QImageViewerBase(QWidget *parent = 0);
 
-public slots:
+public Q_SLOTS:
         /**
          * Change the image to be displayed.
          *
@@ -147,13 +147,12 @@ public:
     inline qreal zoomFactor() const
         { return zoomLevel() >= 0 ? 1 + zoomLevel() : 1./(1-zoomLevel()); }
 
-public slots:
+    Q_SLOT
         /**
          * Position the pointer over the specified image pixel.
          */
     virtual void setCursorPos(QPoint const &imagePoint) const;
 
-public:
         /**
          * Map position relative to window to position in displayed image.
          */
@@ -201,7 +200,7 @@ public:
          */
     virtual QRect windowCoordinates(QRect const &imageRect) const;
 
-public slots:
+public Q_SLOTS:
         /**
          * Zoom the pixmap such that it fits into the widget.  (Useful
          * after the user loaded an image, especially with small
@@ -241,7 +240,7 @@ public slots:
          */
     virtual void slideBy(QPoint const &diff);
 
-signals:
+Q_SIGNALS:
     void mouseOver(int x, int y);
 
     void imageChanged(); // FIXME: add ROI param
@@ -305,7 +304,7 @@ public:
 
     virtual void slideBy(QPoint const &diff);
 
-protected slots:
+protected Q_SLOTS:
     virtual void createDrawingPixmap();
 
 protected:

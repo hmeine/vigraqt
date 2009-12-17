@@ -71,7 +71,7 @@ class VIGRAQT_EXPORT Overlay : public QObject
     bool isVisible() const;
     void setVisible(bool v);
 
-  public slots:
+  public Q_SLOTS:
     virtual void setZoomLevel(int);
 
   protected:
@@ -123,7 +123,7 @@ class VIGRAQT_EXPORT ImageCursor : public Overlay
 
     bool eventFilter(QObject *watched, QEvent *event);
 
-  signals:
+  Q_SIGNALS:
     void cursorOnImageChanged(bool onImage);
     void positionChanged(const QPoint &pos);
 
