@@ -59,6 +59,13 @@ class VIGRAQT_EXPORT Overlay : public QObject
          * draw() will only be called if visible() is true.  The
          * painter's state is restored after every overlay.draw()
          * call, so you don't have to care about that.
+         *
+         * In addition to the painter, the function is passed the
+         * window subregion to be updated (i.e. QPaintEvent::rect()).
+         * This can be used to speed up drawing, but note that the
+         * rect has not undergone *any* coordinate transformation yet.
+         * (I.e. you may use QImageViewer::imageCoordinatesF() for
+         * example to get a QRectF in the image coordinate system.)
          */
     virtual void draw(QPainter &, const QRect &) = 0;
     virtual CoordinateSystem coordinateSystem() const;

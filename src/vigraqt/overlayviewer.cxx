@@ -33,9 +33,7 @@ void OverlayViewer::removeOverlay(Overlay *o)
 void OverlayViewer::paintOverlays(QPainter &p, const QRect &r)
 {
     p.save();
-    QRect overlayRect(r);
     qreal scale = zoomFactor();
-    overlayRect.translate(-upperLeft_.x(), -upperLeft_.y());
     foreach(Overlay *overlay, overlays_)
     {
         if(!overlay->isVisible())
@@ -50,8 +48,7 @@ void OverlayViewer::paintOverlays(QPainter &p, const QRect &r)
             if(overlay->coordinateSystem() & Overlay::Pixel)
                 p.translate(0.5, 0.5);
         }
-        // FIXME: overlayRect does not depend on coordinateSystem() yet!!
-        overlay->draw(p, overlayRect);
+        overlay->draw(p, r);
         p.restore();
     }
     p.restore();
@@ -61,7 +58,7 @@ void OverlayViewer::paintEvent(QPaintEvent *e)
 {
     if(!isVisible()) return;
 
-    QRect r= e->rect();
+    QRect r = e->rect();
 
     QPainter p;
     p.begin(this);
