@@ -147,12 +147,13 @@ public:
     inline qreal zoomFactor() const
         { return zoomLevel() >= 0 ? 1 + zoomLevel() : 1./(1-zoomLevel()); }
 
-    Q_SLOT
+public Q_SLOTS:
         /**
          * Position the pointer over the specified image pixel.
          */
     virtual void setCursorPos(QPoint const &imagePoint) const;
 
+public:
         /**
          * Map position relative to window to position in displayed image.
          */
