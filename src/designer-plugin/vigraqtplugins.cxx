@@ -65,7 +65,7 @@ public:
     QWidget *createWidget(QWidget *parent)
     {
         ColorMapEditor *e = new ColorMapEditor(parent);
-        e->setColorMap(createCM());
+        e->setColorMap(createColorMap(CMFire));
         return e;
     }
 };

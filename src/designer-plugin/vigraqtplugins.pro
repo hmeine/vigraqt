@@ -5,7 +5,7 @@ TARGET       = vigraqtplugins
 target.path  = $$[QT_INSTALL_PLUGINS]/designer
 INSTALLS    += target
 
-INCLUDEPATH += ../vigraqt $$system( vigra-config --cppflags | sed "s,-I,,g" )
-LIBS        += -lVigraQt -L../vigraqt
+INCLUDEPATH += ../VigraQt $$system( vigra-config --cppflags | sed "s,-I,,g" )
+LIBS        += -lVigraQt -L../VigraQt
 
 SOURCES     += vigraqtplugins.cxx
