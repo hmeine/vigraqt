@@ -43,9 +43,9 @@ ColorMap::Color EnhancedGrayMap::operator()(ArgumentType v) const
     v = 255 * (v - min_) / range_;
 
     if(v < 0)
-        return ColorMap::Color(0);
+        return ColorMap::Color((unsigned char)0);
     if(v >= 255)
-        return ColorMap::Color(255);
+        return ColorMap::Color((unsigned char)255);
 
     unsigned char base = (unsigned char)v;
     v -= base;
