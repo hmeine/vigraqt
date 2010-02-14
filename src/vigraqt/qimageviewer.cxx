@@ -736,15 +736,18 @@ QRect QImageViewer::cachedImageROI()
         return QRect();
     }
 
+    // initialize result with widget rect projected into image CS:
     QRect
         cr(contentsRect()),
         result(imageCoordinates(cr));
 
+    // add another half of the current extent at every border:
     result.adjust(-zoom(cr.width()  / 2, -zoomLevel_),
                   -zoom(cr.height() / 2, -zoomLevel_),
                   +zoom(cr.width()  / 2, -zoomLevel_),
                   +zoom(cr.height() / 2, -zoomLevel_));
 
+    // crop to original image:
     result &= QRect(QPoint(0, 0), originalImage_.size());
 
     return result;
@@ -761,32 +764,105 @@ void QImageViewer::zoomImage(int left, int top, QImage & dest)
 {
     int w = dest.width();
     int h = dest.height();
+
+    if(zoomLevel_ > 0)
     {
-        for(int y=0; y<h; ++y)
+        int f = zoomLevel_ + 1;
+
+        if(originalImage_.depth() <= 8)
         {
-            int yy = top + zoom(y, -zoomLevel_);
-
-            uchar * d = dest.scanLine(y);
-            uchar * s = originalImage_.scanLine(yy);
-
-            for(int x=0; x<w; ++x)
+            for(int y=0; y<h; ++y)
             {
-                d[x] = s[left + zoom(x, -zoomLevel_)];
+                int yy = top + zoom(y, -zoomLevel_);
+
+                uchar *d = dest.scanLine(y);
+                uchar *s = originalImage_.scanLine(yy) + left;
+
+                for(int x=0; x<w; ++x, ++d)
+                {
+                    *d = s[x/f];
+                }
+            }
+        }
+        else
+        {
+            for(int y=0; y<h; ++y)
+            {
+                int yy = top + zoom(y, -zoomLevel_);
+
+                QRgb *d = (QRgb *)dest.scanLine(y);
+                QRgb *s = (QRgb *)originalImage_.scanLine(yy) + left;
+
+                for(int x=0; x<w; ++x, ++d)
+                {
+                    *d = s[x/f];
+                }
             }
         }
     }
-    else
+    else if(zoomLevel_ == 0)
     {
-        for(int y=0; y<h; ++y)
+        if(originalImage_.depth() <= 8)
         {
-            int yy = top + zoom(y, -zoomLevel_);
-
-            QRgb * d = (QRgb *)dest.scanLine(y);
-            QRgb * s = (QRgb *)originalImage_.scanLine(yy);
-
-            for(int x=0; x<w; ++x)
+            for(int y=0; y<h; ++y)
             {
-                d[x] = s[left + zoom(x, -zoomLevel_)];
+                int yy = top + zoom(y, -zoomLevel_);
+
+                uchar *d = dest.scanLine(y), *dend = d+w;
+                uchar *s = originalImage_.scanLine(yy) + left;
+
+                for(; d != dend; ++d, ++s)
+                {
+                    *d = *s;
+                }
+            }
+        }
+        else
+        {
+            for(int y=0; y<h; ++y)
+            {
+                int yy = top + zoom(y, -zoomLevel_);
+
+                QRgb *d = (QRgb *)dest.scanLine(y), *dend = d+w;
+                QRgb *s = (QRgb *)originalImage_.scanLine(yy) + left;
+
+                for(; d != dend; ++d, ++s)
+                {
+                    *d = *s;
+                }
+            }
+        }
+    }
+    else if(zoomLevel_ < 0)
+    {
+        if(originalImage_.depth() <= 8)
+        {
+            for(int y=0; y<h; ++y)
+            {
+                int yy = top + zoom(y, -zoomLevel_);
+
+                uchar *d = dest.scanLine(y);
+                uchar *s = originalImage_.scanLine(yy) + left;
+
+                for(int x=0; x<w; ++x, ++d)
+                {
+                    *d = s[zoom(x, -zoomLevel_)];
+                }
+            }
+        }
+        else
+        {
+            for(int y=0; y<h; ++y)
+            {
+                int yy = top + zoom(y, -zoomLevel_);
+
+                QRgb *d = (QRgb *)dest.scanLine(y);
+                QRgb *s = (QRgb *)originalImage_.scanLine(yy) + left;
+
+                for(int x=0; x<w; ++x, ++d)
+                {
+                    *d = s[zoom(x, -zoomLevel_)];
+                }
             }
         }
     }

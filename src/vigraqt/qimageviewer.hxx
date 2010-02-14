@@ -278,8 +278,8 @@ protected:
         upperLeft_ = cr.topLeft() +
                      QPoint(qRound(cr.width() / 2.0
                                    - zoomF(centerPixel_.x(), zoomLevel_)),
-                            qRound(cr.height() / 2.0)
-                            - zoomF(centerPixel_.y(), zoomLevel_));
+                            qRound(cr.height() / 2.0
+                                   - zoomF(centerPixel_.y(), zoomLevel_)));
     }
 
     bool    inSlideState_;
