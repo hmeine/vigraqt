@@ -650,7 +650,7 @@ void QImageViewer::updateROI(QImage const &roiImage, QPoint const &upperLeft)
         zoomed.setColor(i, originalImage_.color(i));
 
     // fill zoomed image
-    zoomImage(updateRect.left(), updateRect.top(), zoomed, newWidth, newHeight);
+    zoomImage(updateRect.left(), updateRect.top(), zoomed);
 
     // put image into drawingPixmap_
     QPainter p(&drawingPixmap_);
@@ -713,7 +713,7 @@ void QImageViewer::createDrawingPixmap()
     for(int i=0; i<originalImage_.numColors(); ++i)
         zoomed.setColor(i, originalImage_.color(i));
 
-    zoomImage(r.left(), r.top(), zoomed, zoomed.width(), zoomed.height());
+    zoomImage(r.left(), r.top(), zoomed);
 
     drawingPixmap_ = QPixmap::fromImage(zoomed);
     drawingPixmapDomain_ = r;
@@ -757,9 +757,10 @@ QRect QImageViewer::cachedImageROI()
 /*                                                              */
 /****************************************************************/
 
-void QImageViewer::zoomImage(int left, int top, QImage & dest, int w, int h)
+void QImageViewer::zoomImage(int left, int top, QImage & dest)
 {
-    if(originalImage_.depth() <= 8)
+    int w = dest.width();
+    int h = dest.height();
     {
         for(int y=0; y<h; ++y)
         {

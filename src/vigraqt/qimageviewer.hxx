@@ -314,9 +314,9 @@ protected:
     QRect cachedImageROI();
 
         // zoom originalImage_ from pixel pos (left, top) into dest
-        // to a *target* size of (w, h)
-    virtual void zoomImage(int left, int top,
-                           QImage & dest, int w, int h);
+        // (the source ROI's size depends on dest.size() and the
+        // zoomFactor())
+    virtual void zoomImage(int left, int top, QImage &dest);
 
     virtual void paintEvent(QPaintEvent *);
     virtual void paintImage(QPainter &p, const QRect &r);
