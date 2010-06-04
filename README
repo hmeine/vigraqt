@@ -71,3 +71,15 @@ build system::
   make install # installs VigraQt.so into the module target dir (see above)
 
 .. _PyQt: http://www.riverbankcomputing.co.uk/pyqt/
+
+Using CMake
+-----------
+
+Alternatively, you may use CMake for configuring the build, for instance::
+
+  mkdir build
+  cd build
+  cmake -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=$HOME/inst \
+        -DPYTHON_SITE_PACKAGES_DIR=$HOME/inst/lib/python2.6/site-packages \
+        ..

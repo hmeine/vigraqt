@@ -1,7 +1,12 @@
 ^build-.*
+\.kdev4
+^CMakeCache.txt$
+^CMakeFiles$
+^cmake_install.cmake$
+^install_manifest.txt$
 Makefile
 ~$
-moc_[^/]*.cpp
+moc_[^/]*\.(cpp|cxx)$
 \.l?[ao]$
 \.so$
 ^src/sip/.cache/
