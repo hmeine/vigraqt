@@ -78,6 +78,9 @@ class VIGRAQT_EXPORT Overlay : public QObject
     bool isVisible() const;
     void setVisible(bool v);
 
+    qreal zValue() const;
+    void setZValue(qreal z);
+
   public Q_SLOTS:
     virtual void setZoomLevel(int);
 
@@ -92,6 +95,7 @@ class VIGRAQT_EXPORT Overlay : public QObject
     OverlayViewer *viewer_;
     CoordinateSystem coordinateSystem_;
     bool visible_;
+    qreal z_;
 };
 
 /********************************************************************/

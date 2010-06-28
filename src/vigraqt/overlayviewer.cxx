@@ -30,8 +30,19 @@ void OverlayViewer::removeOverlay(Overlay *o)
     overlays_.erase(it);
 }
 
+struct OverlayZCompare
+{
+    bool operator()(const Overlay *a, const Overlay *b) const
+    {
+        return a->zValue() < b->zValue();
+    }
+};
+
 void OverlayViewer::paintOverlays(QPainter &p, const QRect &r)
 {
+    std::stable_sort(overlays_.begin(), overlays_.end(),
+                     OverlayZCompare());
+
     p.save();
     qreal scale = zoomFactor();
     foreach(Overlay *overlay, overlays_)
@@ -76,7 +87,8 @@ Overlay::Overlay(QObject* parent)
 : QObject(parent),
   viewer_(NULL),
   coordinateSystem_(ScaledPixel),
-  visible_(true)
+  visible_(true),
+  z_(0.0)
 {
 }
 
@@ -99,6 +111,21 @@ void Overlay::setVisible(bool v)
     if(v != visible_)
     {
         visible_ = v;
+        if(viewer_)
+            viewer_->update();
+    }
+}
+
+qreal Overlay::zValue() const
+{
+    return z_;
+}
+
+void Overlay::setZValue(qreal z)
+{
+    if(z != z_)
+    {
+        z_ = z;
         if(viewer_)
             viewer_->update();
     }

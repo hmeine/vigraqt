@@ -44,6 +44,9 @@ class Overlay : QObject
     bool isVisible() const;
     void setVisible(bool v);
 
+    qreal zValue() const;
+    void setZValue(qreal z);
+
   public slots:
     virtual void setZoomLevel(int);
 
