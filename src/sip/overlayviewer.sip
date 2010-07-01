@@ -44,6 +44,9 @@ class Overlay : QObject
     bool isVisible() const;
     void setVisible(bool v);
 
+    bool isAntialiased() const;
+    void setAntialiased(bool a);
+
     qreal zValue() const;
     void setZValue(qreal z);
 

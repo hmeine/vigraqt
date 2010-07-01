@@ -78,6 +78,9 @@ class VIGRAQT_EXPORT Overlay : public QObject
     bool isVisible() const;
     void setVisible(bool v);
 
+    bool isAntialiased() const;
+    void setAntialiased(bool a);
+
     qreal zValue() const;
     void setZValue(qreal z);
 
@@ -94,7 +97,7 @@ class VIGRAQT_EXPORT Overlay : public QObject
     friend class OverlayViewer;
     OverlayViewer *viewer_;
     CoordinateSystem coordinateSystem_;
-    bool visible_;
+    bool visible_, antialiased_;
     qreal z_;
 };
 

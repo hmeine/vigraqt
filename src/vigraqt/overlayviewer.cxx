@@ -51,6 +51,7 @@ void OverlayViewer::paintOverlays(QPainter &p, const QRect &r)
             continue;
 
         p.save();
+        p.setRenderHint(QPainter::Antialiasing, overlay->isAntialiased());
         if(overlay->coordinateSystem() != Overlay::Widget)
         {
             p.translate(upperLeft_.x(), upperLeft_.y());
@@ -88,6 +89,7 @@ Overlay::Overlay(QObject* parent)
   viewer_(NULL),
   coordinateSystem_(ScaledPixel),
   visible_(true),
+  antialiased_(true),
   z_(0.0)
 {
 }
@@ -111,6 +113,21 @@ void Overlay::setVisible(bool v)
     if(v != visible_)
     {
         visible_ = v;
+        if(viewer_)
+            viewer_->update();
+    }
+}
+
+bool Overlay::isAntialiased() const
+{
+    return antialiased_;
+}
+
+void Overlay::setAntialiased(bool v)
+{
+    if(v != antialiased_)
+    {
+        antialiased_ = v;
         if(viewer_)
             viewer_->update();
     }
