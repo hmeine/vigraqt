@@ -196,16 +196,16 @@ void ImageCursor::draw(QPainter &p, const QRect &)
         return;
 
     p.setRenderHint(QPainter::Antialiasing);
-    double width = 1.2 / viewer_->zoomFactor();
+    QPen pen(color_, 1.2, Qt::SolidLine, Qt::FlatCap);
+    pen.setCosmetic(true);
+    p.setPen(pen);
 
-    QRectF pixel(0, 0, 1.5, 1.5);
-    pixel.adjust(-width, -width, width, width);
+    QRectF pixel(0, 0, 1.5, 1.5); // (radius 0.75)
     pixel.moveCenter(QPointF(pos_.x(), pos_.y()));
     QRectF viewPort = viewer_->imageCoordinatesF(
         viewer_->contentsRect());
     QPointF pixelCenter = pixel.center();
 
-    p.setPen(QPen(color_, width, Qt::SolidLine, Qt::FlatCap));
     p.drawLine(QPointF(pixelCenter.x(), viewPort.top()),
                QPointF(pixelCenter.x(), pixel.top()));
     p.drawLine(QPointF(pixelCenter.x(), pixel.bottom()),
