@@ -218,7 +218,9 @@ public Q_SLOTS:
     void autoZoom(int minLevel = -100, int maxLevel = 64);
 
         /**
-         * Changes the current zoom level.
+         * Changes the current zoom level.  If the displayed image
+         * would become too small (smaller than 2px. in any direction,
+         * or smaller than 16x16), the zoomLevel change is ignored.
          *
          * See zoomLevel(), zoomUp(), zoomDown()
          */

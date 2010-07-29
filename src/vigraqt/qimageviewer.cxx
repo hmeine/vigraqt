@@ -302,7 +302,9 @@ void QImageViewerBase::setZoomLevel(int level)
     int newWidth = zoom(originalWidth(), level);
     int newHeight = zoom(originalHeight(), level);
 
-    if(newWidth < 16 || newHeight < 16)
+    // TODO: should this move to the client/keyboard handling code?
+    if((newWidth < 16 && newHeight < 16) ||
+       newWidth < 2 || newHeight < 2)
         return;
 
     zoomLevel_ = level;
