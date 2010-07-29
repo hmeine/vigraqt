@@ -147,6 +147,12 @@ public:
     inline qreal zoomFactor() const
         { return zoomLevel() >= 0 ? 1 + zoomLevel() : 1./(1-zoomLevel()); }
 
+        /**
+         * Compute and set the corresponding zoomLevel for nearest
+         * approximation of the given zoom factor.  See setZoomLevel().
+         */
+    void setZoomFactor(qreal factor);
+
 public Q_SLOTS:
         /**
          * Position the pointer over the specified image pixel.

@@ -320,6 +320,20 @@ void QImageViewerBase::setZoomLevel(int level)
 
 /****************************************************************/
 /*                                                              */
+/*                         setZoomFactor                        */
+/*                                                              */
+/****************************************************************/
+
+void QImageViewerBase::setZoomFactor(qreal factor)
+{
+    if(factor < 1.)
+        setZoomLevel(-qRound(1./factor) + 1);
+    else
+        setZoomLevel( qRound(   factor) - 1);
+}
+
+/****************************************************************/
+/*                                                              */
 /*                             zoomUp                           */
 /*                                                              */
 /****************************************************************/

@@ -24,6 +24,7 @@ public:
     QPoint upperLeft() const;
     int zoomLevel() const;
     qreal zoomFactor() const;
+    void setZoomFactor(qreal factor);
 
     virtual void setCursorPos(const QPoint &) const;
 
