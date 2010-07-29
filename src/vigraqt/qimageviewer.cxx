@@ -70,7 +70,7 @@ void QImageViewerBase::setImage(QImage const &image, bool retainView)
     {
         upperLeft_ -= QPoint(zoom(sizeDiff.width()/2, zoomLevel_),
                              zoom(sizeDiff.height()/2, zoomLevel_));
-        centerPixel_ -= QPointF(sizeDiff.width() / 2.0,
+        centerPixel_ += QPointF(sizeDiff.width() / 2.0,
                                 sizeDiff.height() / 2.0);
         checkImagePosition();
     }
