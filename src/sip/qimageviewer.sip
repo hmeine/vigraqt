@@ -1,4 +1,4 @@
-class QImageViewerBase : QWidget
+class QImageViewerBase : QFrame
 {
 %TypeHeaderCode
 #include <VigraQt/qimageviewer.hxx>
