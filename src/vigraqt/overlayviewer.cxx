@@ -68,16 +68,30 @@ void OverlayViewer::paintOverlays(QPainter &p, const QRect &r)
 
 void OverlayViewer::paintEvent(QPaintEvent *e)
 {
-    if(!isVisible()) return;
+    if(!isVisible())
+        return;
 
     QRect r = e->rect();
 
     QPainter p;
     p.begin(this);
 
-    paintImage(p, r);
+    p.save();
+    {
+        // we don't want to paint into the frame, but contentsRect()
+        // is too small for some widget styles with round corners
+        // and/or shadows (e.g. Oxygen):
+        QRect clearRect(contentsRect());
+        clearRect.adjust(-lineWidth(), -lineWidth(), lineWidth(), lineWidth());
+        p.setClipRect(r & clearRect);
 
-    paintOverlays(p, r);
+        p.fillRect(r, palette().brush(backgroundRole()));
+        paintImage(p, r);
+        paintOverlays(p, r);
+    }
+    p.restore();
+
+    drawFrame(&p);
 
     p.end();
 }

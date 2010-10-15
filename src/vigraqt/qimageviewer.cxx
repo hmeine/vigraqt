@@ -896,14 +896,27 @@ void QImageViewer::paintEvent(QPaintEvent *e)
     if(!isVisible())
         return;
 
-    QRect r = e->rect(), clearRect(contentsRect());
-    clearRect.adjust(-lineWidth(), -lineWidth(), lineWidth(), lineWidth());
+    QRect r = e->rect();
 
     QPainter p;
     p.begin(this);
-    p.fillRect(r & clearRect, palette().brush(backgroundRole()));
-    paintImage(p, r);
+
+    p.save();
+    {
+        // we don't want to paint into the frame, but contentsRect()
+        // is too small for some widget styles with round corners
+        // and/or shadows (e.g. Oxygen):
+        QRect clearRect(contentsRect());
+        clearRect.adjust(-lineWidth(), -lineWidth(), lineWidth(), lineWidth());
+        p.setClipRect(r & clearRect);
+
+        p.fillRect(r, palette().brush(backgroundRole()));
+        paintImage(p, r);
+    }
+    p.restore();
+
     drawFrame(&p);
+
     p.end();
 }
 
@@ -927,10 +940,7 @@ void QImageViewer::paintImage(QPainter &p, const QRect &r)
         QSize(zoom(drawROI.width(), zoomLevel_),
               zoom(drawROI.height(), zoomLevel_)));
 
-    p.save();
-    p.setClipRect(r & contentsRect());
     p.drawPixmap(windowCoordinate(drawROI.topLeft()), drawingPixmap_, sourceRect);
-    p.restore();
 }
 
 
