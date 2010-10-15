@@ -83,15 +83,16 @@ manage_cache()
 print "\nthe target directory for module installation will be:\n  %s\n" % options.moddir
 
 print "generating Makefile..."
-makefile = pyqt4.QtOpenGLModuleMakefile(
-	config, buildfile,
-	install_dir = options.moddir)
-# for i in dir(makefile):
-# 	print i
 if sys.platform.startswith("win"):
 	vigra_incdir = r"c:\vigra\include"
+	QtMakefile = pyqt4.QtGuiModuleMakefile
 else:
 	vigra_incdir = os.popen("vigra-config --include-path").read().strip()
+	QtMakefile = pyqt4.QtOpenGLModuleMakefile
+makefile = QtMakefile(config, buildfile,
+					  install_dir = options.moddir)
+# for i in dir(makefile):
+# 	print i
 makefile.extra_include_dirs = ["..", vigra_incdir]
 if sys.platform.startswith("win"):
 	makefile.extra_libs         = ["VigraQt0"]
