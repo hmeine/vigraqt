@@ -22,6 +22,7 @@ public:
     virtual QSize sizeHint() const;
 
     QPoint upperLeft() const;
+    void setUpperLeft(const QPoint &upperLeft);
     QPoint centerPixel() const;
     QPointF centerPixelF() const;
     void setCenterPixel(const QPointF &centerPixel);
@@ -57,7 +58,9 @@ signals:
 protected:
     static int zoom(int, int);
     static double zoomF(double value, int level);
+    static QPointF zoomF(QPointF value, int level);
 
+    virtual bool setImagePosition(QPoint upperLeft, QPointF centerPixel);
     virtual void checkImagePosition();
     virtual void setCrosshairCursor();
 

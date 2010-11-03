@@ -163,6 +163,14 @@ void QImageViewerBase::autoZoom(int minLevel, int maxLevel)
     setZoomLevel(level);
 }
 
+void QImageViewerBase::setUpperLeft(const QPoint &upperLeft)
+{
+    setImagePosition(
+        upperLeft,
+        zoomF(widgetCenter() - upperLeft, -zoomLevel_));
+    setCenterPixel(centerPixel_);
+}
+
 QPoint QImageViewerBase::centerPixel() const
 {
     return centerPixelF().toPoint();
@@ -377,9 +385,15 @@ bool QImageViewerBase::setImagePosition(QPoint upperLeft, QPointF centerPixel)
 {
     if(!isVisible())
     {
+        if(centerPixel_ == centerPixel)
+            return false;
+
         centerPixel_ = centerPixel;
         return true;
     }
+
+    if(upperLeft_ == upperLeft)
+        return false;
 
     upperLeft_ = upperLeft;
     centerPixel_ = centerPixel;
@@ -751,8 +765,6 @@ void QImageViewer::createDrawingPixmap()
 
     drawingPixmap_ = QPixmap::fromImage(zoomed);
     drawingPixmapDomain_ = r;
-
-    update();
 }
 
 

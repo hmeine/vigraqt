@@ -127,6 +127,11 @@ public:
         { return upperLeft_; }
 
         /**
+         * Sets upperLeft(), the widget coordinate of the upper left image corner.
+         */
+    void setUpperLeft(const QPoint &upperLeft);
+
+        /**
          * Image coordinate of widget center.
          *
          * This is simply the rounded value of centerPixelF().
