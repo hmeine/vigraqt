@@ -122,13 +122,6 @@ public:
 
         /**
          * Returns widget coordinate of the upper left image corner.
-         *
-         * If you sub-class QImageViewerBase on your own, you might
-         * want to know that this is changed in the following places:
-         * slideBy() explicitly adds an offset, resizeEvent() and
-         * setZoomLevel() modify it in order to effectively
-         * zoom/resize around the widget center, and showEvent()
-         * cares about initially centering the image.
          */
     QPoint upperLeft() const
         { return upperLeft_; }
@@ -292,7 +285,10 @@ protected:
     inline static QPointF zoomF(QPointF value, int level)
         { return QPointF(zoomF(value.x(), level), zoomF(value.y(), level)); }
 
+    inline QPointF widgetCenter() const;
+    virtual bool setImagePosition(QPoint upperLeft, QPointF centerPixel);
     virtual void checkImagePosition();
+
     virtual void setCrosshairCursor();
 
     virtual void mouseMoveEvent(QMouseEvent *e);
@@ -310,17 +306,6 @@ protected:
     int     zoomLevel_;
 
   private:
-    inline void computeUpperLeft()
-    {
-        // workaround for QRect.center(), which gives 319/199 for a 640/400 image..
-        QRect cr = contentsRect();
-        upperLeft_ = cr.topLeft() +
-                     QPoint(qRound(cr.width() / 2.0
-                                   - zoomF(centerPixel_.x(), zoomLevel_)),
-                            qRound(cr.height() / 2.0
-                                   - zoomF(centerPixel_.y(), zoomLevel_)));
-    }
-
     bool    inSlideState_;
     bool    pendingAutoZoom_;
     int     minAutoZoom_, maxAutoZoom_;
@@ -330,6 +315,12 @@ protected:
 QPoint QImageViewerBase::windowCoordinate(QPointF const & imagePoint) const
 {
     return windowCoordinate(imagePoint.x(), imagePoint.y());
+}
+
+QPointF QImageViewerBase::widgetCenter() const
+{
+    QRect cr = contentsRect();
+    return cr.topLeft() + QPointF(cr.width() / 2.0, cr.height() / 2.0);
 }
 
 class VIGRAQT_EXPORT QImageViewer : public QImageViewerBase
@@ -353,6 +344,8 @@ protected:
     QRect cachedImageROI();
 
     void checkDrawingPixmap();
+
+    virtual bool setImagePosition(QPoint upperLeft, QPointF centerPixel);
 
         // zoom originalImage_ from pixel pos (left, top) into dest
         // (the source ROI's size depends on dest.size() and the

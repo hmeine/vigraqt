@@ -70,18 +70,16 @@ void QImageViewerBase::setImage(QImage const &image, bool retainView)
 
     if(sizeDiff.isNull() || retainView)
     {
-        upperLeft_ -= zoomF(offset, zoomLevel_).toPoint();
-        centerPixel_ += offset;
-        checkImagePosition();
+        setImagePosition(
+            upperLeft_ - zoomF(offset, zoomLevel_).toPoint(),
+            centerPixel_ + offset);
     }
     else
     {
         // reset zoom level and center visible region
         zoomLevel_ = 0;
-        centerPixel_ = QPointF(image.width() / 2.0,
-                               image.height() / 2.0);
-        if(isVisible())
-            computeUpperLeft();
+        setCenterPixel(QPointF(image.width() / 2.0,
+                               image.height() / 2.0));
 
         updateGeometry();
     }
@@ -177,9 +175,9 @@ QPointF QImageViewerBase::centerPixelF() const
 
 void QImageViewerBase::setCenterPixel(const QPointF &centerPixel)
 {
-    centerPixel_ = centerPixel;
-    computeUpperLeft();
-    update();
+    setImagePosition(
+        (widgetCenter() - zoomF(centerPixel, zoomLevel_)).toPoint(),
+        centerPixel);
 }
 
 /****************************************************************/
@@ -319,9 +317,7 @@ void QImageViewerBase::setZoomLevel(int level)
 
     zoomLevel_ = level;
 
-    computeUpperLeft();
-
-    checkImagePosition();
+    setCenterPixel(centerPixel_); // think of computeUpperLeft();
 
     updateGeometry();
 
@@ -372,10 +368,24 @@ void QImageViewerBase::zoomDown()
 
 void QImageViewerBase::slideBy(QPoint const & diff)
 {
-    upperLeft_ += diff;
-    centerPixel_ += zoomF(-diff, -zoomLevel_);
+    setImagePosition(
+        upperLeft_ + diff,
+        centerPixel_ + zoomF(-diff, -zoomLevel_));
+}
+
+bool QImageViewerBase::setImagePosition(QPoint upperLeft, QPointF centerPixel)
+{
+    if(!isVisible())
+    {
+        centerPixel_ = centerPixel;
+        return true;
+    }
+
+    upperLeft_ = upperLeft;
+    centerPixel_ = centerPixel;
     checkImagePosition();
     update();
+    return true;
 }
 
 /********************************************************************/
@@ -386,6 +396,8 @@ void QImageViewerBase::slideBy(QPoint const & diff)
 
 void QImageViewerBase::checkImagePosition()
 {
+    if(!isVisible())
+        qWarning("   checkImagePosition() while invisible!");
     QPoint maxUpperLeft(contentsRect().center());
     QPoint minUpperLeft(contentsRect().center()
                         - QPoint(zoomedWidth() - 1, zoomedHeight() - 1));
@@ -608,8 +620,7 @@ void QImageViewerBase::keyPressEvent(QKeyEvent *e)
 
 void QImageViewerBase::resizeEvent(QResizeEvent *)
 {
-    computeUpperLeft();
-    checkImagePosition();
+    setCenterPixel(centerPixel_); // think of computeUpperLeft();
 }
 
 /****************************************************************/
@@ -620,7 +631,7 @@ void QImageViewerBase::resizeEvent(QResizeEvent *)
 
 void QImageViewerBase::showEvent(QShowEvent *e)
 {
-    computeUpperLeft();
+    setCenterPixel(centerPixel_); // think of computeUpperLeft();
     if(pendingAutoZoom_)
     {
         autoZoom(minAutoZoom_, maxAutoZoom_);
@@ -784,6 +795,14 @@ void QImageViewer::checkDrawingPixmap()
     if(!drawingPixmapDomain_.contains(needed))
         // TODO: re-use existing part!?
         createDrawingPixmap();
+}
+
+bool QImageViewer::setImagePosition(QPoint upperLeft, QPointF centerPixel)
+{
+    bool result = QImageViewerBase::setImagePosition(upperLeft, centerPixel);
+    if(result)
+        checkDrawingPixmap();
+    return result;
 }
 
 
