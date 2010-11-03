@@ -62,16 +62,16 @@ QImageViewerBase::QImageViewerBase(QWidget *parent)
 
 void QImageViewerBase::setImage(QImage const &image, bool retainView)
 {
-    QSize sizeDiff= image.size() - originalImage_.size();
+    QSize sizeDiff = image.size() - originalImage_.size();
+    QPointF offset(sizeDiff.width() / 2.0,
+                   sizeDiff.height() / 2.0);
 
     originalImage_ = image;
 
     if(sizeDiff.isNull() || retainView)
     {
-        upperLeft_ -= QPoint(zoom(sizeDiff.width()/2, zoomLevel_),
-                             zoom(sizeDiff.height()/2, zoomLevel_));
-        centerPixel_ += QPointF(sizeDiff.width() / 2.0,
-                                sizeDiff.height() / 2.0);
+        upperLeft_ -= zoomF(offset, zoomLevel_).toPoint();
+        centerPixel_ += offset;
         checkImagePosition();
     }
     else
@@ -373,8 +373,7 @@ void QImageViewerBase::zoomDown()
 void QImageViewerBase::slideBy(QPoint const & diff)
 {
     upperLeft_ += diff;
-    centerPixel_ += QPointF(zoomF(-diff.x(), -zoomLevel_),
-                            zoomF(-diff.y(), -zoomLevel_));
+    centerPixel_ += zoomF(-diff, -zoomLevel_);
     checkImagePosition();
     update();
 }

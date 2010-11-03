@@ -289,6 +289,8 @@ protected:
         { return (level >= 0) ? (value * (level+1)) : (value / (-level+1)); }
     inline static double zoomF(double value, int level)
         { return (level >= 0) ? (value * (level+1)) : (value / (-level+1)); }
+    inline static QPointF zoomF(QPointF value, int level)
+        { return QPointF(zoomF(value.x(), level), zoomF(value.y(), level)); }
 
     virtual void checkImagePosition();
     virtual void setCrosshairCursor();
