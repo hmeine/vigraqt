@@ -291,7 +291,7 @@ bool ImageCursor::eventFilter(QObject *, QEvent *event)
               return false;
 
           //QPoint pos = viewer_->imageCoordinate(e->pos());
-          viewer_->centerOn(pos_);
+          viewer_->setCenterPixel(pos_);
           return true;
       }
 

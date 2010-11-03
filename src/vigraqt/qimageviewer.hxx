@@ -124,7 +124,25 @@ public:
     QPoint upperLeft() const
         { return upperLeft_; }
 
-    void centerOn(const QPoint &centerPixel);
+        /**
+         * Image coordinate of widget center.
+         *
+         * This is simply the rounded value of centerPixelF().
+         */
+    QPoint centerPixel() const;
+
+        /**
+         * Returns the sub-pixel image coordinates of the widget center.
+         *
+         * This coordinate is a fixpoint when zooming or resizing the
+         * widget.  Integers correspond to pixel centers, i.e. the
+         * smallest value is (-0.5, -0.5), the largest allowed value
+         * is originalSize - (0.5, 0.5).  (This range is enforced by
+         * the widget.)
+         */
+    QPointF centerPixelF() const;
+
+    void setCenterPixel(const QPointF &centerPixel);
 
         /**
          * Returns the current zoom level.

@@ -165,7 +165,17 @@ void QImageViewerBase::autoZoom(int minLevel, int maxLevel)
     setZoomLevel(level);
 }
 
-void QImageViewerBase::centerOn(const QPoint &centerPixel)
+QPoint QImageViewerBase::centerPixel() const
+{
+    return centerPixelF().toPoint();
+}
+
+QPointF QImageViewerBase::centerPixelF() const
+{
+    return centerPixel_;
+}
+
+void QImageViewerBase::setCenterPixel(const QPointF &centerPixel)
 {
     centerPixel_ = centerPixel;
     computeUpperLeft();

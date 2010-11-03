@@ -19,9 +19,13 @@ public:
     int zoomedHeight() const;
 
     void autoZoom(int = -100, int = 64);
-    void centerOn(const QPoint &centerPixel);
     virtual QSize sizeHint() const;
+
     QPoint upperLeft() const;
+    QPoint centerPixel() const;
+    QPointF centerPixelF() const;
+    void setCenterPixel(const QPointF &centerPixel);
+
     int zoomLevel() const;
     qreal zoomFactor() const;
     void setZoomFactor(qreal factor);
@@ -52,6 +56,7 @@ signals:
 
 protected:
     static int zoom(int, int);
+    static double zoomF(double value, int level);
 
     virtual void checkImagePosition();
     virtual void setCrosshairCursor();
