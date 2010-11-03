@@ -39,13 +39,22 @@
 
 /**
  * Image viewer base class managing coordinate transforms and user
- * interaction.  In particular, it has two properties:
+ * interaction.  In particular, it has the following properties:
  *
  * 'zoomLevel' is an integer N where N=0 means 1:1 display, N>0 means
  * that each pixel is an (N+1)x(N+1) square and N<0 means that only
  * every (-N-1)th pixel in each dimension is displayed.
  *
- * 'upperLeft' is the widget coordinate of the upper left image corner.
+ * 'zoomFactor' is a more convenient way of expressing the zoomLevel,
+ * but only the few zoom factors expressible as integers or their
+ * reciprocals are possible.
+ *
+ * 'centerPixel' is the sub-pixel image coordinates of the widget center.
+ * This coordinate is a fixpoint when zooming or resizing the
+ * widget.
+ *
+ * 'upperLeft' is the widget coordinate of the upper left image corner,
+ * and depends on 'centerPixel', zoom level, and widget size.
  *
  * TODO: describe user interaction
  */
@@ -167,7 +176,9 @@ public:
 
         /**
          * Compute and set the corresponding zoomLevel for nearest
-         * approximation of the given zoom factor.  See setZoomLevel().
+         * approximation of the given zoom factor (only integer
+         * factors and their reciprocals are actually supported in the
+         * current implementation).  See setZoomLevel().
          */
     void setZoomFactor(qreal factor);
 
