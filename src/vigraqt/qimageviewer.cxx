@@ -376,6 +376,7 @@ void QImageViewerBase::slideBy(QPoint const & diff)
     centerPixel_ += QPointF(zoomF(-diff.x(), -zoomLevel_),
                             zoomF(-diff.y(), -zoomLevel_));
     checkImagePosition();
+    update();
 }
 
 /********************************************************************/
@@ -649,6 +650,7 @@ void QImageViewer::setImage(QImage const &image, bool retainView)
 {
     QImageViewerBase::setImage(image, retainView);
     createDrawingPixmap();
+    update();
 }
 
 void QImageViewer::updateROI(QImage const &roiImage, QPoint const &upperLeft)
@@ -699,11 +701,7 @@ void QImageViewer::slideBy(QPoint const & diff)
 {
     QImageViewerBase::slideBy(diff);
 
-    QRect needed(imageCoordinates(contentsRect()) &
-                 QRect(QPoint(0, 0), originalImage_.size()));
-    if(!drawingPixmapDomain_.contains(needed))
-        // TODO: re-use existing zoomed part!?
-        createDrawingPixmap();
+    checkDrawingPixmap();
     update();
 }
 
@@ -777,6 +775,16 @@ QRect QImageViewer::cachedImageROI()
     result &= QRect(QPoint(0, 0), originalImage_.size());
 
     return result;
+}
+
+
+void QImageViewer::checkDrawingPixmap()
+{
+    QRect needed(imageCoordinates(contentsRect()) &
+                 QRect(QPoint(0, 0), originalImage_.size()));
+    if(!drawingPixmapDomain_.contains(needed))
+        // TODO: re-use existing part!?
+        createDrawingPixmap();
 }
 
 
@@ -963,10 +971,5 @@ void QImageViewer::paintImage(QPainter &p, const QRect &r)
 void QImageViewer::resizeEvent(QResizeEvent *e)
 {
     QImageViewerBase::resizeEvent(e);
-
-    QRect needed(imageCoordinates(contentsRect()) &
-                 QRect(QPoint(0, 0), originalImage_.size()));
-    if(!drawingPixmapDomain_.contains(needed))
-        // TODO: re-use existing part!?
-        createDrawingPixmap();
+    checkDrawingPixmap();
 }

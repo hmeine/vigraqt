@@ -293,7 +293,7 @@ protected:
 
     QImage  originalImage_;
     QPoint  upperLeft_; // position of image origin in widget coordinates
-    QPointF centerPixel_;
+    QPointF centerPixel_; // sub-pixel image coordinates of widget center
     int     zoomLevel_;
 
   private:
@@ -338,6 +338,8 @@ protected:
         // return ROI of originalImage_ which should be buffered in
         // drawingPixmap_
     QRect cachedImageROI();
+
+    void checkDrawingPixmap();
 
         // zoom originalImage_ from pixel pos (left, top) into dest
         // (the source ROI's size depends on dest.size() and the
