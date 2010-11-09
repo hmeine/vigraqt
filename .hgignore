@@ -7,14 +7,14 @@
 Makefile
 ~$
 moc_[^/]*\.(cpp|cxx)$
-\.l?[ao]$
+\.(l?[ao]|obj)$
 \.so$
 ^src/sip/.cache/
 ^src/sip/sipqtQ*.h
 ^src/sip/sipvigraqt*
 ^src/sip/.*_la_closure.cpp
 ^src/sip/VigraQt.(sbf|exp)
-^src/sip/VigraQt.pyd$
+^src/sip/VigraQt.(pyd(\.manifest)?|lib)$
 ^src/sip/vigraqtcmodule.cpp
 ^src/VigraQt/libVigraQt
 ^VigraQt.pc
