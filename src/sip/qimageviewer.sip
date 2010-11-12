@@ -91,6 +91,4 @@ public:
 protected:
     virtual void paintEvent(QPaintEvent *);
     virtual void paintImage(QPainter &, const QRect &);
-
-    virtual void resizeEvent(QResizeEvent *);
 };
