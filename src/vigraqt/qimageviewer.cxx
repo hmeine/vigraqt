@@ -725,7 +725,6 @@ void QImageViewer::slideBy(QPoint const & diff)
 {
     QImageViewerBase::slideBy(diff);
 
-    checkDrawingPixmap();
     update();
 }
 
@@ -812,8 +811,6 @@ void QImageViewer::checkDrawingPixmap()
 bool QImageViewer::setImagePosition(QPoint upperLeft, QPointF centerPixel)
 {
     bool result = QImageViewerBase::setImagePosition(upperLeft, centerPixel);
-    if(result)
-        checkDrawingPixmap();
     return result;
 }
 
@@ -980,6 +977,8 @@ void QImageViewer::paintImage(QPainter &p, const QRect &r)
     if(originalImage_.isNull())
         return;
 
+    checkDrawingPixmap();
+
     QRect drawROI(imageCoordinates(r));
 
     QRect sourceRect(
@@ -989,17 +988,4 @@ void QImageViewer::paintImage(QPainter &p, const QRect &r)
               zoom(drawROI.height(), zoomLevel_)));
 
     p.drawPixmap(windowCoordinate(drawROI.topLeft()), drawingPixmap_, sourceRect);
-}
-
-
-/****************************************************************/
-/*                                                              */
-/*                          resizeEvent                         */
-/*                                                              */
-/****************************************************************/
-
-void QImageViewer::resizeEvent(QResizeEvent *e)
-{
-    QImageViewerBase::resizeEvent(e);
-    checkDrawingPixmap();
 }

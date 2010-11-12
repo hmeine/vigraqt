@@ -360,8 +360,6 @@ protected:
     virtual void paintEvent(QPaintEvent *);
     virtual void paintImage(QPainter &p, const QRect &r);
 
-    virtual void resizeEvent(QResizeEvent *e);
-
     QPixmap drawingPixmap_;
     QRect drawingPixmapDomain_;
 };
