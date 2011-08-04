@@ -82,6 +82,8 @@ void QImageViewerBase::setImage(QImage const &image, bool retainView)
                                image.height() / 2.0));
 
         updateGeometry();
+
+	emit zoomLevelChanged(zoomLevel_);
     }
 
     emit imageChanged();
