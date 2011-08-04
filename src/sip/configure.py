@@ -1,6 +1,34 @@
 #!/usr/bin/env python
 import os, sys, subprocess, glob, shutil
 
+# --------------------------------------------------------------------
+#            sip / Windows wrong configuration workaround
+# --------------------------------------------------------------------
+
+def pySource(mod):
+	result = mod.__file__
+	if result.endswith(".pyc"):
+		result = result[:-1]
+	return result
+
+try:
+	import sip
+	sys.stdout.write("sip %s found.\n" % sip.SIP_VERSION_STR)
+
+	import sipconfig
+	c = sipconfig.Configuration()
+	if not os.path.isfile(c.sip_bin):
+		sys.stderr.write("WARNING: %r is no file!\n" % c.sip_bin)
+		if os.path.isfile(c.sip_bin + ".exe"):
+			sys.stderr.write("-> 'sip_bin' missing .exe in '%s'!\n" % pySource(sipconfig))
+		if hasattr(sipconfig, "_pkg_config"):
+			sip._pkg_config['sip_bin'] += '.exe'
+			sys.stderr.write("   (monkey-patched, cross fingers while we try to continue...)\n")
+except ImportError:
+	sys.stderr.write("WARNING: sip not found!\n")
+
+# --------------------------------------------------------------------
+
 # adapted from http://www.develer.com/~naufraghi/PyQt3Support/PyQt3Support_PyQt4.3.3_GPL_r2.patch
 def manage_cache(mname = "."):
 	"""
