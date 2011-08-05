@@ -22,7 +22,7 @@ try:
 		if os.path.isfile(c.sip_bin + ".exe"):
 			sys.stderr.write("-> 'sip_bin' missing .exe in '%s'!\n" % pySource(sipconfig))
 		if hasattr(sipconfig, "_pkg_config"):
-			sip._pkg_config['sip_bin'] += '.exe'
+			sipconfig._pkg_config['sip_bin'] += '.exe'
 			sys.stderr.write("   (monkey-patched, cross fingers while we try to continue...)\n")
 except ImportError:
 	sys.stderr.write("WARNING: sip not found!\n")
