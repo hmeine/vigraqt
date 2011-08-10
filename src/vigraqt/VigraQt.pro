@@ -6,7 +6,7 @@ include(../../VigraQt.pri)
 }
 
 TEMPLATE           = lib
-CONFIG            += warn_on release
+CONFIG            += warn_on release qtgui
 !win*:INCLUDEPATH += $$system( vigra-config --cppflags | sed "s,-I,,g" )
 DEFINES           += MAKE_VIGRAQT_LIB
 
