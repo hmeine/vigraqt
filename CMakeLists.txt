@@ -1,12 +1,13 @@
 PROJECT(VigraQt)
-cmake_minimum_required(VERSION 2.6)
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/config)
 
-find_package(Qt4 REQUIRED)
-find_package(Vigra REQUIRED)
-find_package(GLU REQUIRED)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/config)
 
-include_directories(
+FIND_PACKAGE(Qt4 REQUIRED)
+FIND_PACKAGE(Vigra REQUIRED)
+FIND_PACKAGE(OpenGL REQUIRED)
+
+INCLUDE_DIRECTORIES(
     ${VIGRA_INCLUDE_DIR}
     ${QT_INCLUDE_DIR}
     ${QT_QTCORE_INCLUDE_DIR}
@@ -15,4 +16,4 @@ include_directories(
     ${GLU_INCLUDE_PATH}
 )
 
-add_subdirectory(src)
+ADD_SUBDIRECTORY(src)
