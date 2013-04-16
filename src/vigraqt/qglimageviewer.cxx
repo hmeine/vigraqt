@@ -6,6 +6,11 @@
 #include <cmath>
 #include <iostream>
 
+// glu may be used to decipher GL error codes:
+#ifdef USE_GLU
+#  include <GL/glu.h>
+#endif
+
 QGLImageWidget::QGLImageWidget(QWidget *parent)
 : QGLWidget(parent),
   useTexture_(true),
@@ -193,13 +198,24 @@ bool QGLImageWidget::checkGLError(const char *where)
 		std::cerr << "ERROR";
 		if(where)
 			std::cerr << " (" << where << ")";
-		std::cerr << ": OpenGL reports '" << gluErrorString(error) << "'.\n";
+		std::cerr << ": OpenGL reports '"
+#ifdef USE_GLU
+				  << gluErrorString(error)
+#else
+				  << "error " << static_cast<int>(error)
+#endif
+				  << "'.\n";
 		while(error)
 		{
 			error = glGetError();
 			if(error)
 				std::cerr << "  and subsequently: '"
-						  << gluErrorString(error) << "'.\n";
+#ifdef USE_GLU
+						  << gluErrorString(error)
+#else
+						  << "error " << static_cast<int>(error)
+#endif
+						  << "'.\n";
 		}
 		return true;
 	}
