@@ -220,7 +220,7 @@ class EdgeOverlay : public EdgeOverlayBase
             QPolygon *cachedEdge = new QPolygon(edge.size());
             for(unsigned int i = 0; i < edge.size(); ++i)
                 // TODO: fixedpoint calculation
-                cachedEdge[i] = QPoint(
+                (*cachedEdge)[i] = QPoint(
                     (int)floor(zoomFactor_ * (edge[i][0] + 0.5) + 0.5),
                     (int)floor(zoomFactor_ * (edge[i][1] + 0.5) + 0.5));
 
