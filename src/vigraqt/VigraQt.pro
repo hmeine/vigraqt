@@ -46,3 +46,12 @@ CONFIG(opengl) {
 } else {
 	message(OpenGL support disabled; QGLImageViewer will not be included.)
 }
+
+CONFIG += create_pc create_prl no_install_prl
+
+QMAKE_PKGCONFIG_NAME = VigraQt
+QMAKE_PKGCONFIG_DESCRIPTION = Qt4 bindings for the VIGRA library
+QMAKE_PKGCONFIG_PREFIX = $$INSTALLBASE
+QMAKE_PKGCONFIG_LIBDIR = $$target.path
+QMAKE_PKGCONFIG_INCDIR = $$headers.path
+QMAKE_PKGCONFIG_VERSION = $$VERSION

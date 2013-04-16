@@ -18,7 +18,7 @@ moc_[^/]*\.(cpp|cxx)$
 ^src/sip/VigraQt.(pyd(\.manifest)?|lib)$
 ^src/sip/vigraqtcmodule.cpp
 ^src/VigraQt/libVigraQt
-^VigraQt.pc
+^src/VigraQt/VigraQt.pc
 ^src/sip/sip(Qt|VigraQt|APIVigraQt).*\.(cpp|h)$
 ^examples/colorize/colorize
 ^examples/minimal/minimal
