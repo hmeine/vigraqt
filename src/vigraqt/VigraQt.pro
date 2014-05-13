@@ -27,6 +27,9 @@ HEADERS += \
 	linear_colormap.hxx \
 	cmgradient.hxx \
 	cmeditor.hxx \
+	vigraqgraphicsimageitem.hxx \
+	vigraqgraphicsscene.hxx \
+	vigraqgraphicsview.hxx \
 
 headers.files = $$HEADERS
 
@@ -39,9 +42,12 @@ SOURCES += \
 	linear_colormap.cxx \
 	cmgradient.cxx \
 	cmeditor.cxx \
+	vigraqgraphicsimageitem.cxx \
+	vigraqgraphicsscene.cxx \
+	vigraqgraphicsview.cxx \
 
 CONFIG(opengl) {
-	HEADERS += qglimageviewer.hxx
+	HEADERS += qglimageviewer.hxx 
 	SOURCES += qglimageviewer.cxx
 } else {
 	message(OpenGL support disabled; QGLImageViewer will not be included.)
