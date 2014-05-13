@@ -1,7 +1,7 @@
 /************************************************************************/
 /*                                                                      */
-/*                  Copyright 2003-2005 by Hans Meine                   */
-/*                 meine@kogs.informatik.uni-hamburg.de                 */
+/*        Copyright 2003-2014 by Hans Meine & Benjamin Seppke           */
+/*              {seppke|meine}@informatik.uni-hamburg.de                */
 /*       Cognitive Systems Group, University of Hamburg, Germany        */
 /*                                                                      */
 /*  This file is part of the VigraQt library.                           */
@@ -72,10 +72,10 @@ createGrayQImage(ScalarImageIterator ul,
     }
     double scale = (minmax.min == minmax.max) ? 1.0 :
                    255.0 / (minmax.max - minmax.min);
-
-    QImage *result = new QImage;
-    bool flag = result->create(w, h, 8, 256);
-    vigra_precondition(flag, "QImage creation failed");
+    
+    //New creation syntax for Qt 4.X
+    QImage *result = new QImage(w, h, QImage::Format_Indexed8);
+    result->setColorCount(256);
 
     for(int i=0; i<256; ++i)
     {
@@ -119,10 +119,9 @@ createRGBQImage(RGBImageIterator ul,
         minmax(max);
     }
     double scale = (minmax.min == minmax.max) ? 1.0 : 255.0 / (minmax.max - minmax.min);
-
-    QImage *result = new QImage;
-    bool flag = result->create(w, h, 32);
-    vigra_precondition(flag, "QImage creation failed");
+    
+    //New creation syntax for Qt 4.X
+    QImage *result = new QImage(w, h, QImage::Format_RGB32);
 
     RGBImageIterator row(ul);
     for(int i = 0; i < h; i++, ++row.y)
