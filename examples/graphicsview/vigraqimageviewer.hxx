@@ -1,6 +1,6 @@
 /************************************************************************/
 /*                                                                      */
-/*               Copyright 2007-2010 by Benjamin Seppke                 */
+/*               Copyright 2007-2014 by Benjamin Seppke                 */
 /*                  seppke@informatik.uni-hamburg.de                    */
 /*       Cognitive Systems Group, University of Hamburg, Germany        */
 /*                                                                      */
@@ -46,6 +46,7 @@ public:
 private slots:
     void open();
     void print();
+    void saveAsPDF();
     
 	void zoomIn();
     void zoomOut();

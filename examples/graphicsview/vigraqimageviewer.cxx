@@ -1,6 +1,6 @@
- /************************************************************************/
+/************************************************************************/
 /*                                                                      */
-/*               Copyright 2007-2010 by Benjamin Seppke                 */
+/*               Copyright 2007-2014 by Benjamin Seppke                 */
 /*                  seppke@informatik.uni-hamburg.de                    */
 /*       Cognitive Systems Group, University of Hamburg, Germany        */
 /*                                                                      */
@@ -27,7 +27,7 @@
 
 #include "vigraqimageviewer.hxx"
 #include "ui_vigraqimageviewerbase.h"
-#include "vigra/impex.hxx"
+#include <vigra/impex.hxx>
 
 VigraQImageViewer::VigraQImageViewer(QWidget *parent)
 : QMainWindow(parent),
@@ -146,18 +146,42 @@ void VigraQImageViewer::removeImage()
 
 void VigraQImageViewer::print()
 {
-	QPrinter* printer = new QPrinter;
+	QPrinter printer;
 	
-	QPrintDialog* dialog = new QPrintDialog(printer, this);
+	QPrintDialog* dialog = new QPrintDialog(&printer, this);
 	dialog->setWindowTitle(tr("Print out canvas"));
 	
     if ( dialog->exec() == QDialog::Accepted ) {
-		QPainter pp(printer);
+		QPainter pp(&printer);
         m_scene->render(&pp);
     }
 	delete dialog;
-	delete printer;
+}
+
+void VigraQImageViewer::saveAsPDF()
+{
+	QString s = QFileDialog::getSaveFileName(this, QString("Save Image As PDF"),".",tr("Portable Document Format (*.pdf)"));
 	
+	if(!s.isNull())
+	{
+		try
+		{
+			QPrinter printer;
+			printer.setOutputFormat(QPrinter::PdfFormat);
+			printer.setOutputFileName(s);
+			printer.setFullPage(true);
+			printer.setOrientation(QPrinter::Portrait);
+			printer.setPaperSize(QPrinter::A4);
+			
+			QPainter painter(&printer);
+			painter.setRenderHint(QPainter::Antialiasing);
+			m_scene->render(&painter);
+		}
+		catch (std::exception & e)
+		{
+			QMessageBox::about(this, tr("Error"),s+QString(" \n was not printed because: \n")+QString(e.what()));
+		}
+	}
 }
 
 void VigraQImageViewer::zoomIn()
@@ -208,7 +232,7 @@ void VigraQImageViewer::about()
                "and derived classes of QGraphicsScene and QGraphicsView for displaying "
                "an grayscale image. </p>"
                "<p>Please note that, internally, the VigraQt bindings are only used to convert "
-               "the Vigra BasicImages (for now: vigra::FImage) into QImages. The display and "
+               "the Vigra BasicImages (single channel and RGB of UInt8, Float and Double) into QImages. The display and "
                "anteraction with the images is done using the QT Graphics-Framework, which was "
                "introduced in early 4.X versions of Qt.</p>"
                "<p>Thus, it is very easy to add additional object to mark certain image "
@@ -223,6 +247,7 @@ void VigraQImageViewer::connectActions()
 	//Menu actions
     connect(m_ui->actionLoad_image, SIGNAL(triggered()), this, SLOT(open()));
 	connect(m_ui->actionPrint, SIGNAL(triggered()), this, SLOT(print()));
+	connect(m_ui->actionSaveAsPDF, SIGNAL(triggered()), this, SLOT(saveAsPDF()));
 	connect(m_ui->actionExit, SIGNAL(triggered()), this, SLOT(close()));
 	
     connect(m_ui->actionZoom_in,  SIGNAL(triggered()), this, SLOT(zoomIn()));

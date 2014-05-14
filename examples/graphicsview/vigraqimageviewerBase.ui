@@ -28,7 +28,9 @@
      <string>File</string>
     </property>
     <addaction name="actionLoad_image"/>
+    <addaction name="separator"/>
     <addaction name="actionPrint"/>
+    <addaction name="actionSaveAsPDF"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -148,6 +150,11 @@
   <action name="actionExport_PDF">
    <property name="text">
     <string>Export view as PDF</string>
+   </property>
+  </action>
+  <action name="actionSaveAsPDF">
+   <property name="text">
+    <string>Save as PDF</string>
    </property>
   </action>
  </widget>
