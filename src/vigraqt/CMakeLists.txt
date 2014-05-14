@@ -7,6 +7,9 @@ set(VigraQt_MOC_HDRS
     fimageviewer.hxx
     overlayviewer.hxx
     qimageviewer.hxx
+    vigraqgraphicsimageitem.hxx
+    vigraqgraphicsscene.hxx
+    vigraqgraphicsview.hxx
 )
 QT4_WRAP_CPP(VigraQt_MOC_SRCS ${VigraQt_MOC_HDRS})
 
@@ -21,6 +24,9 @@ add_library(VigraQt SHARED
     overlayviewer.cxx
     qglimageviewer.cxx
     qimageviewer.cxx
+    vigraqgraphicsimageitem.cxx
+    vigraqgraphicsscene.cxx
+    vigraqgraphicsview.cxx
 )
 target_link_libraries(VigraQt ${QT_QTGUI_LIBRARY} ${QT_QTOPENGL_LIBRARY} ${VIGRA_IMPEX_LIBRARY} ${GLU_LIBRARY})
 
