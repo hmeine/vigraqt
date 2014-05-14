@@ -1,3 +1,28 @@
+/************************************************************************/
+/*                                                                      */
+/*               Copyright 2007-2014 by Benjamin Seppke                 */
+/*                  seppke@informatik.uni-hamburg.de                    */
+/*       Cognitive Systems Group, University of Hamburg, Germany        */
+/*                                                                      */
+/*  This file may become a part of the VigraQt library.                 */
+/*                                                                      */
+/*  VigraQt is free software; you can redistribute it and/or modify it  */
+/*  under the terms of the GNU General Public License as published by   */
+/*  the Free Software Foundation; either version 2 of the License, or   */
+/*  (at your option) any later version.                                 */
+/*                                                                      */
+/*  VigraQt is distributed in the hope that it will be useful, but      */
+/*  WITHOUT ANY WARRANTY; without even the implied warranty of          */
+/*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                */
+/*  See the GNU General Public License for more details.                */
+/*                                                                      */
+/*  You should have received a copy of the GNU General Public License   */
+/*  along with VigraQt; if not, write to the                            */
+/*                   Free Software Foundation, Inc.,                    */
+/*       51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA         */
+/*                                                                      */
+/************************************************************************/
+
 #include "vigraqgraphicsscene.hxx"
 
 template <class T>
@@ -23,16 +48,18 @@ VigraQGraphicsRGBImageItem<T> * VigraQGraphicsScene::addRGBImage(const vigra::Ba
     return result_item;
 }
 
-// Inherited overwritten frunction, which captures the mouse events of the scene
-// If the mouse is moved, a signal will be emitted containing the point in scene coordinats.
-// Warning: This signal is emitted iff the corresponding view-widget has 
-//          the control over the mouse (e.g. using view->setMouseTracking(true)
 void VigraQGraphicsScene::mouseMoveEvent( QGraphicsSceneMouseEvent * mouseEvent )
 {
     QPointF p = mouseEvent->scenePos();
     emit mouseMoved(p);
 }
 
+/* Providing functions for:
+ *  - unsigned char
+ *  - float
+ *  - double
+ * pixel-types.
+ */
 template VigraQGraphicsImageItem<unsigned char> * VigraQGraphicsScene::addImage(const vigra::BasicImage<unsigned char> * image,
                                                                                 unsigned char min,
                                                                                 unsigned char max,

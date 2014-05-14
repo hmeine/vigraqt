@@ -1,6 +1,6 @@
 /************************************************************************/
 /*                                                                      */
-/*               Copyright 2007-2010 by Benjamin Seppke                 */
+/*               Copyright 2007-2014 by Benjamin Seppke                 */
 /*                  seppke@informatik.uni-hamburg.de                    */
 /*       Cognitive Systems Group, University of Hamburg, Germany        */
 /*                                                                      */
@@ -32,15 +32,11 @@
 #include <QGraphicsView>
 #include <QGraphicsItem>
 
-//Uncomment the following line to enable OpenGL support
-//#include <QGLWidget>
-
-
 class VIGRAQT_EXPORT VigraQGraphicsView : public QGraphicsView
 {
     Q_OBJECT
 
-	public:
+public:
     VigraQGraphicsView(VigraQGraphicsScene* c,
                        QWidget* parent = NULL,
                        const char * name="",

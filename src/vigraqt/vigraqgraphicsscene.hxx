@@ -1,6 +1,6 @@
 /************************************************************************/
 /*                                                                      */
-/*               Copyright 2007-2010 by Benjamin Seppke                 */
+/*               Copyright 2007-2014 by Benjamin Seppke                 */
 /*                  seppke@informatik.uni-hamburg.de                    */
 /*       Cognitive Systems Group, University of Hamburg, Germany        */
 /*                                                                      */
@@ -28,17 +28,10 @@
 
 #include "vigraqt_export.hxx"
 
-//Qt...
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
-
-//the vigra stuff
-#include "vigra/stdimage.hxx"
-
-//vigraqt
+#include <vigra/stdimage.hxx>
 #include "vigraqgraphicsimageitem.hxx"
-
-#include <iostream>
 
 
 class VIGRAQT_EXPORT VigraQGraphicsScene : public QGraphicsScene
@@ -46,28 +39,45 @@ class VIGRAQT_EXPORT VigraQGraphicsScene : public QGraphicsScene
 	Q_OBJECT
 
 signals:
-	// Signal, which will be emitted each time the mouse is moved over the scene.
-	// Warning: This signal is emitted iff the corresponding view-widget has 
-	//          the control over the mouse (e.g. using view->setMouseTracking(true)
+	/* Signal, which will be emitted each time the mouse is moved over the scene.
+	 * Warning: This signal is emitted iff the corresponding view-widget has
+	 *          the control over the mouse (e.g. using view->setMouseTracking(true)
+     */
 	void mouseMoved(QPointF);
 
 public:
 
-	// This function can only handle scalar and rgbvalued
+	/* This function can only handle scalar images
+     * It will be implemented by means of the cxx-file for:
+     *  - unsigned char
+     *  - float
+     *  - double
+     * pixel-types.
+     */
 	template <class T>
 	VigraQGraphicsImageItem<T> * addImage(const vigra::BasicImage<T> * image,
                                           T min = vigra::NumericTraits<T>::zero(),
                                           T max = vigra::NumericTraits<T>::zero(),
                                           QVector<QRgb> colors = QVector<QRgb>());
+    
+	/* This function can only handle rgb-valued images
+     * It will be implemented by means of the cxx-file for:
+     *  - unsigned char
+     *  - float
+     *  - double
+     * pixel-types (for each channel).
+     */
 	template <class T>
 	VigraQGraphicsRGBImageItem<T> * addRGBImage(const vigra::BasicImage<vigra::RGBValue<T> > * image,
                                                 vigra::RGBValue<T> min = vigra::NumericTraits<vigra::RGBValue<T> >::zero(),
                                                 vigra::RGBValue<T> max = vigra::NumericTraits<vigra::RGBValue<T> >::zero());
     
-	// Inherited overwritten frunction, which captures the mouse events of the scene
-	// If the mouse is moved, a signal will be emitted containing the point in scene coordinats.
-	// Warning: This signal is emitted iff the corresponding view-widget has 
-	//          the control over the mouse (e.g. using view->setMouseTracking(true)
-	void mouseMoveEvent( QGraphicsSceneMouseEvent * mouseEvent );};
+	/* Inherited overwritten frunction, which captures the mouse events of the scene
+	 * If the mouse is moved, a signal will be emitted containing the point in scene coordinats.
+	 * Warning: This signal is emitted iff the corresponding view-widget has
+	 *          the control over the mouse (e.g. using view->setMouseTracking(true)
+     */
+	void mouseMoveEvent(QGraphicsSceneMouseEvent * mouseEvent);
+};
 
 #endif
