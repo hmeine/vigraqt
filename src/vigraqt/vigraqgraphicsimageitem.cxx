@@ -1,13 +1,29 @@
 /************************************************************************/
 /*                                                                      */
-/*                  Copyright 2008-2012 by Hans Meine                   */
-/*                 meine@kogs.informatik.uni-hamburg.de                 */
+/*               Copyright 2007-2014 by Benjamin Seppke                 */
+/*                  seppke@informatik.uni-hamburg.de                    */
 /*       Cognitive Systems Group, University of Hamburg, Germany        */
 /*                                                                      */
+/*  This file may become a part of the VigraQt library.                 */
+/*                                                                      */
+/*  VigraQt is free software; you can redistribute it and/or modify it  */
+/*  under the terms of the GNU General Public License as published by   */
+/*  the Free Software Foundation; either version 2 of the License, or   */
+/*  (at your option) any later version.                                 */
+/*                                                                      */
+/*  VigraQt is distributed in the hope that it will be useful, but      */
+/*  WITHOUT ANY WARRANTY; without even the implied warranty of          */
+/*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                */
+/*  See the GNU General Public License for more details.                */
+/*                                                                      */
+/*  You should have received a copy of the GNU General Public License   */
+/*  along with VigraQt; if not, write to the                            */
+/*                   Free Software Foundation, Inc.,                    */
+/*       51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA         */
+/*                                                                      */
 /************************************************************************/
-#include "vigraqgraphicsimageitem.hxx"
 
-//vigraqt 
+#include "vigraqgraphicsimageitem.hxx"
 #include "createqimage.hxx"
 
 template <class T>
@@ -114,7 +130,7 @@ bool VigraQGraphicsImageItem<T>::imageInitialized() const
 }
 
 
-
+//Provide implementation for most common pixel types:
 template class VigraQGraphicsImageItem<unsigned char>;
 template class VigraQGraphicsImageItem<float>;
 template class VigraQGraphicsImageItem<double>;
@@ -214,7 +230,7 @@ bool VigraQGraphicsRGBImageItem<T>::imageInitialized()
     return m_image != NULL;
 }
 
-
+//Provide implementation for most common pixel types:
 template class VigraQGraphicsRGBImageItem<unsigned char>;
 template class VigraQGraphicsRGBImageItem<float>;
 template class VigraQGraphicsRGBImageItem<double>;

@@ -1,6 +1,6 @@
 /************************************************************************/
 /*                                                                      */
-/*               Copyright 2007-2010 by Benjamin Seppke                 */
+/*               Copyright 2007-2014 by Benjamin Seppke                 */
 /*                  seppke@informatik.uni-hamburg.de                    */
 /*       Cognitive Systems Group, University of Hamburg, Germany        */
 /*                                                                      */
@@ -22,7 +22,6 @@
 /*       51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA         */
 /*                                                                      */
 /************************************************************************/
-
 
 #include "vigraqgraphicsview.hxx"
 
