@@ -112,7 +112,13 @@ MACRO(ADD_SIP_PYTHON_MODULE MODULE_NAME MODULE_SIP)
     TARGET_LINK_LIBRARIES(${_logical_name} ${PYTHON_LIBRARY})
     TARGET_LINK_LIBRARIES(${_logical_name} ${EXTRA_LINK_LIBRARIES})
     SET_TARGET_PROPERTIES(${_logical_name} PROPERTIES PREFIX "" OUTPUT_NAME ${_child_module_name})
+	
+	IF(NOT DEFINED PYTHON_SITE_PACKAGES OR PYTHON_SITE_PACKAGES MATCHES "^$")
+        execute_process(COMMAND ${PYTHON_EXECUTABLE} -c
+                         "from distutils.sysconfig import *; print get_python_lib(1)"
+                          OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
+    ENDIF()
 
-    INSTALL(TARGETS ${_logical_name} DESTINATION "${PYTHON_SITE_PACKAGES_DIR}/${_parent_module_path}")
+    INSTALL(TARGETS ${_logical_name} DESTINATION "${PYTHON_SITE_PACKAGES}/${_parent_module_path}")
 
 ENDMACRO(ADD_SIP_PYTHON_MODULE)
