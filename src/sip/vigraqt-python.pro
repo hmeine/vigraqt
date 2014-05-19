@@ -4,7 +4,7 @@
 # (right now, using configure.py instead of qmake is preferred)
 
 INCLUDEPATH += $$system("python python-config.py includepath") ../vigraqt
-LIBS        += $$system("python python-config.py libs")
+LIBS        += $$system("python python-config.py libs") -lVigraQt
 
 system(python callsip.py)
 
