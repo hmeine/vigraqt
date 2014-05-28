@@ -3,7 +3,7 @@
 # install prefix; you may overwrite this when invoking qmake, e.g.
 # > qmake INSTALLBASE=$HOME/local && make && make install
 count(INSTALLBASE, 0) {
-	INSTALLBASE=/opt/local
+	INSTALLBASE=/usr/local
 }
 
 count(libdir_name, 0) {
