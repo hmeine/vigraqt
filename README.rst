@@ -19,10 +19,10 @@ version 4.x.  This includes:
   your own (C++ or Python-based) applications.
 
 .. _Qt: http://www.trolltech.com/products/qt/
-.. _VIGRA: http://kogs-www.informatik.uni-hamburg.de/~koethe/vigra/
+.. _VIGRA: http://ukoethe.github.io/vigra/
 
 You can always find the current release at
- http://kogs-www.informatik.uni-hamburg.de/~meine/software/vigraqt/
+ https://github.com/hmeine/vigraqt/#vigraqt4
 
 Installation
 ------------
