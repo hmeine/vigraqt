@@ -1,4 +1,4 @@
-%Module VigraQt 1
+%Module(name=VigraQt, version=1)
 
 %Import QtCore/QtCoremod.sip
 %Import QtGui/QtGuimod.sip
