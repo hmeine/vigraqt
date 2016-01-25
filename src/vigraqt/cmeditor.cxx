@@ -13,6 +13,7 @@
 #include <QPaintEvent>
 #include <QPainter>
 #include <QWidget>
+#include <QMimeData>
 
 using vigra::q2v;
 using vigra::v2qc;
