@@ -165,7 +165,7 @@ void QGLImageWidget::initTexture()
 
         // improve compression by clearing unused pixel data:
         if(compression_)
-            memset(uploadImage.bits(), 0, uploadImage.numBytes());
+            memset(uploadImage.bits(), 0, uploadImage.byteCount());
 
         // copy pixel data
         for(unsigned int y = 0; y < (unsigned)image_.height(); ++y)
