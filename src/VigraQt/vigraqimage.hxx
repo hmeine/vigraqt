@@ -141,8 +141,8 @@ public:
 
         QImage newImage(v2q(newSize), qImage_.format());
 
-        // numColors() returns 0 if the colorTable is not used
-        for(unsigned short c = 0; c < qImage_.numColors(); ++c)
+        // colorCount() returns 0 if the colorTable is not used
+        for(unsigned short c = 0; c < qImage_.colorCount(); ++c)
             newImage.setColor(c, qImage_.color(c));
         qImage_ = newImage;
     }
@@ -271,7 +271,7 @@ public:
 
     void setGrayLevelColors(unsigned short count = 256)
     {
-        qImage_.setNumColors(count);
+        qImage_.setColorCount(count);
         for(unsigned short c = 0; c < count; ++c)
             qImage_.setColor(c, qRgb(c, c, c));
     }

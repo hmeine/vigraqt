@@ -1,25 +1,25 @@
-VigraQt4
+VigraQt
 ========
 
 This package contains Qt_ bindings for VIGRA_, in particular for Qt
-version 4.x.  This includes:
+version 4.x (with x>5).  This includes:
 
 - Header files (i.e. ``vigraqimage.hxx``) for letting VIGRA algorithms
-  work directly on Qt images.
+  work directly on Qt images (also applicable for Qt 5.x).
 
 - An image viewer class (QImageViewer) that includes panning and
   zooming, a derived OverlayViewer class that adds overlay support and
-  an OpenGL-based viewer.
+  an OpenGL-based viewer (also applicable for Qt 5.x).
 
 - A color map for displaying images or analysis results in false
   colors, including a Qt widget for interactively editing the color
-  map.
+  map (also applicable for Qt 5.x).
 
 - Python bindings and a designer plugin for including the widgets in
-  your own (C++ or Python-based) applications.
+  your own (C++ or Python-based) applications (for Qt 4.x only).
 
-.. _Qt: http://www.trolltech.com/products/qt/
-.. _VIGRA: http://ukoethe.github.io/vigra/
+.. _Qt: https://www.qt.io/developers/
+.. _VIGRA: https://ukoethe.github.io/vigra/
 
 You can always find the current release at
  https://github.com/hmeine/vigraqt/#vigraqt4

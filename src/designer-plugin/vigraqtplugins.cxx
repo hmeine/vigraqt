@@ -3,7 +3,12 @@
 #include "cmeditor.hxx"
 
 #include <QtDesigner/QDesignerContainerExtension>
-#include <QtDesigner/QDesignerCustomWidgetInterface>
+
+#if QT_VERSION < 0x050000
+	#include <QtDesigner/QDesignerCustomWidgetInterface>
+#else
+	#include <QtUiPlugin/QDesignerCustomWidgetInterface>
+#endif
 
 #include <iostream>
 #include <QtPlugin>
@@ -75,6 +80,9 @@ class VigraQtPlugins
   public QDesignerCustomWidgetCollectionInterface
 {
     Q_OBJECT
+#if QT_VERSION >= 0x050000
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QDesignerCustomWidgetCollectionInterface")
+#endif
     Q_INTERFACES(QDesignerCustomWidgetCollectionInterface)
 
 public:
@@ -89,6 +97,7 @@ public:
     }
 };
 
-#include "vigraqtplugins.moc"
-
-Q_EXPORT_PLUGIN(VigraQtPlugins)
+#if QT_VERSION < 0x050000
+	#include "vigraqtplugins.moc"
+	Q_EXPORT_PLUGIN(VigraQtPlugins)
+#endif

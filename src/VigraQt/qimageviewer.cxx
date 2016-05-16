@@ -699,8 +699,8 @@ void QImageViewer::updateROI(QImage const &roiImage, QPoint const &upperLeft)
 
     // allocate zoomed image
     QImage zoomed(newWidth, newHeight, originalImage_.format());
-    zoomed.setNumColors(originalImage_.numColors());
-    for(int i=0; i<originalImage_.numColors(); ++i)
+    zoomed.setColorCount(originalImage_.colorCount());
+    for(int i=0; i<originalImage_.colorCount(); ++i)
         zoomed.setColor(i, originalImage_.color(i));
 
     // fill zoomed image
@@ -758,8 +758,8 @@ void QImageViewer::createDrawingPixmap()
                   zoom(r.height(), zoomLevel_),
                   originalImage_.format());
 
-    zoomed.setNumColors(originalImage_.numColors());
-    for(int i=0; i<originalImage_.numColors(); ++i)
+    zoomed.setColorCount(originalImage_.colorCount());
+    for(int i=0; i<originalImage_.colorCount(); ++i)
         zoomed.setColor(i, originalImage_.color(i));
 
     zoomImage(r.left(), r.top(), zoomed);
